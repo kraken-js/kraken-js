@@ -13,5 +13,6 @@ out/
 
 .yarn/unplugged
 .yarn/build-state.yml
+yarn-error.log
 
 node_modules/

@@ -1,4 +1,3 @@
-const templateDir = 'templates'
 
 const makeQuestions = async toolbox => {
     const {prompt, parameters} = toolbox
@@ -25,11 +24,13 @@ module.exports = {
         const {filesystem, template} = toolbox
         const props = await makeQuestions(toolbox);
 
+        const templateDir = filesystem.resolve(`${__dirname}/../templates`)
+
         for (const path of filesystem.find(`${templateDir}`, {
             matching: '*',
             recursive: true,
         })) {
-            const tmpl = path.slice(templateDir.length + 1);
+            const tmpl = path.split("src/templates/")[1];
             await template.generate({
                 template: tmpl,
                 target: `${props.name}/${tmpl.replace('.ejs', '')}`,
