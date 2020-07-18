@@ -1,4 +1,4 @@
-const { build } = require('gluegun')
+const {build} = require('gluegun')
 
 const cli = build('kraken')
     .src(__dirname)
@@ -6,4 +6,7 @@ const cli = build('kraken')
     .version()
     .create()
 
-cli.run()
+console.time('kraken.js')
+cli.run().then(() => {
+    console.timeEnd('kraken.js')
+});

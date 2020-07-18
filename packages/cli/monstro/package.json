@@ -1,9 +1,0 @@
-{
-  "name": "@monstro/core",
-  "version": "1.0.0",
-  "private": true,
-  "license": "MIT",
-  "workspaces": [
-    "packages/*"
-  ]
-}

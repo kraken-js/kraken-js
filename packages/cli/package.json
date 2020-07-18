@@ -2,6 +2,10 @@
   "name": "@kraken.js/cli",
   "version": "1.0.0",
   "license": "MIT",
+  "main": "cli.js",
+  "scripts": {
+    "cli": "node cli.js"
+  },
   "dependencies": {
     "gluegun": "^4.3.1"
   }
