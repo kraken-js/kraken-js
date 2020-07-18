@@ -1,6 +1,5 @@
 {
-  "name": "@kraken/cli",
+  "name": "@kraken.js/cli",
   "version": "1.0.0",
-  "private": true,
   "license": "MIT"
 }

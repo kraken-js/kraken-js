@@ -1,5 +1,5 @@
 {
-  "name": "@kraken/serverless",
+  "name": "@kraken.js/serverless",
   "version": "1.0.0",
   "private": true,
   "license": "MIT"
