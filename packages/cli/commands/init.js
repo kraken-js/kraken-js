@@ -6,16 +6,27 @@ module.exports = {
     name: 'init',
     alias: 'i',
     run: async function (toolbox) {
-        
-        const { system, print, filesystem, strings, parameters, template } = toolbox
+        const {prompt, template, parameters} = toolbox
 
-        const name = parameters.first
+        const askModuleName = {
+            type: 'input',
+            name: 'name',
+            message: 'What is the module name?',
+            initial: parameters.first
+        }
+        const askModuleVersion = {
+            type: 'input',
+            name: 'version',
+            message: 'What is the module version?',
+            initial: '1.0.0'
+        }
+        const questions = [askModuleName, askModuleVersion]
+        const props = await prompt.ask(questions)
 
         await template.generate({
             template: 'package.ejf',
-            target: `${name}/package.json`,
-            props: { name },
+            target: `${props.name}/package.json`,
+            props
         })
-
     }
 }
