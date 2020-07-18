@@ -1,12 +1,8 @@
-const serverModules = [
-    ''
-]
-
 module.exports = {
     name: 'init',
     alias: 'i',
     run: async function (toolbox) {
-        const {prompt, template, parameters} = toolbox
+        const { filesystem, prompt, template, parameters } = toolbox
 
         const askModuleName = {
             type: 'input',
@@ -23,10 +19,20 @@ module.exports = {
         const questions = [askModuleName, askModuleVersion]
         const props = await prompt.ask(questions)
 
-        await template.generate({
-            template: 'package.ejf',
-            target: `${props.name}/package.json`,
-            props
+        const templateDir = 'templates'
+
+        filesystem.find(`${templateDir}`, {
+            matching: '*',
+            recursive: true,
+        }).forEach(async path => {
+            path = path.replace(templateDir + '/', '');
+            await template.generate({
+                template: path,
+                target: `${props.name}/${path.replace('.ejs', '')}`,
+                props,
+                directory: templateDir
+            })
         })
+
     }
 }
