@@ -20,7 +20,7 @@ module.exports = {
   name: 'new',
   alias: 'n',
   run: async function(toolbox) {
-    const { filesystem, template } = toolbox;
+    const { filesystem, template, system } = toolbox;
     const props = await makeQuestions(toolbox);
     props.kraken = {
       version: 'latest'
@@ -40,5 +40,11 @@ module.exports = {
         directory: templateDir
       });
     }
+
+    // yarn install
+    await system.spawn(`cd ${props.name} && yarn install --silent`, {
+      shell: true,
+      stdio: 'inherit'
+    });
   }
 };
