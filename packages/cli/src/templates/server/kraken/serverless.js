@@ -1,1 +1,1 @@
-module.exports = require('@kraken.js/serverless').serverless();
+module.exports = require('@kraken.js/dev-serverless').serverless();

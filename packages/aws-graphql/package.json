@@ -1,5 +1,5 @@
 {
-  "name": "@kraken.js/graphql",
+  "name": "@kraken.js/aws-graphql",
   "version": "0.0.1",
   "private": true,
   "license": "MIT",
@@ -10,6 +10,8 @@
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.61",
-    "@kraken.js/webpack": "0.0.1"
+    "@kraken.js/dev-jest": "^0.0.1",
+    "@kraken.js/dev-webpack": "0.0.1",
+    "jest": "^26.0.1"
   }
 }

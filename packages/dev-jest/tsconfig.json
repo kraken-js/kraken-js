@@ -1,0 +1,8 @@
+{
+  "extends": "../dev-ts/tsconfig",
+  "compilerOptions": {
+    "baseUrl": "./",
+    "rootDir": "./",
+    "outDir": ".build"
+  }
+}

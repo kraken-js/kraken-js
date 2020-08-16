@@ -1,1 +1,1 @@
-module.exports = require('@kraken.js/webpack').webpackSls(__dirname);
+module.exports = require('@kraken.js/dev-webpack').webpackSls(__dirname);

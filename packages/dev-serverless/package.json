@@ -1,5 +1,5 @@
 {
-  "name": "@kraken.js/serverless",
+  "name": "@kraken.js/dev-serverless",
   "version": "0.0.1",
   "private": true,
   "license": "MIT",
@@ -12,5 +12,9 @@
     "serverless-webpack": "^5.3.1",
     "webpack": "^4.42.1",
     "yaml-boost": "^1.9.21"
+  },
+  "devDependencies": {
+    "@kraken.js/dev-jest": "^0.0.1",
+    "jest": "^26.0.1"
   }
 }

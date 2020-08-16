@@ -1,19 +1,26 @@
-const makeQuestions = async toolbox => {
+const askOrGetParam = async (toolbox, question) => {
   const { prompt, parameters } = toolbox;
-  const askModuleName = {
+  if (parameters.options[question.name]) {
+    return parameters.options[question.name];
+  }
+  return await prompt.ask(question)[question.name];
+};
+
+const makeQuestions = async toolbox => {
+  const { parameters } = toolbox;
+  const name = await askOrGetParam(toolbox, {
     type: 'input',
     name: 'name',
     message: 'What is the module name?',
     initial: parameters.first
-  };
-  const askModuleVersion = {
+  });
+  const version = await askOrGetParam(toolbox, {
     type: 'input',
     name: 'version',
     message: 'What is the module version?',
     initial: '1.0.0'
-  };
-  const questions = [askModuleName, askModuleVersion];
-  return await prompt.ask(questions);
+  });
+  return { name, version } as any;
 };
 
 module.exports = {

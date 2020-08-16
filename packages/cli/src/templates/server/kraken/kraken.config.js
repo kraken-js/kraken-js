@@ -1,7 +1,5 @@
 module.exports = {
   serverless: {
-    modules: [
-      '@kraken.js/graphql'
-    ]
+    modules: ['@kraken.js/graphql']
   }
 };
