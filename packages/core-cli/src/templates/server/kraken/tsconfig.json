@@ -9,14 +9,10 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
-    "lib": [
-      "es2019"
-    ],
+    "lib": ["es2019"],
     "baseUrl": "./",
     "rootDir": "./",
     "outDir": ".build"
   },
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }

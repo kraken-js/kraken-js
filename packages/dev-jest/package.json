@@ -1,0 +1,23 @@
+{
+  "name": "@kraken.js/dev-jest",
+  "version": "0.0.1",
+  "description": "Commons Jest Stuff",
+  "author": "@kraken.js",
+  "scripts": {
+    "test": "echo 'not yeat implemented'"
+  },
+  "dependencies": {
+    "@types/jest": "^26.0.0",
+    "@types/node": "14.0.27",
+    "dotenv": "^8.2.0",
+    "graphql-tag": "^2.10.3",
+    "jest": "^26.0.1",
+    "jest-transform-graphql": "^2.1.0",
+    "jest-yaml-transform": "^0.2.0",
+    "ts-jest": "^26.1.0",
+    "typescript": "^3.9.7"
+  },
+  "license": "MIT",
+  "main": "index.js",
+  "private": true
+}

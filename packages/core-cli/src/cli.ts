@@ -1,4 +1,4 @@
-const { build } = require('gluegun')
+const { build } = require('gluegun');
 
 export const run = async argv => {
   const cli = build()
@@ -6,6 +6,6 @@ export const run = async argv => {
     .src(__dirname)
     .help()
     .version()
-    .create()
-  return await cli.run(argv)
-}
+    .create();
+  return await cli.run(argv);
+};
