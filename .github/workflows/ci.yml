@@ -12,7 +12,7 @@ jobs:
       matrix:
         package:
           - packages/aws-graphql
-          - packages/cli
+          - packages/core-cli
           - packages/dev-serverless
 
     steps:
