@@ -1,3 +1,5 @@
+const { serverless } = require('./src/serverless.js');
+
 module.exports = {
-  serverless: require('./src/serverless.js')
+  serverless
 };

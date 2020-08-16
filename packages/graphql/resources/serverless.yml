@@ -1,0 +1,61 @@
+custom:
+  tables:
+    subscriptions: WsSubscriptions-${self:custom.stage}
+  environment:
+    default:
+      WS_SUBSCRIPTIONS_TABLE: ${self:custom.tables.subscriptions}
+
+functions:
+  wsGraphqlHandler:
+    handler: src/ws-handler.handler
+    events:
+      - websocket:
+          route: $connect
+      - websocket:
+          route: $disconnect
+      - websocket:
+          route: $default
+
+resources:
+  Resources:
+    ApiGatewayIamPolicy:
+      Type: AWS::IAM::Policy
+      Properties:
+        PolicyName: lambda-apigateway
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - execute-api:Invoke
+              Resource: arn:aws:execute-api:*:*:*/@connections/*
+        Roles:
+          - Ref: IamRoleLambdaExecution
+
+    WsSubscriptionsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.tables.subscriptions}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: connectionId
+            AttributeType: S
+          - AttributeName: subscriptionId
+            AttributeType: S
+          - AttributeName: subscriptionName
+            AttributeType: S
+        KeySchema:
+          - AttributeName: connectionId
+            KeyType: HASH
+          - AttributeName: subscriptionId
+            KeyType: RANGE
+        GlobalSecondaryIndexes:
+          - IndexName: bySubscriptionName
+            KeySchema:
+              - AttributeName: subscriptionName
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+        TimeToLiveSpecification:
+          AttributeName: ttl
+          Enabled: true
