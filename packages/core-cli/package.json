@@ -52,10 +52,5 @@
   "prettier": {
     "semi": true,
     "singleQuote": true
-  },
-  "workspaces": {
-    "nohoist": [
-      "**"
-    ]
   }
 }
