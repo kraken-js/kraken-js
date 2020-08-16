@@ -7,3 +7,5 @@ default:
 
 offline:
   IS_OFFLINE: true
+  AWS_API_GATEWAY_ENDPOINT: http://localhost:4001
+  AWS_DYNAMODB_ENDPOINT: http://localhost:5002

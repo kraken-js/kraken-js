@@ -3,6 +3,10 @@
   "version": "<%= props.version %>",
   "private": true,
   "license": "MIT",
+  "scripts": {
+    "offline": "sls offline start --stage offline",
+    "preoffline": "sls dynamodb install"
+  },
   "dependencies": {
     "@kraken.js/aws-graphql": "latest"
   },

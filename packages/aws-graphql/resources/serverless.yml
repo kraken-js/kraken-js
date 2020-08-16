@@ -5,17 +5,6 @@ custom:
     default:
       WS_SUBSCRIPTIONS_TABLE: ${self:custom.tables.subscriptions}
 
-functions:
-  wsGraphqlHandler:
-    handler: src/ws-handler.handler
-    events:
-      - websocket:
-          route: $connect
-      - websocket:
-          route: $disconnect
-      - websocket:
-          route: $default
-
 resources:
   Resources:
     ApiGatewayIamPolicy:

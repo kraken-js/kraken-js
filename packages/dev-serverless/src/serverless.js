@@ -14,7 +14,9 @@ const serverless = () => {
   params.home = home;
   params.now = now();
 
-  const output = yaml.load(path.join(__dirname, '..', 'resources/serverless.commons.yml'), params);
+  const commons = yaml.load(path.join(__dirname, '..', 'resources/serverless.commons.yml'), params);
+  const modules = loader({ config });
+  const output = deepMerge(commons, modules);
 
   // merge environment configs
   const stage = output.provider.stage;
@@ -24,8 +26,7 @@ const serverless = () => {
   };
   delete output.custom.environment;
 
-  const modules = loader({ config });
-  return deepMerge(output, modules);
+  return output;
 };
 
 module.exports = { serverless };

@@ -1,8 +1,9 @@
 plugins:
   - serverless-webpack
-  - serverless-pseudo-parameters
   - serverless-offline
   - serverless-deployment-bucket
+  - serverless-pseudo-parameters
+  - serverless-dynamodb-local
 
 custom:
   account: '#{AWS::AccountId}'
@@ -24,6 +25,15 @@ custom:
     includeModules:
       forceExclude:
         - aws-sdk
+  dynamodb:
+    stages:
+      - offline
+    start:
+      port: 5002
+      inMemory: false
+      dbPath: ${env:PWD}/.dynamodb
+      migrate: true
+      seed: true
   serverless-offline:
     noPrependStageInUrl: true
     httpPort: 4000

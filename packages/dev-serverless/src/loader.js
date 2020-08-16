@@ -19,18 +19,9 @@ const writeFileSync = (filename, content, charset) => {
   fs.writeFileSync(filename, content, charset);
 };
 
-const load = module => {
-  if (typeof module === 'string')
-    return require(module);
-  return require(module.name)(module);
-};
-
 const loader = ({ config }) => {
-  if (!config.serverless) return;
-  if (!config.serverless.modules) return;
-  const modules = config.serverless.modules
-    .map(module => load(module))
-    .filter(module => module.serverless);
+  if (!config.modules) return;
+  const modules = config.modules.filter(module => module.serverless);
 
   const serverless = modules.map(module => {
     const moduleName = module.manifest.name;
@@ -39,17 +30,19 @@ const loader = ({ config }) => {
     const isFunction = module.serverless instanceof Function;
     const serverless = isFunction ? module.serverless(config) : module.serverless;
 
-    Object.values(serverless.functions).forEach(fun => {
-      const handlerFileName = fun.handler.substring(0, fun.handler.lastIndexOf('.'));
-      const handlerName = fun.handler.substring(fun.handler.lastIndexOf('.'));
+    if (serverless.functions) {
+      Object.values(serverless.functions).forEach(fun => {
+        const handlerFileName = fun.handler.substring(0, fun.handler.lastIndexOf('.'));
+        const handlerName = fun.handler.substring(fun.handler.lastIndexOf('.'));
 
-      const generatedHandler = path.join(generatedPath, moduleName, handlerFileName) + handlerName;
-      const generatedFileName = path.join(generatedPath, moduleName, handlerFileName) + '.ts';
-      writeFileSync(generatedFileName, `export * from '${moduleName}/${handlerFileName}'`);
+        const generatedHandler = path.join(generatedPath, moduleName, handlerFileName) + handlerName;
+        const generatedFileName = path.join(generatedPath, moduleName, handlerFileName) + '.ts';
+        writeFileSync(generatedFileName, `export * from '${moduleName}/${handlerFileName}'`);
 
-      // overwrite the handler
-      fun.handler = generatedHandler;
-    });
+        // overwrite the handler
+        fun.handler = generatedHandler;
+      });
+    }
 
     return serverless;
   });

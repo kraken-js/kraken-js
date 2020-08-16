@@ -1,0 +1,4 @@
+import { wsHandler } from '@kraken.js/aws-graphql';
+import config from "@<%= props.name %>/kraken/kraken.config.js";
+
+export const handler = wsHandler({ config });
