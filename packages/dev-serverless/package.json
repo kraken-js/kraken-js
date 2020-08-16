@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "private": true,
   "license": "MIT",
+  "scripts": {
+    "test": "jest --passWithNoTests"
+  },
   "dependencies": {
     "minimist": "^1.2.5",
     "serverless": "^1.67.0",
