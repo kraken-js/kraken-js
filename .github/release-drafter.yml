@@ -3,12 +3,17 @@ tag-template: 'v$NEXT_PATCH_VERSION'
 categories:
   - title: '🚀 Features'
     labels:
+      - 'enhancement'
       - 'feature'
   - title: '🐛 Bug Fixes'
     labels:
+      - 'bug'
       - 'bugfix'
+      - 'fix'
   - title: '🧰 Maintenance'
     label: 'chore'
+  - title: '📖 Documentation'
+    label: 'documentation'
 change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
 exclude-labels:
   - 'skip-changelog'
