@@ -23,8 +23,8 @@ describe('kraken.js', () => {
     expect(output).toContain('0.0.1');
   });
 
-  test('generates file', async () => {
+  test('kraken new should create project folder', async () => {
     await cli(`new --name ${projectName} --version 1.0.0`);
     filesystem.exists(projectName);
-  });
+  }, 30000);
 });
