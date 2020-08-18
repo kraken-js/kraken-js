@@ -1,5 +1,5 @@
 {
-  "name": "@kraken.js/aws-graphql",
+  "name": "@kraken.js/aws-directives",
   "version": "0.0.1",
   "private": true,
   "license": "MIT",
@@ -11,13 +11,10 @@
   "devDependencies": {
     "@kraken.js/dev-jest": "^0.0.1",
     "@kraken.js/dev-webpack": "0.0.1",
-    "@types/aws-lambda": "^8.10.61",
     "jest": "^26.0.1"
   },
   "dependencies": {
     "@graphql-modules/core": "^0.7.17",
-    "apollo-server-types": "^0.5.1",
-    "graphql": "^15.3.0",
-    "graphql-subscriptions": "^1.1.0"
+    "graphql": "^15.3.0"
   }
 }

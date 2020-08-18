@@ -23,7 +23,7 @@ export class DynamoDbConnectionManager extends ConnectionManager {
 
   async gqlConnectionInit(event: APIGatewayProxyEvent) {
     const { payload } = getOperationFromEvent(event);
-    const context = await this.graphQLModule.context(payload);
+    const { injector: __ignored, ...context } = await this.graphQLModule.context(payload, true);
     const apiGatewayUrl = getApiGatewayUrl(event);
     const connection = {
       connectionId: event.requestContext.connectionId,
@@ -37,8 +37,8 @@ export class DynamoDbConnectionManager extends ConnectionManager {
 
   async gqlStart(event: APIGatewayProxyEvent) {
     const connectionId = event.requestContext.connectionId as string;
+    const apiGatewayUrl = getApiGatewayUrl(event);
     const connection = await getConnection(connectionId).catch(async () => {
-      const apiGatewayUrl = getApiGatewayUrl(event);
       await postToConnection(event, { type: GQL_CONNECTION_TERMINATE });
       await deleteConnection(connectionId);
       await deleteApiGatewayConnection(connectionId, apiGatewayUrl);
@@ -50,10 +50,9 @@ export class DynamoDbConnectionManager extends ConnectionManager {
         ...connection.context,
         requestTime: event.requestContext.requestTimeEpoch,
         connectionId: connection.connectionId,
-        callbackUrl: connection.callbackUrl,
-        subscriptionId: operation.id
+        subscriptionId: operation.id,
+        callbackUrl: apiGatewayUrl
       };
-
       const schema = this.graphQLModule.schema;
       const documentNode = parse(operation.payload.query as string);
       const response = await execute(

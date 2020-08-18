@@ -1,4 +1,5 @@
 import { GraphQLModule } from '@graphql-modules/core';
+import { GraphQLModuleOptions } from '@graphql-modules/core/dist/graphql-module';
 import { APIGatewayProxyEvent, APIGatewayProxyHandler } from 'aws-lambda';
 import { getOperationFromEvent } from './ws-handler/connection-manager';
 import { DynamoDbConnectionManager } from './ws-handler/connection-manager-aws';
@@ -26,14 +27,9 @@ const wsConnectResponse = (event: APIGatewayProxyEvent) => {
   return okResponse;
 };
 
-interface WsHandlerConfig {
-  config: any
-}
-
-export const wsHandler = ({ config }: WsHandlerConfig): APIGatewayProxyHandler => {
-  const modules = config.modules.filter(module => module.schema);
+export const wsHandler = (config: GraphQLModuleOptions<any, any, any, any>): APIGatewayProxyHandler => {
   const graphQLModule = new GraphQLModule({
-    imports: modules,
+    ...config,
     visitSchemaDirectives: true
   });
   const connectionManager = new DynamoDbConnectionManager(graphQLModule);
