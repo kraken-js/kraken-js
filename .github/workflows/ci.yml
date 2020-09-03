@@ -11,9 +11,9 @@ jobs:
       fail-fast: true
       matrix:
         package:
-          - packages/aws-graphql
-          - packages/core-cli
-          - packages/dev-serverless
+          - packages/cli
+          - packages/core
+          - packages/aws
 
     steps:
       - uses: actions/checkout@v2
