@@ -1,9 +1,0 @@
-default:
-  STAGE: ${self:custom.stage}
-  REGION: ${self:custom.region}
-  SERVICE: ${self:service.name}
-  # optimization https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/node-reusing-connections.html
-  AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
-
-offline:
-  IS_OFFLINE: true
