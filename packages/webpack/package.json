@@ -1,0 +1,21 @@
+{
+  "name": "@kraken.js/webpack",
+  "version": "0.0.1",
+  "description": "Commons Webpack Stuff",
+  "author": "@kraken.js",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "test": "echo 'not yeat implemented'"
+  },
+  "dependencies": {
+    "graphql-tag": "^2.10.3",
+    "js-yaml-loader": "^1.2.2",
+    "raw-loader": "^4.0.1",
+    "ts-loader": "^8.0.3",
+    "typescript": "^4.0.2",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11",
+    "webpack-node-externals": "^2.5.2"
+  }
+}

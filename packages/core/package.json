@@ -1,0 +1,21 @@
+{
+  "name": "@kraken.js/core",
+  "version": "0.0.1",
+  "private": true,
+  "license": "MIT",
+  "main": "dist/main.js",
+  "scripts": {
+    "test": "jest --passWithNoTests",
+    "package": "webpack-cli --output-path dist --clean"
+  },
+  "dependencies": {
+    "graphql": "^15.3.0",
+    "@graphql-tools/schema": "^6.2.0"
+  },
+  "devDependencies": {
+    "@kraken.js/jest": "^0.0.1",
+    "@kraken.js/webpack": "0.0.1",
+    "@types/aws-lambda": "^8.10.61",
+    "jest": "^26.4.2"
+  }
+}

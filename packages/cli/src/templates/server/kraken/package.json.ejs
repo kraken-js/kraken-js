@@ -1,0 +1,16 @@
+{
+  "name": "@<%= props.name %>/kraken",
+  "version": "<%= props.version %>",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "offline": "sls offline start --stage offline",
+    "preoffline": "sls dynamodb install"
+  },
+  "dependencies": {
+    "@kraken.js/cli": "latest"
+  },
+  "devDependencies": {
+    "@kraken.js/serverless": "latest"
+  }
+}
