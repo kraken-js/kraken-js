@@ -19,8 +19,8 @@ const writeFileSync = (filename, content) => {
   fs.writeFileSync(filename, content, 'utf-8');
 };
 
-export const loadModules = ({ kraken }, { spinner }) => {
-  if (!kraken || !kraken.serverless || kraken.serverless.length === 0) return;
+export const serverlessModules = ({ kraken }, { spinner }) => {
+  if (!kraken || !kraken.serverless?.length) return;
 
   const serverless = kraken.serverless.map(module => {
     const moduleName = (typeof module === 'string') ? module : module.name;
