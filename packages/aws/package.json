@@ -1,6 +1,6 @@
 {
   "name": "@kraken.js/aws",
-  "version": "0.0.1-c739cd4",
+  "version": "0.0.1",
   "license": "MIT",
   "main": "dist/main.js",
   "scripts": {
@@ -9,7 +9,7 @@
     "prepublishOnly": "yarn package"
   },
   "dependencies": {
-    "@kraken.js/core": "0.0.1",
+    "@kraken.js/core": "latest",
     "graphql": "^15.3.0"
   },
   "devDependencies": {
