@@ -1,11 +1,8 @@
-name: Continuous Integration
+name: Publish
 on:
   push:
     branches:
       master
-
-env:
-  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
 jobs:
   publish:
@@ -36,3 +33,5 @@ jobs:
 
       - name: Publish
         run: yarn run publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
