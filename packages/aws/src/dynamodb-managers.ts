@@ -1,5 +1,6 @@
 import { ConnectionManager, GQL_DATA, Payload, SubscriptionManager } from '@kraken.js/core';
 import { ApiGatewayManagementApi, DynamoDB } from 'aws-sdk';
+import { getApiGateway, getDocumentClient } from './instances';
 import { AwsConnection, AwsConnectionInfo, AwsSubscription } from './types';
 
 const subscriptionsBatchLoadLimit = 100;
@@ -13,33 +14,11 @@ interface DynamoDbConfig {
 
 const rootSubscriptionId = '$connection';
 const variablesPrefix = '$';
-const instances = {
-  dynamoDb: undefined as any,
-  apiGateway: {}
-};
 
 const waitForConnectionTimeout = () =>
   process.env.WS_WAIT_FOR_CONNECTION_TIMEOUT_MS
     ? parseInt(process.env.WS_WAIT_FOR_CONNECTION_TIMEOUT_MS)
     : 50;
-
-const getDocumentClient = () => {
-  if (!instances.dynamoDb) {
-    instances.dynamoDb = new DynamoDB.DocumentClient({
-      endpoint: process.env.IS_OFFLINE ? 'http://localhost:5002' : undefined
-    });
-  }
-  return instances.dynamoDb;
-};
-
-const getApiGateway = () => {
-  return endpoint => {
-    if (!instances.apiGateway[endpoint]) {
-      instances.apiGateway[endpoint] = new ApiGatewayManagementApi({ endpoint });
-    }
-    return instances.apiGateway[endpoint];
-  };
-};
 
 const getTableName = () => {
   return `WsSubscriptions-${process.env.STAGE}`;
@@ -72,7 +51,7 @@ class DynamoDbConnectionManager<T> implements ConnectionManager<AwsConnection<T>
 
   constructor({ dynamoDb, tableName, apiGateway }: DynamoDbConfig) {
     this.dynamoDb = dynamoDb ? dynamoDb : getDocumentClient();
-    this.apiGateway = apiGateway ? apiGateway : getApiGateway();
+    this.apiGateway = apiGateway ? apiGateway : endpoint => getApiGateway(endpoint);
     this.tableName = tableName ? tableName : getTableName();
   }
 
@@ -125,7 +104,7 @@ class DynamoDbSubscriptionManager implements SubscriptionManager<AwsSubscription
 
   constructor({ dynamoDb, tableName, apiGateway }: DynamoDbConfig) {
     this.dynamoDb = dynamoDb ? dynamoDb : getDocumentClient();
-    this.apiGateway = apiGateway ? apiGateway : getApiGateway();
+    this.apiGateway = apiGateway ? apiGateway : endpoint => getApiGateway(endpoint);
     this.tableName = tableName ? tableName : getTableName();
   }
 

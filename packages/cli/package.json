@@ -2,17 +2,17 @@
   "name": "@kraken.js/cli",
   "version": "0.0.1",
   "description": "Kraken CLI",
-  "types": "build/types/types.d.ts",
+  "types": "dist/types/types.d.ts",
   "bin": {
     "kraken": "bin/kraken"
   },
   "scripts": {
     "format": "prettier --write **/*.{js,ts,json}",
     "lint": "tslint -p .",
-    "clean-build": "rm -rf ./build",
+    "clean": "rm -rf ./dist",
     "compile": "tsc -p .",
-    "copy-templates": "if [ -e ./src/templates ]; then cp -a ./src/templates ./build/; fi",
-    "package": "yarn clean-build && yarn compile && yarn copy-templates",
+    "copy-templates": "if [ -e ./src/templates ]; then cp -a ./src/templates ./dist/; fi",
+    "package": "yarn clean && yarn compile && yarn copy-templates",
     "prepublishOnly": "yarn package",
     "test": "jest",
     "watch": "jest --watch",
@@ -22,7 +22,7 @@
   "files": [
     "tsconfig.json",
     "tslint.json",
-    "build",
+    "dist",
     "LICENSE",
     "README.md",
     "docs",
