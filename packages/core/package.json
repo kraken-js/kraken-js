@@ -1,6 +1,6 @@
 {
   "name": "@kraken.js/core",
-  "version": "0.0.1",
+  "version": "0.0.1-a304501",
   "license": "MIT",
   "main": "dist/main.js",
   "scripts": {
