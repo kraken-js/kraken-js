@@ -2,7 +2,6 @@
   "name": "@kraken.js/cli",
   "version": "0.0.1",
   "description": "Kraken CLI",
-  "private": true,
   "types": "build/types/types.d.ts",
   "bin": {
     "kraken": "bin/kraken"

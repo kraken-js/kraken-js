@@ -1,16 +1,15 @@
 import { deepMerge } from '@kraken.js/core/src/helpers';
-import * as fs from 'fs';
 import * as yaml from 'js-yaml';
 import serverlessConfig from './serverless-config';
 import { serverlessModules } from './serverless-modules';
 
 const loadLocal = ({ toolbox }) => {
-  const cwd = process.cwd();
-  const localServerlessFile = `${cwd}/serverless.yml`;
-  if (fs.existsSync(localServerlessFile)) {
-    return yaml.safeLoad(fs.readFileSync(localServerlessFile, 'utf8'));
+  const { print, filesystem } = toolbox;
+  const localServerlessFile = `${process.cwd()}/serverless.yml`;
+  if (filesystem.exists(localServerlessFile)) {
+    return yaml.safeLoad(filesystem.read(localServerlessFile));
   }
-  toolbox?.print.warning('⚠️ Local serverless config not found');
+  print.warning('⚠️ Local serverless config not found');
 };
 
 export const serverless = ({ kraken }, { spinner, toolbox }) => {

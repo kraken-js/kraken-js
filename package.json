@@ -3,6 +3,11 @@
   "version": "0.0.1",
   "private": true,
   "license": "MIT",
+  "scripts": {
+    "publish": "yarn publish:cli && yarn publish:aws",
+    "publish:cli": "yarn publish packages/cli --non-interactive --access public --new-version 0.0.1-$(git rev-parse --short HEAD)",
+    "publish:aws": "yarn publish packages/aws --non-interactive --access public --new-version 0.0.1-$(git rev-parse --short HEAD)"
+  },
   "workspaces": [
     "packages/*"
   ]
