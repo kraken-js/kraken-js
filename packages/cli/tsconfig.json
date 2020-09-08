@@ -18,16 +18,19 @@
     "noUnusedLocals": true,
     "sourceMap": false,
     "inlineSourceMap": true,
-    "outDir": "build",
     "strict": false,
     "target": "es5",
     "declaration": true,
-    "declarationDir": "build/types"
+    "baseUrl": "./",
+    "rootDir": "./",
+    "outDir": "dist",
+    "declarationDir": "dist/types"
   },
   "include": [
     "src/**/*"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "src/templates/**"
   ]
 }
