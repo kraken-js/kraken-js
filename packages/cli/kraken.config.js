@@ -1,4 +1,5 @@
 module.exports = {
   serverless: [],
-  graphql: []
+  graphql: [],
+  graphqlSchemaFile: 'src/schema.ts'
 };

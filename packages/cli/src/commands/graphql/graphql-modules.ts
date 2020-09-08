@@ -5,7 +5,7 @@ const camelize = str => {
   return result[0].toLowerCase() + result.slice(1);
 };
 
-export const graphqlModules = async ({ kraken, graphqlFile }, { spinner, toolbox }) => {
+export const graphqlModules = async ({ kraken, graphqlSchemaFile }, { spinner, toolbox }) => {
   if (!kraken || !kraken.graphql?.length) {
     spinner.stopAndPersist({ symbol: '🚨', text: 'No graphql modules found on kraken.config.js' });
     return [];
@@ -17,7 +17,7 @@ export const graphqlModules = async ({ kraken, graphqlFile }, { spinner, toolbox
     spinner && (spinner.text = `🐙 Loading Graphql module ${module}`);
 
     const moduleName = camelize(module);
-    await patching.append(graphqlFile, `import { graphqlSchema as ${moduleName} } from '${module}';\n`);
+    await patching.append(graphqlSchemaFile, `import { graphqlSchema as ${moduleName} } from '${module}';\n`);
     modules.push(moduleName);
   }
   return modules;
