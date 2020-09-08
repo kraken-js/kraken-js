@@ -1,10 +1,14 @@
 import { dynamoDbConnectionManager, dynamoDbSubscriptionManager } from '..';
 import { ApiGatewayManagementApiMock, DocumentClientMock } from './utils';
 
-const connectionManager = () => {
+const awsStuff = () => {
   const apiGateway = new ApiGatewayManagementApiMock();
-  const dynamoDb = new DocumentClientMock(({ connectionId }) => ({ connectionId }));
+  const dynamoDb = new DocumentClientMock(({ connectionId, subscriptionId }) => ({ connectionId, subscriptionId }));
+  return { apiGateway, dynamoDb };
+};
 
+const connectionManager = () => {
+  const { apiGateway, dynamoDb } = awsStuff();
   const connections = dynamoDbConnectionManager({
     apiGateway: () => apiGateway,
     dynamoDb
@@ -13,9 +17,7 @@ const connectionManager = () => {
 };
 
 const subscriptionsManager = () => {
-  const apiGateway = new ApiGatewayManagementApiMock();
-  const dynamoDb = new DocumentClientMock(({ connectionId }) => ({ connectionId }));
-
+  const { apiGateway, dynamoDb } = awsStuff();
   const subscriptions = dynamoDbSubscriptionManager({
     apiGateway: () => apiGateway,
     dynamoDb
