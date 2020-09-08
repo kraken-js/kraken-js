@@ -1,14 +1,22 @@
 name: Publish
 on:
   push:
-    branches:
-      master
+    branches: [ master ]
+  release:
+    types: [ published ]
 
 jobs:
   publish:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
+      matrix:
+        package:
+          - packages/cli
+          - packages/core
+          - packages/aws
+          - packages/webpack
+          - packages/essentials
 
     steps:
       - uses: actions/checkout@v2
@@ -32,7 +40,12 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: yarn install --frozen-lockfile
 
+      - name: Version
+        run: yarn version --new-version "0.0.1-${GITHUB_SHA::8}" --no-git-tag-version
+        working-directory: ${{ matrix.package }}
+
       - name: Publish
-        run: yarn run publish
+        run: yarn publish --non-interactive --access public
+        working-directory: ${{ matrix.package }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
