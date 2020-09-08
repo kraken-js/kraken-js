@@ -168,7 +168,6 @@ class DynamoDbSubscriptionManager implements SubscriptionManager<AwsSubscription
   }
 
   private async batchPublish(triggerName: string, payload: Payload, lastEvaluatedKey?) {
-    const subscriptionName = triggerName.split('#')[0];
     const interpolatedTriggerName = interpolate(triggerName, payload);
     const { Items = [], LastEvaluatedKey } = await this.dynamoDb.query({
       TableName: this.tableName,
@@ -180,14 +179,15 @@ class DynamoDbSubscriptionManager implements SubscriptionManager<AwsSubscription
       Limit: subscriptionsBatchLoadLimit
     }).promise();
 
-    const { __metadata = {} } = payload;
+    const { __metadata = {}, ...data } = payload;
+    const subscriptionName = triggerName.split('#')[0];
     await Promise.all(
       Items.map(({ connectionId, subscriptionId, apiGatewayUrl }) => {
         const apiGateway = this.apiGateway(apiGatewayUrl as string);
         return postToConnection(apiGateway, connectionId, {
           id: subscriptionId,
           type: GQL_DATA,
-          payload: { data: { [subscriptionName]: { ...payload, ...__metadata } } }
+          payload: { data: { [subscriptionName]: { ...data, ...__metadata } } }
         });
       })
     );
