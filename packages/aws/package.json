@@ -1,7 +1,6 @@
 {
   "name": "@kraken.js/aws",
-  "version": "0.0.1",
-  "private": true,
+  "version": "0.0.1-90d3d3b",
   "license": "MIT",
   "main": "dist/main.js",
   "scripts": {
