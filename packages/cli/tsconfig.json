@@ -21,8 +21,6 @@
     "strict": false,
     "target": "es5",
     "declaration": true,
-    "baseUrl": "./",
-    "rootDir": "./",
     "outDir": "dist",
     "declarationDir": "dist/types"
   },
