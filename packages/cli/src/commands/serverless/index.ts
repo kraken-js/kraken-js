@@ -12,9 +12,9 @@ const loadLocal = ({ toolbox }) => {
 };
 
 export const serverless = ({ kraken }, { spinner, toolbox }) => {
-  const serverlessLocal = loadLocal({ toolbox });
   const loadedModules = serverlessModules({ kraken }, { spinner });
-  const output = deepMerge(serverlessLocal, loadedModules);
+  const serverlessLocal = loadLocal({ toolbox });
+  const output = deepMerge(loadedModules, serverlessLocal);
 
   // merge environment configs
   const stage = output.provider.stage;
