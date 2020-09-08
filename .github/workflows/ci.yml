@@ -5,7 +5,7 @@ on:
       - "*"
 
 jobs:
-  continuous-integration:
+  ci:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
