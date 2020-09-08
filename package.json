@@ -4,6 +4,7 @@
   "private": true,
   "license": "MIT",
   "scripts": {
+    "package": "yarn workspaces run package",
     "publish": "yarn publish:core && yarn publish:essentials && yarn publish:webpack && yarn publish:cli && yarn publish:aws",
     "publish:core": "yarn publish packages/core --non-interactive --access public --new-version 0.0.1-$(git rev-parse --short HEAD)",
     "publish:cli": "yarn publish packages/cli --non-interactive --access public --new-version 0.0.1-$(git rev-parse --short HEAD)",
