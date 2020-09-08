@@ -1,4 +1,4 @@
-import { graphql } from '@kraken.js/cli/src/graphql';
+import { graphql } from './graphql';
 
 module.exports = {
   name: 'graphql',

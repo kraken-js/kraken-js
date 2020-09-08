@@ -1,4 +1,4 @@
-import { serverless } from '@kraken.js/cli/src/serverless';
+import { serverless } from './serverless';
 
 module.exports = {
   name: 'serverless',
