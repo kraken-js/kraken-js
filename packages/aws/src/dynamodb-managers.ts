@@ -13,22 +13,31 @@ interface DynamoDbConfig {
 
 const rootSubscriptionId = '$connection';
 const variablesPrefix = '$';
+const instances = {
+  dynamoDb: undefined as any,
+  apiGateway: {}
+};
+
 const waitForConnectionTimeout = () =>
   process.env.WS_WAIT_FOR_CONNECTION_TIMEOUT_MS
     ? parseInt(process.env.WS_WAIT_FOR_CONNECTION_TIMEOUT_MS)
     : 50;
 
 const getDocumentClient = () => {
-  return new DynamoDB.DocumentClient();
+  if (!instances.dynamoDb) {
+    instances.dynamoDb = new DynamoDB.DocumentClient({
+      endpoint: process.env.IS_OFFLINE ? 'http://localhost:5002' : undefined
+    });
+  }
+  return instances.dynamoDb;
 };
 
 const getApiGateway = () => {
-  const instances = {};
   return endpoint => {
-    if (!instances[endpoint]) {
-      instances[endpoint] = new ApiGatewayManagementApi({ endpoint });
+    if (!instances.apiGateway[endpoint]) {
+      instances.apiGateway[endpoint] = new ApiGatewayManagementApi({ endpoint });
     }
-    return instances[endpoint];
+    return instances.apiGateway[endpoint];
   };
 };
 
