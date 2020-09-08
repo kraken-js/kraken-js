@@ -1,6 +1,6 @@
 {
   "name": "@kraken.js/essentials",
-  "version": "0.0.1-d7e3def",
+  "version": "0.0.1",
   "license": "MIT",
   "main": "dist/main.js",
   "scripts": {
