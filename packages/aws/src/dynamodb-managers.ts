@@ -142,8 +142,7 @@ class DynamoDbSubscriptionManager implements SubscriptionManager<AwsSubscription
   private async batchUnsubscribe(connectionId: string, lastEvaluatedKey?) {
     const { Items = [], LastEvaluatedKey } = await this.dynamoDb.query({
       TableName: this.tableName,
-      KeyConditionExpression: 'connectionId = :connectionId',
-      FilterExpression: 'subscriptionId <> :rootSubscriptionId',
+      KeyConditionExpression: 'connectionId = :connectionId AND subscriptionId <> :rootSubscriptionId',
       ExpressionAttributeValues: { ':connectionId': connectionId, ':rootSubscriptionId': rootSubscriptionId },
       ProjectionExpression: 'connectionId, subscriptionId',
       ExclusiveStartKey: lastEvaluatedKey,
