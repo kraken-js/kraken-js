@@ -2,6 +2,7 @@ import { ConnectionManager, GQL_DATA, Payload, SubscriptionManager } from '@krak
 import { ApiGatewayManagementApi, DynamoDB } from 'aws-sdk';
 import { AwsConnection, AwsConnectionInfo, AwsSubscription } from './types';
 
+const subscriptionsBatchLoadLimit = 100;
 type ApiGatewayFactory = (endpoint: string) => ApiGatewayManagementApi;
 
 interface DynamoDbConfig {
@@ -12,7 +13,10 @@ interface DynamoDbConfig {
 
 const rootSubscriptionId = '$connection';
 const variablesPrefix = '$';
-const waitForConnectionTimeout = 50;
+const waitForConnectionTimeout = () =>
+  process.env.WS_WAIT_FOR_CONNECTION_TIMEOUT_MS
+    ? parseInt(process.env.WS_WAIT_FOR_CONNECTION_TIMEOUT_MS)
+    : 50;
 
 const getDocumentClient = () => {
   return new DynamoDB.DocumentClient();
@@ -33,7 +37,7 @@ const getTableName = () => {
 };
 
 const interpolate = (string: string, values: any) => {
-  return string.replace(/{(.*?)}/g, (match, offset) => values[offset as string] as string);
+  return string.replace(/{(.*?)}/g, (match, offset) => values[offset as string] as string || '');
 };
 
 const makeVariables = (payload: any) => {
@@ -79,7 +83,7 @@ class DynamoDbConnectionManager<T> implements ConnectionManager<AwsConnection<T>
     }).promise();
     if (!Item) {
       if (retries > 0) {
-        await waitFor(waitForConnectionTimeout);
+        await waitFor(waitForConnectionTimeout());
         return this.get(connectionId, --retries);
       }
       throw new Error(`Connection ${connectionId} not found`);
@@ -116,7 +120,7 @@ class DynamoDbSubscriptionManager implements SubscriptionManager<AwsSubscription
     this.tableName = tableName ? tableName : getTableName();
   }
 
-  async subscribe(triggerName: string, options: AwsSubscription) {
+  async subscribe(triggerName: string, options: Omit<AwsSubscription, 'triggerName'>) {
     const { connectionId, subscriptionId, apiGatewayUrl, ...payload } = options;
     const variables = makeVariables(payload);
     const item = {
@@ -147,7 +151,7 @@ class DynamoDbSubscriptionManager implements SubscriptionManager<AwsSubscription
     await this.batchPublish(triggerName, payload);
   }
 
-  async batchUnsubscribe(connectionId: string, lastEvaluatedKey?) {
+  private async batchUnsubscribe(connectionId: string, lastEvaluatedKey?) {
     const { Items = [], LastEvaluatedKey } = await this.dynamoDb.query({
       TableName: this.tableName,
       KeyConditionExpression: 'connectionId = :connectionId',
@@ -155,7 +159,7 @@ class DynamoDbSubscriptionManager implements SubscriptionManager<AwsSubscription
       ExpressionAttributeValues: { ':connectionId': connectionId, ':rootSubscriptionId': rootSubscriptionId },
       ProjectionExpression: 'connectionId, subscriptionId',
       ExclusiveStartKey: lastEvaluatedKey,
-      Limit: 25
+      Limit: subscriptionsBatchLoadLimit
     }).promise();
 
     if (Items.length > 0) {
@@ -182,7 +186,7 @@ class DynamoDbSubscriptionManager implements SubscriptionManager<AwsSubscription
       ExpressionAttributeValues: { ':triggerName': interpolatedTriggerName },
       ProjectionExpression: 'connectionId, subscriptionId, apiGatewayUrl',
       ExclusiveStartKey: lastEvaluatedKey,
-      Limit: 25
+      Limit: subscriptionsBatchLoadLimit
     }).promise();
 
     const { __metadata = {} } = payload;
