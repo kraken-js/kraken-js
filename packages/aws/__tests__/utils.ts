@@ -4,27 +4,19 @@ import { ApiGatewayManagementApi, DynamoDB } from 'aws-sdk';
 
 export const ApiGatewayManagementApiMock = jest.fn<ApiGatewayManagementApi, any>(() => {
   return ({
-    postToConnection: jest.fn(),
-    deleteConnection: jest.fn()
+    postToConnection: jest.fn(() => ({
+      promise: () => Promise.resolve()
+    })),
+    deleteConnection: jest.fn(() => ({
+      promise: () => Promise.resolve()
+    }))
   } as any);
 });
 
-export const DocumentClientMock = jest.fn<DynamoDB.DocumentClient, any>((keyMaker) => {
-  const database = {} as any;
-  return ({
-    put: jest.fn(params => ({
-      async promise() {
-        database[params.TableName] = database[params.TableName] || {};
-        database[params.TableName][keyMaker(params.Item)] = params.Item;
-      }
-    })),
-    get: jest.fn(params => ({
-      async promise() {
-        const Item = (database[params.TableName] || {})[params.Key as any];
-        return { Item };
-      }
-    }))
-  } as any);
+export const DocumentClientMock = () => new DynamoDB.DocumentClient({
+  endpoint: process.env.MOCK_DYNAMODB_ENDPOINT,
+  sslEnabled: false,
+  region: 'local'
 });
 
 export const MockConnectionManager = jest.fn<ConnectionManager<any, any>, any>(() => {
