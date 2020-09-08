@@ -4,7 +4,12 @@
   "private": true,
   "license": "MIT",
   "scripts": {
-    "package": "yarn workspaces run package"
+    "package": "yarn workspaces run package",
+    "reinstall": "yarn clean && yarn install",
+    "clean": "rimraf \"**/{node_modules,dist,yarn.lock}\""
+  },
+  "devDependencies": {
+    "rimraf": "^3.0.2"
   },
   "workspaces": [
     "packages/*"

@@ -2,6 +2,8 @@ plugins:
   - serverless-webpack
   - serverless-offline
   - serverless-pseudo-parameters
+  - serverless-dynamodb-local
+
 package:
   individually: true
 custom:

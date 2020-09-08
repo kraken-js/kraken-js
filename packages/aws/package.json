@@ -9,12 +9,12 @@
     "prepublishOnly": "yarn package"
   },
   "dependencies": {
-    "@kraken.js/core": "latest",
+    "@kraken.js/core": "^0.0.1",
     "graphql": "^15.3.0"
   },
   "devDependencies": {
-    "@kraken.js/jest": "latest",
-    "@kraken.js/webpack": "latest",
+    "@kraken.js/jest": "^0.0.1",
+    "@kraken.js/webpack": "^0.0.1",
     "@types/aws-lambda": "^8.10.62",
     "jest": "^26.4.2",
     "jest-dynalite": "^3.0.0"

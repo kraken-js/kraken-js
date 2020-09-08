@@ -44,8 +44,8 @@ const onWsDisconnect = async <C>(config: AwsHandlerConfigWithGraphqlSchema<C>, e
   const connectionId = event.requestContext.connectionId as string;
   const apiGatewayUrl = getApiGatewayUrl(event);
   await Promise.all([
-    config.connections.delete({ connectionId, apiGatewayUrl }),
-    config.subscriptions.unsubscribeAll(connectionId)
+    config.connections?.delete({ connectionId, apiGatewayUrl }),
+    config.subscriptions?.unsubscribeAll(connectionId)
   ]);
 };
 
@@ -58,17 +58,17 @@ const onGqlInit = async <C>(config: AwsHandlerConfigWithGraphqlSchema<C>, event:
     apiGatewayUrl,
     context
   };
-  await config.connections.save(connection);
-  await config.connections.send(connection, { type: GQL_CONNECTION_ACK });
+  await config.connections?.save(connection);
+  await config.connections?.send(connection, { type: GQL_CONNECTION_ACK });
 };
 
 const onGqlStart = async <C>(config: AwsHandlerConfigWithGraphqlSchema<C>, event: APIGatewayProxyEvent, operation: any) => {
   const connectionId = event.requestContext.connectionId as string;
   const apiGatewayUrl = getApiGatewayUrl(event);
-  const connection = await config.connections.get(connectionId).catch(async () => {
+  const connection = await config.connections?.get(connectionId).catch(async () => {
     const connectionInfo = { connectionId, apiGatewayUrl };
-    await config.connections.send(connectionInfo, { type: GQL_CONNECTION_ERROR });
-    await config.connections.delete(connectionInfo);
+    await config.connections?.send(connectionInfo, { type: GQL_CONNECTION_ERROR });
+    await config.connections?.delete(connectionInfo);
   });
 
   if (connection) {
@@ -100,12 +100,12 @@ const onGqlStart = async <C>(config: AwsHandlerConfigWithGraphqlSchema<C>, event
     // only send response if not subscription request, to avoid sending null response on subscribe initial message
     const operationDefinition = document.definitions[0] as OperationDefinitionNode;
     if (operationDefinition.operation !== 'subscription') {
-      await config.connections.send(connection, {
+      await config.connections?.send(connection, {
         id: subscriptionId,
         type: GQL_DATA,
         payload: response
       });
-      await config.connections.send(connection, {
+      await config.connections?.send(connection, {
         id: subscriptionId,
         type: GQL_COMPLETE
       });
@@ -117,8 +117,8 @@ const onGqlStop = async <C>(config: AwsHandlerConfigWithGraphqlSchema<C>, event:
   const connectionId = event.requestContext.connectionId as string;
   const apiGatewayUrl = getApiGatewayUrl(event);
   await Promise.all([
-    config.connections.send({ connectionId, apiGatewayUrl }, { id, type: GQL_COMPLETE }),
-    config.subscriptions.unsubscribe(connectionId, id)
+    config.connections?.send({ connectionId, apiGatewayUrl }, { id, type: GQL_COMPLETE }),
+    config.subscriptions?.unsubscribe(connectionId, id)
   ]);
 };
 
@@ -126,8 +126,8 @@ const onGqlConnectionTerminate = async <C>(config: AwsHandlerConfigWithGraphqlSc
   const connectionId = event.requestContext.connectionId as string;
   const apiGatewayUrl = getApiGatewayUrl(event);
   await Promise.all([
-    config.connections.delete({ connectionId, apiGatewayUrl }),
-    config.subscriptions.unsubscribeAll(connectionId)
+    config.connections?.delete({ connectionId, apiGatewayUrl }),
+    config.subscriptions?.unsubscribeAll(connectionId)
   ]);
 };
 

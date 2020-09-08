@@ -6,8 +6,8 @@ export interface HandlerConfig<C extends Connection<T>, S extends Subscription, 
 
   validate?: boolean;
 
-  connections: ConnectionManager<C, T>
-  subscriptions: SubscriptionManager<S>
+  connections?: ConnectionManager<C, T>
+  subscriptions?: SubscriptionManager<S>
 }
 
 export interface Connection<T> {
