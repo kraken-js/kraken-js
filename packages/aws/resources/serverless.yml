@@ -3,18 +3,20 @@ provider:
   runtime: nodejs12.x
   timeout: 7.5 # seconds
   memorySize: 1792 # Mb - 1 vCpu
-  stage: ${opt:stage, dev},
-    versionFunctions: false
-    logRetentionInDays: 7
-    iamRoleStatements:
-      - Effect: Allow
-        Action: [ lambda:InvokeAsync, lambda:InvokeFunction ]
-        Resource: '*'
-    stackTags:
-      service: ${self:service}
-      stage: ${self:custom.stage}
-      region: ${self:custom.region}
-      version: ${file(package.json):version}
+  stage: ${opt:stage, 'dev'}
+  versionFunctions: false
+  logRetentionInDays: 7
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - lambda:InvokeAsync
+        - lambda:InvokeFunction
+      Resource: '*'
+  stackTags:
+    service: ${self:service}
+    stage: ${self:custom.stage}
+    region: ${self:custom.region}
+    version: ${file(package.json):version}
 
 custom:
   account: '#{AWS::AccountId}'
