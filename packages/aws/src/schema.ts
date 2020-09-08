@@ -4,7 +4,7 @@ import * as typeDefs from './schema.graphql';
 export const graphqlSchema = {
   typeDefs,
   resolvers: {
-    Stats: {
+    SystemInfo: {
       region: () => process.env.AWS_REGION
     }
   }

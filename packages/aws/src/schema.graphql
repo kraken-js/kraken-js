@@ -1,7 +1,7 @@
 type Query {
-    status: Status
+    systemInfo: SystemInfo
 }
 
-type Status {
+type SystemInfo {
     region: String
 }
