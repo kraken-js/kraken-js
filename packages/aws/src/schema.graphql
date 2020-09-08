@@ -1,0 +1,7 @@
+type Query {
+    status: Status
+}
+
+type Status {
+    region: String
+}

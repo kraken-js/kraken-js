@@ -7,3 +7,4 @@ export * from './src/types';
 export * from './src/ws-handler';
 export * from './src/dynamodb-managers';
 export * from './src/dynamodb-streams-handler';
+export * from './src/schema';
