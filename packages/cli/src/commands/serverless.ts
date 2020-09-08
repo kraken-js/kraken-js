@@ -10,10 +10,8 @@ module.exports = {
     try {
       const cwd = filesystem.cwd();
       const kraken = config.loadConfig('kraken', cwd);
-      console.debug(kraken);
 
       const slsConfig = serverless({ kraken }, { spinner, toolbox });
-      console.debug(slsConfig);
       filesystem.write('.kraken/serverless.json', slsConfig);
 
       spinner.text = `serverless ${args}...`;
