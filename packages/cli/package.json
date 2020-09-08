@@ -1,6 +1,6 @@
 {
   "name": "@kraken.js/cli",
-  "version": "0.0.1",
+  "version": "0.0.1-3fe586f",
   "description": "Kraken CLI",
   "types": "build/types/types.d.ts",
   "bin": {
@@ -12,8 +12,8 @@
     "clean-build": "rm -rf ./build",
     "compile": "tsc -p .",
     "copy-templates": "if [ -e ./src/templates ]; then cp -a ./src/templates ./build/; fi",
-    "build": "yarn format && yarn lint && yarn clean-build && yarn compile && yarn copy-templates",
-    "prepublishOnly": "yarn build",
+    "package": "yarn clean-build && yarn compile && yarn copy-templates",
+    "prepublishOnly": "yarn package",
     "test": "jest",
     "watch": "jest --watch",
     "snapupdate": "jest --updateSnapshot",
@@ -49,6 +49,7 @@
   },
   "prettier": {
     "semi": true,
-    "singleQuote": true
+    "singleQuote": true,
+    "printWidth": 120
   }
 }

@@ -36,6 +36,12 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: yarn install --frozen-lockfile
 
+      - name: Install Global Packages
+        run: npm install -g serverless
+
+      - name: Workspace Package
+        run: yarn workspaces run package
+
       - name: Unit Tests
         working-directory: ${{ matrix.package }}
         run: yarn test --colors
