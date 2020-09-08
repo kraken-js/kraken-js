@@ -2,7 +2,7 @@ import { deepMerge } from '@kraken.js/core';
 import * as fs from 'fs';
 import * as path from 'path';
 
-const generatedPath = '.generated';
+const generatedPath = '.kraken';
 
 const writeFileSync = (filename, content) => {
   const folders = filename.split(path.sep).slice(0, -1);

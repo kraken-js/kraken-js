@@ -4,7 +4,7 @@ import { serverlessModules } from './serverless-modules';
 
 const loadLocal = ({ toolbox }) => {
   const { print, filesystem } = toolbox;
-  const localServerlessFile = `${process.cwd()}/serverless.yml`;
+  const localServerlessFile = `${filesystem.cwd()}/serverless.yml`;
   if (filesystem.exists(localServerlessFile)) {
     return yaml.safeLoad(filesystem.read(localServerlessFile));
   }

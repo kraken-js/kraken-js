@@ -8,12 +8,11 @@ module.exports = {
     const spinner = print.spin('serverless');
     const args = parameters.argv.slice(3).join(' ');
     try {
-      const cwd = process.cwd();
+      const cwd = filesystem.cwd();
       const kraken = config.loadConfig('kraken', cwd);
 
       const slsConfig = serverless({ kraken }, { spinner, toolbox });
       filesystem.write('.kraken/serverless.json', slsConfig);
-
 
       spinner.text = `serverless ${args}...`;
       const stdout = await system.exec(`serverless ${args} --config .kraken/serverless.json`);
@@ -21,6 +20,7 @@ module.exports = {
 
       print.info(stdout);
     } catch (error) {
+      console.error(error);
       spinner.stopAndPersist({ symbol: '🚨', text: `Error running serverless command "serverless ${args}"` });
       print.error(error.message);
       error.stdout && print.error(error.stdout);
