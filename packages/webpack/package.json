@@ -6,7 +6,8 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "test": "echo 'not yeat implemented'"
+    "test": "echo 'not yeat implemented'",
+    "package": "echo 'not yeat implemented'"
   },
   "dependencies": {
     "graphql-tag": "^2.10.3",

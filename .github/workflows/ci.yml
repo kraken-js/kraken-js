@@ -39,6 +39,9 @@ jobs:
       - name: Install Global Packages
         run: npm install -g serverless
 
+      - name: Workspace Package
+        run: yarn workspaces run package
+
       - name: Unit Tests
         working-directory: ${{ matrix.package }}
         run: yarn test --colors

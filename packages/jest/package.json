@@ -4,7 +4,8 @@
   "description": "Commons Jest Stuff",
   "author": "@kraken.js",
   "scripts": {
-    "test": "echo 'not yeat implemented'"
+    "test": "echo 'not yeat implemented'",
+    "package": "echo 'not yeat implemented'"
   },
   "dependencies": {
     "@types/jest": "^26.0.0",
