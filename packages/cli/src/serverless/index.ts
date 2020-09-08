@@ -13,7 +13,9 @@ const loadLocal = ({ toolbox }) => {
 
 export const serverless = ({ kraken }, { spinner, toolbox }) => {
   const serverlessLocal = loadLocal({ toolbox });
+  console.debug(serverlessLocal);
   const loadedModules = serverlessModules({ kraken }, { spinner });
+  console.debug(loadedModules);
   const output = deepMerge(serverlessLocal, loadedModules);
 
   // merge environment configs
