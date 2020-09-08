@@ -4,13 +4,13 @@ export const graphql = async ({ kraken }, { spinner, toolbox }) => {
   const { filesystem, patching } = toolbox;
   spinner && (spinner.text = 'generating graphql modules...');
 
-  const graphqlFile = '.kraken/graphql.ts';
+  const graphqlFile = 'src/schema.ts';
   filesystem.remove(graphqlFile);
   filesystem.write(graphqlFile, ''); // touch
 
   await patching.append(graphqlFile, `import { mergeGraphqlSchemas } from '@kraken.js/core';\n`);
   const modules = await graphqlModules({ kraken, graphqlFile }, { spinner, toolbox });
   await patching.append(graphqlFile, `\n`);
-  await patching.append(graphqlFile, `export default mergeGraphqlSchemas([\n\t${modules.join(',\n\t')}\n]);\n`);
+  await patching.append(graphqlFile, `export const graphqlSchema = mergeGraphqlSchemas([\n\t${modules.join(',\n\t')}\n]);\n`);
   spinner.stopAndPersist({ symbol: '✅', text: 'finished loading graphql modules' });
 };

@@ -45,9 +45,9 @@ describe('kraken.js', () => {
       expect(filesystem.read('.kraken/serverless.json')).toMatchSnapshot();
     }, timeout);
 
-    test('should generate .kraken/graphql.ts file', async () => {
+    test('should generate src/schema.ts file', async () => {
       await cli('graphql');
-      expect(filesystem.read('.kraken/graphql.ts')).toMatchSnapshot();
+      expect(filesystem.read('src/schema.ts')).toMatchSnapshot();
     }, timeout);
   });
 });

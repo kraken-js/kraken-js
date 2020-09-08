@@ -5,6 +5,7 @@
     "sourceMap": true,
     "allowJs": true,
     "target": "es2019",
+    "module": "esnext",
     "moduleResolution": "node",
     "esModuleInterop": true,
     "resolveJsonModule": true,
