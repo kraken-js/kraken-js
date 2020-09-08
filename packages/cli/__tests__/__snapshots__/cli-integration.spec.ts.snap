@@ -43,6 +43,18 @@ exports[`kraken.js After Generate Project should generate .kraken/serverless.jso
         ]
       }
     },
+    \\"dynamodb\\": {
+      \\"stages\\": [
+        \\"offline\\"
+      ],
+      \\"start\\": {
+        \\"port\\": 5002,
+        \\"inMemory\\": false,
+        \\"dbPath\\": \\"\${env:PWD}/.dynamodb\\",
+        \\"migrate\\": true,
+        \\"seed\\": true
+      }
+    },
     \\"serverless-offline\\": {
       \\"noPrependStageInUrl\\": true,
       \\"httpPort\\": 4000,
