@@ -1,0 +1,7 @@
+type Query {
+    systemInfo: SystemInfo
+}
+
+type SystemInfo {
+    region: String
+}
