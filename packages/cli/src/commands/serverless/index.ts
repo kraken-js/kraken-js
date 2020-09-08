@@ -1,4 +1,4 @@
-import { deepMerge } from '@kraken.js/core/src/helpers';
+import { deepMerge } from '@kraken.js/core';
 import * as yaml from 'js-yaml';
 import { serverlessModules } from './serverless-modules';
 

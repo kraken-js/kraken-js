@@ -3,9 +3,7 @@ const { system, filesystem } = require('gluegun');
 const src = filesystem.path(__dirname, '..');
 
 const cli = (cmd) => {
-  return system.exec(
-    'node ' + filesystem.path(src, 'bin', 'kraken') + ` ${cmd}`
-  );
+  return system.exec('node ' + filesystem.path(src, 'bin', 'kraken') + ` ${cmd}`);
 };
 
 const projectName = '__kraken';
