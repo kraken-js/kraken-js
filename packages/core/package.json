@@ -9,13 +9,13 @@
     "prepublishOnly": "yarn package"
   },
   "dependencies": {
-    "@graphql-tools/schema": "^6.2.0",
+    "@graphql-tools/schema": "^6.2.1",
     "graphql": "^15.3.0"
   },
   "devDependencies": {
     "@kraken.js/jest": "^0.0.1",
     "@kraken.js/webpack": "0.0.1",
-    "@types/aws-lambda": "^8.10.61",
+    "@types/aws-lambda": "^8.10.62",
     "jest": "^26.4.2"
   }
 }
