@@ -13,6 +13,7 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "noImplicitAny": false,
+    "esModuleInterop": true,
     "noImplicitThis": true,
     "noUnusedLocals": true,
     "sourceMap": false,
@@ -23,6 +24,10 @@
     "declaration": true,
     "declarationDir": "build/types"
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules"]
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
