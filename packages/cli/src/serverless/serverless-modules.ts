@@ -25,11 +25,9 @@ export const serverlessModules = ({ kraken }, { spinner }) => {
   const serverless = kraken.serverless.map(module => {
     const moduleName = (typeof module === 'string') ? module : module.name;
     const moduleConfig = (typeof module === 'string') ? {} : module.config;
-    console.debug(moduleName);
 
     spinner && (spinner.text = `🐙 Loading module ${moduleName}`);
     const moduleSls = require(moduleName);
-    console.debug(moduleSls);
 
     const isFunction = moduleSls instanceof Function;
     const { serverless } = isFunction ? moduleSls(moduleConfig) : moduleSls;
