@@ -44,6 +44,8 @@ describe('kraken.js', () => {
     test('should generate .kraken/serverless.json file', async () => {
       const output = await cli('serverless print --stage test');
       console.debug(output);
+      console.debug(filesystem.read('node_modules/@kraken.js/essentials/dist/main.js'));
+      console.debug(require('@kraken.js/essentials'));
       expect(filesystem.read('.kraken/serverless.json')).toMatchSnapshot();
     }, timeout);
 
