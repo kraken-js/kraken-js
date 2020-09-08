@@ -15,7 +15,7 @@ import { execute, GraphQLSchema, OperationDefinitionNode, parse, validate } from
 import { dynamoDbConnectionManager, dynamoDbSubscriptionManager } from './dynamodb-managers';
 import { AwsConnection, AwsSubscription } from './types';
 
-type AwsHandlerConfig<T> = HandlerConfig<AwsConnection<T>, AwsSubscription, T>;
+export type AwsHandlerConfig<T> = HandlerConfig<AwsConnection<T>, AwsSubscription, T>;
 type AwsHandlerConfigWithGraphqlSchema<T> = AwsHandlerConfig<T> & {
   graphqlSchema: GraphQLSchema
 }
@@ -50,7 +50,7 @@ const onWsDisconnect = async <C>(config: AwsHandlerConfigWithGraphqlSchema<C>, e
 };
 
 const onGqlInit = async <C>(config: AwsHandlerConfigWithGraphqlSchema<C>, event: APIGatewayProxyEvent, { payload }) => {
-  const context = await config.context(payload);
+  const context = config.context ? await config.context(payload) : {} as C;
   const apiGatewayUrl = getApiGatewayUrl(event);
   const connection = {
     connectionId: event.requestContext.connectionId as string,
