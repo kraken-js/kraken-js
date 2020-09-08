@@ -4,7 +4,6 @@
   "description": "Commons Webpack Stuff",
   "author": "@kraken.js",
   "license": "MIT",
-  "private": true,
   "scripts": {
     "test": "echo 'not yeat implemented'",
     "package": "echo 'not yeat implemented'"

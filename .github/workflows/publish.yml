@@ -2,18 +2,16 @@ name: Continuous Integration
 on:
   push:
     branches:
-      - "*"
+      master
+
+env:
+  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
 jobs:
-  ci:
+  publish:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
-      matrix:
-        package:
-          - packages/cli
-          - packages/core
-          - packages/aws
 
     steps:
       - uses: actions/checkout@v2
@@ -36,12 +34,5 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: yarn install --frozen-lockfile
 
-      - name: Install Global Packages
-        run: npm install -g serverless
-
-      - name: Workspace Package
-        run: yarn workspaces run package
-
-      - name: Unit Tests
-        working-directory: ${{ matrix.package }}
-        run: yarn test --colors
+      - name: Publish
+        run: yarn run publish

@@ -1,6 +1,6 @@
 {
   "name": "@kraken.js/aws",
-  "version": "0.0.1-a4b4aa7",
+  "version": "0.0.1",
   "license": "MIT",
   "main": "dist/main.js",
   "scripts": {
@@ -13,8 +13,8 @@
     "graphql": "^15.3.0"
   },
   "devDependencies": {
-    "@kraken.js/jest": "^0.0.1",
-    "@kraken.js/webpack": "0.0.1",
+    "@kraken.js/jest": "latest",
+    "@kraken.js/webpack": "latest",
     "@types/aws-lambda": "^8.10.62",
     "jest": "^26.4.2",
     "jest-dynalite": "^3.0.0"
