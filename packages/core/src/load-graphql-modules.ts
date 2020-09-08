@@ -1,5 +1,3 @@
-import { IExecutableSchemaDefinition } from '@graphql-tools/schema';
-
-export const loadGraphqlModules = async <T>(): Promise<IExecutableSchemaDefinition<T>> => {
-  return null as any;
+export const loadGraphqlModules = () => {
+  return require('.kraken/graphql.ts');
 };

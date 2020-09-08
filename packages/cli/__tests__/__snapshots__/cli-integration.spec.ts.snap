@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`kraken.js After Generate Project should generate .kraken/graphql.ts file 1`] = `
+"import { mergeGraphqlSchemas } from '@kraken.js/core';
+import { graphqlSchema as krakenJsAws } from '@kraken.js/aws';
+
+export default mergeGraphqlSchemas([
+	krakenJsAws
+]);
+"
+`;
+
+exports[`kraken.js After Generate Project should generate .kraken/serverless.json file 1`] = `undefined`;

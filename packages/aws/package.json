@@ -1,15 +1,15 @@
 {
   "name": "@kraken.js/aws",
   "version": "0.0.1",
-  "private": true,
   "license": "MIT",
   "main": "dist/main.js",
   "scripts": {
     "test": "jest --passWithNoTests",
-    "package": "webpack-cli --output-path dist --clean"
+    "package": "webpack-cli --output-path dist --clean",
+    "prepublishOnly": "yarn package"
   },
   "dependencies": {
-    "@kraken.js/core": "0.0.1",
+    "@kraken.js/core": "latest",
     "graphql": "^15.3.0"
   },
   "devDependencies": {

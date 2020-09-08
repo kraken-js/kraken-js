@@ -11,10 +11,6 @@ const cli = (cmd) => {
 const projectName = '__kraken';
 
 describe('kraken.js', () => {
-  afterEach(() => {
-    filesystem.remove(projectName);
-  });
-
   test('outputs version', async () => {
     const output = await cli('--version');
     expect(output).toContain('0.0.1');
@@ -25,8 +21,34 @@ describe('kraken.js', () => {
     expect(output).toContain('0.0.1');
   });
 
-  test('kraken new should create project folder', async () => {
-    await cli(`new --name ${projectName} --version 1.0.0`);
-    filesystem.exists(projectName);
-  }, 30000);
+  describe('After Generate Project', () => {
+    const timeout = 30000;
+    const state = { cwd: undefined };
+
+    beforeAll(async () => {
+      state.cwd = process.cwd();
+      await cli(`new --name ${projectName} --version 1.0.0`).then(() => {
+        process.chdir(projectName);
+      });
+    }, timeout);
+
+    afterAll(() => {
+      process.chdir(state.cwd);
+      filesystem.remove(projectName);
+    });
+
+    test('kraken new should create project folder', async () => {
+      filesystem.exists(projectName);
+    }, timeout);
+
+    test('should generate .kraken/serverless.json file', async () => {
+      await cli('serverless print');
+      expect(filesystem.read('.kraken/serverless.json')).toMatchSnapshot();
+    }, timeout);
+
+    test('should generate .kraken/graphql.ts file', async () => {
+      await cli('graphql');
+      expect(filesystem.read('.kraken/graphql.ts')).toMatchSnapshot();
+    }, timeout);
+  });
 });

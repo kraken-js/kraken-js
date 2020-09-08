@@ -1,9 +1,47 @@
+provider:
+  name: aws
+  runtime: nodejs12.x
+  timeout: 7.5 # seconds
+  memorySize: 1792 # Mb - 1 vCpu
+  stage: ${opt:stage, 'dev'}
+  versionFunctions: false
+  logRetentionInDays: 7
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - lambda:InvokeAsync
+        - lambda:InvokeFunction
+      Resource: '*'
+  stackTags:
+    service: ${self:service}
+    stage: ${self:custom.stage}
+    region: ${self:custom.region}
+    version: ${file(package.json):version}
+
 custom:
+  account: '#{AWS::AccountId}'
+  region: ${self:provider.region}
+  stage: ${self:provider.stage}
+  prefix: ${self:service.name}-${self:custom.stage}
+  lambda:
+    arnPrefix: arn:aws:lambda:${self:custom.region}:${self:custom.account}:function:${self:service.name}-${self:custom.stage}
+  cors:
+    origin: '*'
+    maxAge: 86400
+    cacheControl: max-age=86400
+    headers: [ Content-Type, Authorization, Range ]
   tables:
     subscriptions: WsSubscriptions-${self:custom.stage}
   environment:
     default:
+      STAGE: ${self:custom.stage}
+      REGION: ${self:custom.region}
+      SERVICE: ${self:service.name}
+      AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
       WS_SUBSCRIPTIONS_TABLE: ${self:custom.tables.subscriptions}
+  webpack:
+    includeModules:
+      forceExclude: [ aws-sdk ]
 
 resources:
   Resources:
@@ -12,7 +50,7 @@ resources:
       Properties:
         PolicyName: lambda-apigateway
         PolicyDocument:
-          Version: '2012-10-17'
+          Version: 2012-10-17
           Statement:
             - Effect: Allow
               Action:

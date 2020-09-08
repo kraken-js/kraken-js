@@ -1,5 +1,5 @@
 {
-  "name": "@kraken.js/core",
+  "name": "@kraken.js/essentials",
   "version": "0.0.1",
   "license": "MIT",
   "main": "dist/main.js",
@@ -9,13 +9,10 @@
     "prepublishOnly": "yarn package"
   },
   "dependencies": {
-    "@graphql-tools/schema": "^6.2.0",
-    "graphql": "^15.3.0"
-  },
-  "devDependencies": {
-    "@kraken.js/jest": "^0.0.1",
-    "@kraken.js/webpack": "0.0.1",
-    "@types/aws-lambda": "^8.10.61",
-    "jest": "^26.4.2"
+    "serverless-offline": "^6.7.0",
+    "serverless-pseudo-parameters": "^2.5.0",
+    "serverless-webpack": "^5.3.4",
+    "typescript": "^4.0.2",
+    "webpack": "^4.42.1"
   }
 }

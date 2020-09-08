@@ -2,7 +2,7 @@ import { IExecutableSchemaDefinition } from '@graphql-tools/schema';
 
 export interface HandlerConfig<C extends Connection<T>, S extends Subscription, T = any>
   extends IExecutableSchemaDefinition<T> {
-  context: ((payload: any) => T)
+  context?: ((payload: any) => T)
 
   validate?: boolean;
 
