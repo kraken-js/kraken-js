@@ -77,11 +77,10 @@ const onGqlStart = async <C>(config: AwsHandlerConfigWithGraphqlSchema<C>, event
       connectionId,
       subscriptionId,
       apiGatewayUrl,
-      graphqlSchema: config.graphqlSchema,
-      connections: config.connections,
-      subscriptions: config.subscriptions,
       operation: operation.payload,
-      requestTime: event.requestContext.requestTimeEpoch,
+      $graphqlSchema: config.graphqlSchema,
+      $connections: config.connections,
+      $subscriptions: config.subscriptions,
       ...connection.context
     };
 
