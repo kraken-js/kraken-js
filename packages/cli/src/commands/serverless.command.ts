@@ -14,11 +14,11 @@ module.exports = {
       const slsConfig = serverless({ kraken }, { spinner, toolbox });
       filesystem.write('.kraken/serverless.json', slsConfig);
 
-      spinner.text = `serverless ${args}...`;
-      const stdout = await system.exec(`serverless ${args} --config .kraken/serverless.json`);
-      spinner.stop();
-
-      print.info(stdout);
+      spinner.stopAndPersist(`serverless ${args}...`);
+      await system.spawn(`serverless ${args} --config .kraken/serverless.json`, {
+        shell: true,
+        stdio: 'inherit'
+      });
     } catch (error) {
       spinner.stopAndPersist({ symbol: '🚨', text: `Error running serverless command "serverless ${args}"` });
       print.error(error.message);
