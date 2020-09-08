@@ -44,6 +44,8 @@ const postToConnection = async (apiGateway: ApiGatewayManagementApi, connectionI
   }).promise();
 };
 
+export const ttl = (seconds = 7200) => Math.floor(Date.now() / 1000) + seconds; // 2 hours
+
 class DynamoDbConnectionManager<T> implements ConnectionManager<AwsConnection<T>, T> {
   protected tableName: string;
   protected dynamoDb: DynamoDB.DocumentClient;
@@ -56,7 +58,7 @@ class DynamoDbConnectionManager<T> implements ConnectionManager<AwsConnection<T>
   }
 
   async save(connection: Partial<AwsConnection<T>>) {
-    const item = { ...connection, subscriptionId: rootSubscriptionId };
+    const item = { ...connection, subscriptionId: rootSubscriptionId, ttl: ttl() };
     await this.dynamoDb.put({
       TableName: this.tableName,
       Item: item
@@ -116,6 +118,7 @@ class DynamoDbSubscriptionManager implements SubscriptionManager<AwsSubscription
       subscriptionId,
       apiGatewayUrl,
       triggerName: interpolate(triggerName, options),
+      ttl: ttl(),
       ...variables
     };
     await this.dynamoDb.put({
@@ -142,8 +145,9 @@ class DynamoDbSubscriptionManager implements SubscriptionManager<AwsSubscription
   private async batchUnsubscribe(connectionId: string, lastEvaluatedKey?) {
     const { Items = [], LastEvaluatedKey } = await this.dynamoDb.query({
       TableName: this.tableName,
-      KeyConditionExpression: 'connectionId = :connectionId AND subscriptionId <> :rootSubscriptionId',
-      ExpressionAttributeValues: { ':connectionId': connectionId, ':rootSubscriptionId': rootSubscriptionId },
+      KeyConditionExpression: 'connectionId = :connectionId', // AND subscriptionId <> :rootConnectionId (<> not allows in KeyConditionExpression)
+      FilterExpression: 'attribute_exists(triggerName)', // only subscriptions have triggerName, root connection does not
+      ExpressionAttributeValues: { ':connectionId': connectionId },
       ProjectionExpression: 'connectionId, subscriptionId',
       ExclusiveStartKey: lastEvaluatedKey,
       Limit: 25 // max batch write request size
