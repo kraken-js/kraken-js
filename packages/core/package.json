@@ -6,7 +6,8 @@
   "main": "dist/main.js",
   "scripts": {
     "test": "jest --passWithNoTests",
-    "package": "webpack-cli --output-path dist --clean"
+    "package": "webpack-cli --output-path dist --clean",
+    "prepublishOnly": "yarn package"
   },
   "dependencies": {
     "graphql": "^15.3.0",
