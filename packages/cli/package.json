@@ -1,6 +1,6 @@
 {
   "name": "@kraken.js/cli",
-  "version": "0.0.1-d7123a7",
+  "version": "0.0.1",
   "description": "Kraken CLI",
   "types": "build/types/types.d.ts",
   "bin": {
@@ -49,6 +49,7 @@
   },
   "prettier": {
     "semi": true,
-    "singleQuote": true
+    "singleQuote": true,
+    "printWidth": 120
   }
 }
