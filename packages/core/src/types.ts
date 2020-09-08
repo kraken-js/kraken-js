@@ -17,8 +17,8 @@ export interface Connection<T> {
 
 export interface Subscription {
   connectionId: string
-  triggerName: string
   subscriptionId: string
+  triggerName: string
 
   [key: string]: string
 }

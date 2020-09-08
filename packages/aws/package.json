@@ -4,7 +4,7 @@
   "license": "MIT",
   "main": "dist/main.js",
   "scripts": {
-    "test": "jest --passWithNoTests",
+    "test": "jest --passWithNoTests --runInBand",
     "package": "webpack-cli --output-path dist --clean",
     "prepublishOnly": "yarn package"
   },
@@ -15,7 +15,8 @@
   "devDependencies": {
     "@kraken.js/jest": "^0.0.1",
     "@kraken.js/webpack": "0.0.1",
-    "@types/aws-lambda": "^8.10.61",
-    "jest": "^26.4.2"
+    "@types/aws-lambda": "^8.10.62",
+    "jest": "^26.4.2",
+    "jest-dynalite": "^3.0.0"
   }
 }

@@ -1,9 +1,11 @@
-import { dynamoDbConnectionManager, dynamoDbSubscriptionManager } from '..';
+import { dynamoDbConnectionManager, dynamoDbSubscriptionManager } from '@kraken.js/aws';
+import { GQL_DATA } from '@kraken.js/core';
+import 'jest-dynalite/withDb';
 import { ApiGatewayManagementApiMock, DocumentClientMock } from './utils';
 
 const awsStuff = () => {
   const apiGateway = new ApiGatewayManagementApiMock();
-  const dynamoDb = new DocumentClientMock(({ connectionId, subscriptionId }) => ({ connectionId, subscriptionId }));
+  const dynamoDb = DocumentClientMock();
   return { apiGateway, dynamoDb };
 };
 
@@ -30,27 +32,21 @@ describe('DynamoDB Connection Manager', () => {
     const { dynamoDb, connections } = connectionManager();
 
     await connections.save({ connectionId: 'c1', context: { v: 1 } });
-    expect(dynamoDb.put).toHaveBeenCalledWith({
+
+    const { Item } = await dynamoDb.get({
       TableName: 'WsSubscriptions-test',
-      Item: {
-        connectionId: 'c1',
-        subscriptionId: '$connection',
-        context: { v: 1 }
-      }
+      Key: { connectionId: 'c1', subscriptionId: '$connection' }
+    }).promise();
+    expect(Item).toEqual({
+      connectionId: 'c1',
+      subscriptionId: '$connection',
+      context: { v: 1 }
     });
   });
 
   it.each([[0, 1], [1, 2]])('should fail to get connection with %s retry', async (retries, times) => {
-    const { dynamoDb, connections } = connectionManager();
+    const { connections } = connectionManager();
     await expect(connections.get('c2', retries)).rejects.toThrowError('Connection c2 not found');
-    expect(dynamoDb.get).toHaveBeenCalledTimes(times);
-    expect(dynamoDb.get).toHaveBeenCalledWith({
-      TableName: 'WsSubscriptions-test',
-      Key: {
-        connectionId: 'c2',
-        subscriptionId: '$connection'
-      }
-    });
   });
 
   it('should get connection successfully', async () => {
@@ -86,13 +82,51 @@ describe('DynamoDB Subscription Manager', () => {
         ...metadata,
         ...params
       });
-      expect(dynamoDb.put).toHaveBeenCalledWith({
+
+      const { Item } = await dynamoDb.get({
         TableName: 'WsSubscriptions-test',
-        Item: {
-          ...metadata,
-          ...vars,
-          triggerName: interpolatedTriggerName
-        }
+        Key: { connectionId: 'connection-id', subscriptionId: 'subscription-id' }
+      }).promise();
+
+      expect(Item).toEqual({
+        ...metadata,
+        ...vars,
+        triggerName: interpolatedTriggerName
       });
     });
+
+  it('should publish to subscriptions listening to triggerName', async () => {
+    const { subscriptions, apiGateway } = subscriptionsManager();
+    const con = (conn, sub) => ({
+      apiGatewayUrl: 'https://domain.fake/test',
+      connectionId: conn,
+      subscriptionId: sub
+    });
+
+    await subscriptions.subscribe('onMessage#{chatId}', { ...con('c1', 's1'), chatId: 'chat:1' });
+    await subscriptions.subscribe('onMessage#{chatId}', { ...con('c1', 's2'), chatId: 'chat:2' });
+    await subscriptions.subscribe('onMessage#{chatId}', { ...con('c2', 's1'), chatId: 'chat:1' });
+    await subscriptions.subscribe('onMessage#{chatId}', { ...con('c2', 's2'), chatId: 'chat:2' });
+
+    const payload = { chatId: 'chat:1', message: 'hello' };
+    await subscriptions.publish('onMessage#{chatId}', payload);
+
+    expect(apiGateway.postToConnection).toHaveBeenCalledTimes(2);
+    expect(apiGateway.postToConnection).toHaveBeenCalledWith({
+      ConnectionId: 'c1',
+      Data: JSON.stringify({
+        id: 's1',
+        type: GQL_DATA,
+        payload: { data: { onMessage: payload } }
+      })
+    });
+    expect(apiGateway.postToConnection).toHaveBeenCalledWith({
+      ConnectionId: 'c2',
+      Data: JSON.stringify({
+        id: 's1',
+        type: GQL_DATA,
+        payload: { data: { onMessage: payload } }
+      })
+    });
+  });
 });
