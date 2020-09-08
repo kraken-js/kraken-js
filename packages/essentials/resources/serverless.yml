@@ -1,0 +1,18 @@
+plugins:
+  - serverless-webpack
+  - serverless-offline
+  - serverless-pseudo-parameters
+package:
+  individually: true
+custom:
+  webpack:
+    packager: yarn
+  serverless-offline:
+    noPrependStageInUrl: true
+    httpPort: 4000
+    websocketPort: 4001
+    lambdaPort: 4002
+    useChildProcesses: true
+  environment:
+    offline:
+      IS_OFFLINE: true

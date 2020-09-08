@@ -1,6 +1,5 @@
 import { deepMerge } from '@kraken.js/core/src/helpers';
 import * as yaml from 'js-yaml';
-import serverlessConfig from './serverless-config';
 import { serverlessModules } from './serverless-modules';
 
 const loadLocal = ({ toolbox }) => {
@@ -15,7 +14,7 @@ const loadLocal = ({ toolbox }) => {
 export const serverless = ({ kraken }, { spinner, toolbox }) => {
   const serverlessLocal = loadLocal({ toolbox });
   const loadedModules = serverlessModules({ kraken }, { spinner });
-  const output = deepMerge(serverlessConfig, serverlessLocal, loadedModules);
+  const output = deepMerge(serverlessLocal, loadedModules);
 
   // merge environment configs
   const stage = output.provider.stage;

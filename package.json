@@ -4,10 +4,11 @@
   "private": true,
   "license": "MIT",
   "scripts": {
-    "publish": "yarn publish:core && yarn publish:cli && yarn publish:aws",
+    "publish": "yarn publish:core && yarn publish:essentials && yarn publish:cli && yarn publish:aws",
     "publish:core": "yarn publish packages/core --non-interactive --access public --new-version 0.0.1-$(git rev-parse --short HEAD)",
     "publish:cli": "yarn publish packages/cli --non-interactive --access public --new-version 0.0.1-$(git rev-parse --short HEAD)",
-    "publish:aws": "yarn publish packages/aws --non-interactive --access public --new-version 0.0.1-$(git rev-parse --short HEAD)"
+    "publish:aws": "yarn publish packages/aws --non-interactive --access public --new-version 0.0.1-$(git rev-parse --short HEAD)",
+    "publish:essentials": "yarn publish packages/essentials --non-interactive --access public --new-version 0.0.1-$(git rev-parse --short HEAD)"
   },
   "workspaces": [
     "packages/*"
