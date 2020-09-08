@@ -87,7 +87,7 @@ class DynamoDbConnectionManager<T> implements ConnectionManager<AwsConnection<T>
       }).promise(),
       this.apiGateway(apiGatewayUrl).deleteConnection({
         ConnectionId: connectionId
-      }).promise()
+      }).promise().catch(e => void e) // it's ok to fail with 410 here
     ]);
   }
 
@@ -147,7 +147,7 @@ class DynamoDbSubscriptionManager implements SubscriptionManager<AwsSubscription
       ExpressionAttributeValues: { ':connectionId': connectionId, ':rootSubscriptionId': rootSubscriptionId },
       ProjectionExpression: 'connectionId, subscriptionId',
       ExclusiveStartKey: lastEvaluatedKey,
-      Limit: subscriptionsBatchLoadLimit
+      Limit: 25 // max batch write request size
     }).promise();
 
     if (Items.length > 0) {
