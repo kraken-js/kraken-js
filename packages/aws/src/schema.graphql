@@ -1,7 +1,15 @@
-type Query {
-    systemInfo: SystemInfo
+directive @pub(triggerName: String!) on FIELD_DEFINITION
+directive @sub(triggerName: String!) on FIELD_DEFINITION
+
+type Subscription {
+    onPing(channel: String): String @sub(triggerName: "onPing#{channel}")
 }
 
-type SystemInfo {
-    region: String
+type Mutation {
+    ping(channel: String!): Ping @pub(triggerName: "onPing#{channel}")
+}
+
+type Ping {
+    channel: String!
+    timestamp: Float!
 }

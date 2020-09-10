@@ -1,12 +1,18 @@
-import { wsHandler } from '@kraken.js/aws';
-// @ts-ignore
-import * as typeDefs from './schema.graphql';
+import { graphqlSchema as krakenJsAws, wsHandler } from '@kraken.js/aws';
+import { mergeGraphqlSchemas } from '@kraken.js/core';
 
-export const handler = wsHandler({
-  typeDefs,
+const demoSchema = {
+  typeDefs: `type Query {
+    hello: String
+  }`,
   resolvers: {
     Query: {
-      hello: () => 'olá mundo!'
+      hello: () => process.env.hello
     }
   }
-});
+};
+
+export const handler = wsHandler(mergeGraphqlSchemas([
+  krakenJsAws,
+  demoSchema
+]));

@@ -6,13 +6,13 @@
   "scripts": {
     "offline": "sls offline start --stage offline",
     "preoffline": "sls dynamodb install",
+    "print": "sls print --stage offline",
     "package": "echo 'not yeat implemented'"
   },
   "dependencies": {
     "@kraken.js/aws": "0.0.1"
   },
   "devDependencies": {
-    "@kraken.js/cli": "0.0.1",
     "@kraken.js/webpack": "0.0.1",
     "@kraken.js/serverless": "0.0.1"
   }
