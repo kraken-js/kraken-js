@@ -13,12 +13,13 @@ export const graphqlModules = async ({ kraken, graphqlSchemaFile }, { spinner, t
 
   const { patching } = toolbox;
   const modules: string[] = [];
-  for (const module of kraken.graphql) {
-    spinner && (spinner.text = `🐙 Loading Graphql module ${module}`);
+  for (const graphqlModule of kraken.graphql) {
+    spinner && (spinner.text = `🐙 Loading Graphql module ${graphqlModule}`);
 
-    const moduleName = camelize(module);
-    await patching.append(graphqlSchemaFile, `import { graphqlSchema as ${moduleName} } from '${module}';\n`);
-    modules.push(moduleName);
+    const [moduleName, exportName = 'graphqlSchema'] = graphqlModule.split(':');
+    const importAs = camelize(moduleName);
+    await patching.append(graphqlSchemaFile, `import { ${exportName} as ${importAs} } from '${moduleName}';\n`);
+    modules.push(importAs);
   }
   return modules;
 };

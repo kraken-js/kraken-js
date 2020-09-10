@@ -1,12 +1,11 @@
 const { system, filesystem } = require('gluegun');
 
+const projectName = 'electric-wolf';
 const src = filesystem.path(__dirname, '..');
 
 const cli = (cmd) => {
   return system.exec('node ' + filesystem.path(src, 'bin', 'kraken') + ` ${cmd}`);
 };
-
-const projectName = '__kraken';
 
 describe('kraken.js', () => {
   test('outputs version', async () => {
@@ -35,14 +34,13 @@ describe('kraken.js', () => {
       filesystem.remove(projectName);
     });
 
+    test('serverless print --stage offline', async () => {
+      const output = await system.exec('serverless print --stage offline', { env: { CI: 'true' } });
+      expect(output).toMatchSnapshot();
+    });
+
     test('kraken new should create project folder', async () => {
       filesystem.exists(projectName);
-    }, timeout);
-
-    test('should generate .kraken/serverless.json file', async () => {
-      const output = await cli('serverless print --stage test');
-      console.debug(output);
-      expect(filesystem.read('.kraken/serverless.json')).toMatchSnapshot();
     }, timeout);
 
     test('should generate src/schema.ts file', async () => {

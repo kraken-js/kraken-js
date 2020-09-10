@@ -1,23 +1,13 @@
 plugins:
   - serverless-webpack
   - serverless-offline
-  - serverless-pseudo-parameters
-  - serverless-dynamodb-local
 
 package:
   individually: true
+
 custom:
   webpack:
     packager: yarn
-  dynamodb:
-    stages:
-      - offline
-    start:
-      port: 5002
-      inMemory: false
-      dbPath: ${env:PWD}/.dynamodb
-      migrate: true
-      seed: true
   serverless-offline:
     noPrependStageInUrl: true
     httpPort: 4000
