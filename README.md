@@ -29,7 +29,9 @@ offline: Offline [http for websocket] listening on http://localhost:4001
 
 ## In Action
 
-The websocket protocol implementation is based on https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md
+Check the [demo](packages/demo) project
+
+The websocket protocol implementation is based on [Apollo subscriptions-transport-ws](https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md)
 
 With this simple schema and an even simpler resolver
 

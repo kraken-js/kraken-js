@@ -11,13 +11,5 @@ export const schemaDirectives = {
 
 export const graphqlSchema: IExecutableSchemaDefinition = {
   typeDefs,
-  schemaDirectives,
-  resolvers: {
-    Mutation: {
-      ping: (_, args) => ({
-        ...args,
-        timestamp: Date.now()
-      })
-    }
-  }
+  schemaDirectives
 };
