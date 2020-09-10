@@ -5,6 +5,9 @@ on:
   release:
     types: [ published ]
 
+env:
+  ENV: production
+
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -17,6 +20,7 @@ jobs:
           - packages/aws
           - packages/webpack
           - packages/essentials
+          - packages/serverless
 
     steps:
       - uses: actions/checkout@v2

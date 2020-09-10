@@ -1,0 +1,19 @@
+{
+  "name": "@kraken.js/serverless",
+  "version": "0.0.1",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "jest --passWithNoTests --runInBand",
+    "package": "tsc --project .",
+    "prepublishOnly": "yarn package"
+  },
+  "devDependencies": {
+    "@kraken.js/jest": "^0.0.1",
+    "@types/serverless": "^1.72.6",
+    "jest": "^26.4.2"
+  },
+  "dependencies": {
+    "cosmiconfig": "^7.0.0"
+  }
+}

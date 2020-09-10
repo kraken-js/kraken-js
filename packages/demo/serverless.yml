@@ -1,4 +1,4 @@
-service: <%= props.name %>-kraken
+service: demo-kraken
 
 provider:
   name: aws
@@ -12,6 +12,13 @@ custom:
     - '@kraken.js/essentials:aws'
     - '@kraken.js/aws'
     - '@kraken.js/aws:sls'
+  environment:
+    default:
+      hello: default hello
+    dev:
+      hello: hello world
+    offline:
+      hello: olá mundo
 
 functions:
   wsGraphqlHandler:
