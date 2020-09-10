@@ -69,15 +69,15 @@ export default class KrakenJs implements Plugin {
     return (this.serverless as any).processedInput.commands.includes('print');
   }
 
-  private wrapFunctions({ serverless, manifest: { name } }) {
+  private wrapFunctions({ serverless, manifest: { name: moduleName } }) {
     if (serverless.functions) {
       Object.values(serverless.functions).forEach((fun: any) => {
-        const fileName = fun.handler.substring(0, fun.handler.lastIndexOf('.'));
-        const methodName = fun.handler.substring(fun.handler.lastIndexOf('.'));
+        const handlerFileName = fun.handler.substring(0, fun.handler.lastIndexOf('.'));
+        const handlerName = fun.handler.substring(fun.handler.lastIndexOf('.'));
 
-        const generatedHandler = path.join(generatedPath, name, fileName) + methodName;
-        const generatedFileName = path.join(generatedPath, name, fileName) + '.ts';
-        this.serverless.utils.writeFileSync(generatedFileName, `export { ${methodName} } from '${name}'`);
+        const generatedHandler = path.join(generatedPath, moduleName, handlerFileName) + handlerName;
+        const generatedFileName = path.join(generatedPath, moduleName, handlerFileName) + '.ts';
+        this.serverless.utils.writeFileSync(generatedFileName, `export * from '${moduleName}/${handlerFileName}'`);
 
         // overwrite the handler
         fun.handler = generatedHandler;
@@ -88,9 +88,11 @@ export default class KrakenJs implements Plugin {
   private getKrakenConfig() {
     const result: any[] = [];
 
+    // serverless.yml -> custom.kraken
     const serverlessConfig = this.serverless.service.custom.kraken;
     if (serverlessConfig) result.push(...serverlessConfig);
 
+    // kraken.config.js
     const krakenConfig = cosmiconfigSync('kraken').search();
     if (krakenConfig) {
       const { config: { serverless = [] } } = krakenConfig;
