@@ -188,7 +188,7 @@ class DynamoDbSubscriptionManager implements SubscriptionManager<AwsSubscription
           id: subscriptionId,
           type: GQL_DATA,
           payload: { data: { [subscriptionName]: { ...data, ...__metadata } } }
-        });
+        }).catch(e => void e);
       })
     );
     if (LastEvaluatedKey) {
