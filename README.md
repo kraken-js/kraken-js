@@ -1,6 +1,6 @@
 # @kraken.js
 
-Real Serverless Graphql Experience with Realtime Support!
+Real Serverless Graphql Experience with Realtime Powers!
 
 ## Instalation
 
