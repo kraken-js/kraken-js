@@ -18,7 +18,8 @@ export const graphqlModules = async ({ kraken, graphqlSchemaFile }, { spinner, t
 
     const [moduleName, exportName = 'graphqlSchema'] = graphqlModule.split(':');
     const importAs = camelize(moduleName);
-    await patching.append(graphqlSchemaFile, `import { ${exportName} as ${importAs} } from '${moduleName}';\n`);
+    const exportedAs = camelize(exportName);
+    await patching.append(graphqlSchemaFile, `import { ${exportedAs} as ${importAs} } from '${moduleName}';\n`);
     modules.push(importAs);
   }
   return modules;

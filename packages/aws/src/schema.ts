@@ -1,15 +1,15 @@
 import { IExecutableSchemaDefinition } from '@graphql-tools/schema';
+import { PublishDirective } from './directives/publish-directive';
+import { SubscribeDirective } from './directives/subscribe-directive';
 // @ts-ignore
 import * as typeDefs from './schema.graphql';
 
+export const schemaDirectives = {
+  pub: PublishDirective,
+  sub: SubscribeDirective
+};
+
 export const graphqlSchema: IExecutableSchemaDefinition = {
   typeDefs,
-  resolvers: {
-    Query: {
-      systemInfo: () => ({})
-    },
-    SystemInfo: {
-      region: () => process.env.AWS_REGION
-    }
-  }
+  schemaDirectives
 };

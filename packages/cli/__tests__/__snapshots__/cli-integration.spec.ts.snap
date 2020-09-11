@@ -5,28 +5,24 @@ exports[`kraken.js After Generate Project serverless print --stage offline 1`] =
 provider:
   name: aws
 plugins:
-  - '@kraken.js/serverless'
-  - serverless-webpack
-  - serverless-offline
   - serverless-pseudo-parameters
   - serverless-dynamodb-local
+  - serverless-offline
+  - serverless-webpack
+  - serverless-pseudo-parameters
+  - serverless-dynamodb-local
+  - serverless-offline
 custom:
   kraken:
     - '@kraken.js/essentials'
     - '@kraken.js/essentials:aws'
     - '@kraken.js/aws'
-    - '@kraken.js/aws:sls'
+    - '@kraken.js/aws:subscriptions'
   webpack:
     packager: yarn
     includeModules:
       forceExclude:
         - aws-sdk
-  serverless-offline:
-    noPrependStageInUrl: true
-    httpPort: 4000
-    websocketPort: 4001
-    lambdaPort: 4002
-    useChildProcesses: true
   account: '#{AWS::AccountId}'
   region: us-east-1
   stage: offline
@@ -42,6 +38,12 @@ custom:
       - Content-Type
       - Authorization
       - Range
+  serverless-offline:
+    noPrependStageInUrl: true
+    httpPort: 4000
+    websocketPort: 4001
+    lambdaPort: 4002
+    useChildProcesses: true
   dynamodb:
     stages:
       - offline

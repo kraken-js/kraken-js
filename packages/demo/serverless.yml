@@ -11,12 +11,13 @@ custom:
     - '@kraken.js/essentials'
     - '@kraken.js/essentials:aws'
     - '@kraken.js/aws'
-    - '@kraken.js/aws:sls'
+    - '@kraken.js/aws:subscriptions'
+
   environment:
     default:
-      hello: default hello
-    dev:
       hello: hello world
+    dev:
+      hello: salut le monde
     offline:
       hello: olá mundo
 

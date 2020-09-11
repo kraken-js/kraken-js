@@ -1,7 +1,2 @@
-type Query {
-    systemInfo: SystemInfo
-}
-
-type SystemInfo {
-    region: String
-}
+directive @pub(triggerName: String!) on FIELD_DEFINITION
+directive @sub(triggerName: String!) on FIELD_DEFINITION

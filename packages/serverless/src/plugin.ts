@@ -6,10 +6,17 @@ import Plugin from 'serverless/classes/Plugin';
 
 const generatedPath = '.kraken';
 
+const camelize = str => {
+  const result = str.replace(/(?:^\w|[A-Z]|\b\w)/g, (word, index) => {
+    return index === 0 ? word.toLowerCase() : word.toUpperCase();
+  }).replace(/\W+/g, '');
+  return result[0].toLowerCase() + result.slice(1);
+};
+
 export default class KrakenJs implements Plugin {
   public static pluginName = '@kraken.js/serverless';
   public hooks: Plugin.Hooks = {};
-  protected plugins: string[] = [];
+  protected plugins = new Set<string>();
 
   constructor(protected serverless: Serverless, protected config: Serverless.Config) {
     this.loadServerlessModules();
@@ -20,20 +27,8 @@ export default class KrakenJs implements Plugin {
   }
 
   loadServerlessModules() {
-    const modules = this.getKrakenConfig();
-    if (modules.length > 0) {
-      for (const module of modules) {
-        const { serverless, manifest } = this.loadModule(module);
-        this.wrapFunctions({ serverless, manifest });
-
-        const plugins = serverless.plugins;
-        delete serverless.plugins;
-
-        this.serverless.service.update(serverless);
-        if (plugins) this.plugins.push(...plugins);
-      }
-    }
-    (this.serverless.service as any).plugins.push(...this.plugins);
+    this.loadModules(this.getKrakenConfig());
+    (this.serverless.service as any).plugins.push(...this.plugins.values());
 
     const stage = (this.config as any).stage || (this.config as any).s || 'dev';
     const environment = {
@@ -44,6 +39,22 @@ export default class KrakenJs implements Plugin {
 
     delete this.serverless.service.custom.environment;
     this.serverless.service.update({ provider: { environment } });
+  }
+
+  private loadModules(modules: any[] = []) {
+    if (modules.length > 0) {
+      for (const module of modules) {
+        const { serverless = {}, manifest } = this.loadModule(module);
+        this.importFunctions({ serverless, manifest });
+        this.serverless.service.update(serverless);
+
+        if (serverless.plugins) {
+          serverless.plugins.forEach(plugin =>
+            this.plugins.add(plugin)
+          );
+        }
+      }
+    }
   }
 
   private loadModule(module) {
@@ -57,11 +68,18 @@ export default class KrakenJs implements Plugin {
     const [moduleRequire, exportName = 'serverless'] = moduleName.split(':');
     const moduleSls = require(moduleRequire);
 
-    const isFunction = moduleSls instanceof Function;
     const {
-      [exportName]: serverless,
+      [camelize(exportName)]: importedServerless,
       manifest = { name: moduleName }
-    } = isFunction ? moduleSls(moduleConfig) : moduleSls;
+    } = moduleSls instanceof Function ? moduleSls(moduleConfig) : moduleSls;
+
+    const serverless = importedServerless instanceof Function
+      ? importedServerless(moduleConfig)
+      : importedServerless;
+
+    // recursive modules loading
+    this.loadModules(serverless.custom?.kraken);
+
     return { serverless, manifest };
   }
 
@@ -69,8 +87,8 @@ export default class KrakenJs implements Plugin {
     return (this.serverless as any).processedInput.commands.includes('print');
   }
 
-  private wrapFunctions({ serverless, manifest: { name: moduleName } }) {
-    if (serverless.functions) {
+  private importFunctions({ serverless, manifest: { name: moduleName } }) {
+    if (serverless?.functions) {
       Object.values(serverless.functions).forEach((fun: any) => {
         const handlerFileName = fun.handler.substring(0, fun.handler.lastIndexOf('.'));
         const handlerName = fun.handler.substring(fun.handler.lastIndexOf('.'));

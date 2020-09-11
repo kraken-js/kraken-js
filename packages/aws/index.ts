@@ -1,7 +1,7 @@
 // @ts-ignore
 export * as serverless from './resources/serverless.yml';
 // @ts-ignore
-export * as sls from './resources/serverless-ws.yml';
+export * as subscriptions from './resources/serverless-subscriptions.yml';
 // @ts-ignore
 export * as manifest from './package.json';
 

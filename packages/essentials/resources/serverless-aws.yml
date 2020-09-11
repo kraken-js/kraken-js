@@ -1,6 +1,7 @@
 plugins:
   - serverless-pseudo-parameters
   - serverless-dynamodb-local
+  - serverless-offline
 
 provider:
   name: aws
@@ -43,6 +44,12 @@ custom:
   webpack:
     includeModules:
       forceExclude: [ aws-sdk ]
+  serverless-offline:
+    noPrependStageInUrl: true
+    httpPort: 4000
+    websocketPort: 4001
+    lambdaPort: 4002
+    useChildProcesses: true
   dynamodb:
     stages:
       - offline
