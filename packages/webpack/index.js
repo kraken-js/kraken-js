@@ -1,4 +1,5 @@
 module.exports = {
-  webpack: require('./src/webpack.commons.js'),
-  webpackSls: require('./src/webpack.commons-sls.js')
+  default: require('./src/webpack.commons.js'),
+  forModule: require('./src/webpack.commons-module.js'),
+  forServerless: require('./src/webpack.commons-serverless.js')
 };

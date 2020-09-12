@@ -8,6 +8,13 @@
     "package": "webpack-cli --output-path dist --clean",
     "prepublishOnly": "yarn package"
   },
+  "files": [
+    "dist",
+    "package.json",
+    "tsconfig.json",
+    "README.md",
+    "LICENSE"
+  ],
   "dependencies": {
     "@kraken.js/core": "^0.0.1",
     "graphql": "^15.3.0",

@@ -3,6 +3,12 @@
   "version": "0.0.1",
   "license": "MIT",
   "main": "dist/main.js",
+  "files": [
+    "dist",
+    "package.json",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "test": "jest --passWithNoTests",
     "package": "webpack-cli --output-path dist --clean",

@@ -7,7 +7,7 @@ module.exports = (dirname, entry) => ({
     __dirname: false,
     __filename: false
   },
-  entry: entry,
+  entry: path.join(dirname, entry),
   devtool: isProduction ? 'source-map' : 'cheap-source-map',
   mode: isProduction ? 'production' : 'development',
 
@@ -65,8 +65,7 @@ module.exports = (dirname, entry) => ({
 
   output: {
     libraryTarget: 'commonjs',
-    path: path.join(dirname, '.build'),
-    filename: '[name].js',
+    path: path.join(dirname, 'dist'),
     pathinfo: false
   }
 });
