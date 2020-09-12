@@ -3,10 +3,13 @@
   "version": "0.0.1",
   "private": true,
   "license": "MIT",
+  "author": "@kraken.js",
+  "repository": "github:kraken-js/kraken.js",
   "scripts": {
-    "offline": "sls offline start --stage offline",
-    "preoffline": "sls dynamodb install",
-    "print": "sls print --stage offline",
+    "predev": "sls dynamodb install",
+    "dev": "sls offline start --stage offline",
+    "sls:print": "sls print --stage offline",
+    "sls:package": "sls package --stage offline",
     "package": "echo 'not yeat implemented'"
   },
   "dependencies": {
@@ -14,6 +17,7 @@
   },
   "devDependencies": {
     "@kraken.js/webpack": "0.0.1",
-    "@kraken.js/serverless": "0.0.1"
+    "@kraken.js/serverless": "0.0.1",
+    "webpack-bundle-analyzer": "^3.8.0"
   }
 }

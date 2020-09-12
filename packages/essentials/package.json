@@ -2,6 +2,8 @@
   "name": "@kraken.js/essentials",
   "version": "0.0.1",
   "license": "MIT",
+  "author": "@kraken.js",
+  "repository": "github:kraken-js/kraken.js",
   "main": "dist/main.js",
   "files": [
     "dist",

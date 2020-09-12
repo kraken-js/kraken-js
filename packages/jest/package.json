@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "Commons Jest Stuff",
   "author": "@kraken.js",
+  "repository": "github:kraken-js/kraken.js",
   "scripts": {
     "test": "echo 'not yeat implemented'",
     "package": "echo 'not yeat implemented'"

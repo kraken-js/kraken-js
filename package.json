@@ -3,6 +3,8 @@
   "version": "0.0.1",
   "private": true,
   "license": "MIT",
+  "author": "@kraken.js",
+  "repository": "github:kraken-js/kraken.js",
   "scripts": {
     "package": "yarn workspaces run package",
     "reinstall": "yarn clean && yarn install",

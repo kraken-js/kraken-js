@@ -4,8 +4,8 @@
   "private": true,
   "license": "MIT",
   "scripts": {
-    "offline": "sls offline start --stage offline",
-    "preoffline": "sls dynamodb install"
+    "predev": "sls dynamodb install",
+    "dev": "sls offline start --stage offline"
   },
   "dependencies": {
     "@kraken.js/aws": "latest",

@@ -16,7 +16,7 @@ kraken new [--name|--version]
 
 ```sh
 cd {name}
-yarn offline
+yarn dev
 
 offline: Starting Offline: offline/us-east-1.
 offline: Offline [http for lambda] listening on http://localhost:4002

@@ -2,6 +2,8 @@
   "name": "@kraken.js/cli",
   "version": "0.0.1",
   "description": "Kraken CLI",
+  "author": "@kraken.js",
+  "repository": "github:kraken-js/kraken.js",
   "types": "dist/types/types.d.ts",
   "bin": {
     "kraken": "bin/kraken"
