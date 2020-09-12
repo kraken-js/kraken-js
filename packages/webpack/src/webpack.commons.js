@@ -7,7 +7,7 @@ module.exports = (dirname, entry) => ({
     __dirname: false,
     __filename: false
   },
-  entry: path.join(dirname, entry),
+  entry: typeof entry === 'string' ? path.join(dirname, entry) : entry,
   devtool: isProduction ? 'source-map' : 'cheap-source-map',
   mode: isProduction ? 'production' : 'development',
 
