@@ -8,6 +8,13 @@
     "package": "tsc --project .",
     "prepublishOnly": "yarn package"
   },
+  "files": [
+    "dist",
+    "package.json",
+    "tsconfig.json",
+    "README.md",
+    "LICENSE"
+  ],
   "devDependencies": {
     "@kraken.js/jest": "^0.0.1",
     "@types/serverless": "^1.72.6",

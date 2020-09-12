@@ -1,18 +1,11 @@
 {
   "compilerOptions": {
-    "preserveConstEnums": true,
-    "strictNullChecks": true,
-    "sourceMap": true,
-    "allowJs": true,
-    "target": "es2019",
     "moduleResolution": "node",
-    "esModuleInterop": true,
-    "resolveJsonModule": true,
-    "allowSyntheticDefaultImports": true,
-    "lib": ["es2019"],
-    "baseUrl": "./",
-    "rootDir": "./",
-    "outDir": ".build"
+    "target": "es2019",
+    "declaration": true,
+    "outDir": "dist"
   },
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }
