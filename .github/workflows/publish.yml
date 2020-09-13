@@ -44,7 +44,10 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: yarn install --frozen-lockfile
 
-      - name: Version
+      - name: Workspace Package
+        run: yarn package
+
+      - name: Bump Version
         run: yarn version --new-version "0.0.1-${GITHUB_SHA::8}" --no-git-tag-version
         working-directory: ${{ matrix.package }}
 
