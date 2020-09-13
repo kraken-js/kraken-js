@@ -1,4 +1,4 @@
-import { dynamoDbStores, wsHandler } from '@kraken.js/aws';
+import { graphqlSchema, wsHandler } from '@kraken.js/aws';
 import { krakenIt } from '@kraken.js/core';
 
 const demoSchema = {
@@ -27,6 +27,6 @@ const demoSchema = {
 };
 
 export const handler = wsHandler(krakenIt([
-  dynamoDbStores,
+  graphqlSchema,
   demoSchema
 ]));

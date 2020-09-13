@@ -23,7 +23,7 @@ custom:
 
 functions:
   wsGraphqlHandler:
-    handler: src/ws-handler.handler
+    handler: src/demo-ws-handler.handler
     events:
       - websocket:
           route: $connect
