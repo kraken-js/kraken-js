@@ -40,7 +40,7 @@ jobs:
         run: npm install -g serverless
 
       - name: Workspace Package
-        run: yarn workspaces run package
+        run: yarn package
 
       - name: Unit Tests
         working-directory: ${{ matrix.package }}
