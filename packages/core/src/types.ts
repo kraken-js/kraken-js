@@ -33,6 +33,10 @@ export interface PubSub {
   publish(triggerName: string, payload: any): Promise<void>
 }
 
+export interface Broadcaster {
+  broadcast(triggerName: string, payload: any)
+}
+
 export interface KrakenSchema extends Partial<IExecutableSchemaDefinition<Kraken.Context>> {
   plugins?(inject): void;
 
@@ -86,17 +90,19 @@ declare global {
       [key: string]: any
     }
 
-    interface Context {
-      $pubsubMode?: 'IN' | 'OUT'
-      $pubsubStrategy?: 'AS_IS' | 'GRAPHQL'
+    type PublishingStrategy = 'AS_IS' | 'GRAPHQL' | 'BROADCASTER';
 
+    interface Context {
       [key: string]: any
     }
 
     interface Plugins {
       $connections: ConnectionStore
       $subscriptions: SubscriptionStore
-      $pubsub: (context: ExecutionContext) => PubSub
+      $pubsub: PubSub
+      $subMode?: 'IN' | 'OUT'
+      $pubStrategy?: PublishingStrategy | Record<string, PublishingStrategy>
+      $broadcaster?: Broadcaster
     }
 
     interface ConnectionInfo {
@@ -104,9 +110,8 @@ declare global {
     }
 
     type ExecutionContext = Context & Plugins & {
-      connectionInfo: ConnectionInfo
-      operationId: string
-      operation: {
+      connectionInfo?: ConnectionInfo
+      operation?: {
         id: string
         document: DocumentNode
         operationName: string

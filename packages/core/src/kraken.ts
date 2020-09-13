@@ -51,8 +51,6 @@ export const krakenIt = <T>(schemas: KrakenSchema | KrakenSchema[]): KrakenRunti
     each.onAfterExecute && onAfterExecute.push(each.onAfterExecute);
   });
 
-  const executableSchema = makeExecutableSchema(schema);
-
   const $plugins = {} as Kraken.Plugins;
   plugins.forEach(plugin => {
     plugin((name, value) => {
@@ -60,14 +58,29 @@ export const krakenIt = <T>(schemas: KrakenSchema | KrakenSchema[]): KrakenRunti
     });
   });
 
+  const assignPlugins = ctx => {
+    Object.getOwnPropertyNames($plugins).forEach(plugin => {
+      const $ = { [plugin]: $plugins[plugin] };
+      Object.defineProperty(ctx, plugin, {
+        get: () => {
+          if (typeof $[plugin] === 'function') {
+            $[plugin] = $[plugin](ctx);
+          }
+          return $[plugin];
+        }
+      });
+    });
+    return Object.seal(ctx);
+  };
+
+  const executableSchema = makeExecutableSchema(schema);
   const gqlExecute = async (args: ExecutionArgs) => {
     const executionContextValue = args.contextValue;
     const connection = await $plugins.$connections.get(args.connectionInfo.connectionId);
 
     const connectionContextValue = connection.context;
-    const contextValue = {
+    const contextValue = assignPlugins({
       ...connectionContextValue,
-      ...$plugins,
       ...executionContextValue,
       connectionInfo: args.connectionInfo,
       operation: {
@@ -77,7 +90,7 @@ export const krakenIt = <T>(schemas: KrakenSchema | KrakenSchema[]): KrakenRunti
         variableValues: args.variableValues
       },
       gqlExecute
-    };
+    });
 
     for (const fn of onBeforeExecute) {
       const out = await fn(contextValue, args.document);
@@ -150,13 +163,12 @@ export const krakenIt = <T>(schemas: KrakenSchema | KrakenSchema[]): KrakenRunti
     ]);
   };
 
-  return {
-    ...$plugins,
+  return assignPlugins({
     schema: executableSchema,
     gqlExecute,
     onGqlInit,
     onGqlStart,
     onGqlStop,
     onGqlConnectionTerminate
-  };
+  });
 };

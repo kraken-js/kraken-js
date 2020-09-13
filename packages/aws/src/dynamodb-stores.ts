@@ -1,6 +1,6 @@
 import { ConnectionStore, SubscriptionStore } from '@kraken.js/core';
 import { ApiGatewayManagementApi, DynamoDB } from 'aws-sdk';
-import { getApiGateway, getDocumentClient } from './instances';
+import { getApiGateway, getDynamoDb } from './instances';
 
 const subscriptionsBatchLoadLimit = 100;
 type ApiGatewayFactory = (endpoint: string) => ApiGatewayManagementApi;
@@ -39,7 +39,7 @@ class DynamoDbConnectionManager<T> implements ConnectionStore {
   protected apiGateway: ApiGatewayFactory;
 
   constructor({ dynamoDb, tableName, apiGateway }: DynamoDbConfig) {
-    this.dynamoDb = dynamoDb ? dynamoDb : getDocumentClient();
+    this.dynamoDb = dynamoDb ? dynamoDb : getDynamoDb();
     this.apiGateway = apiGateway ? apiGateway : endpoint => getApiGateway(endpoint);
     this.tableName = tableName ? tableName : getTableName();
   }
@@ -92,7 +92,7 @@ class DynamoDbSubscriptionManager implements SubscriptionStore {
   protected apiGateway: ApiGatewayFactory;
 
   constructor({ dynamoDb, tableName, apiGateway }: DynamoDbConfig) {
-    this.dynamoDb = dynamoDb ? dynamoDb : getDocumentClient();
+    this.dynamoDb = dynamoDb ? dynamoDb : getDynamoDb();
     this.apiGateway = apiGateway ? apiGateway : endpoint => getApiGateway(endpoint);
     this.tableName = tableName ? tableName : getTableName();
   }

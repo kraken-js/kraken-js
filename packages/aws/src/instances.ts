@@ -1,4 +1,4 @@
-import { ApiGatewayManagementApi, config as awsConfig, DynamoDB, Lambda, SNS } from 'aws-sdk';
+import { ApiGatewayManagementApi, config as awsConfig, DynamoDB, Lambda, SNS, SQS } from 'aws-sdk';
 import * as yn from 'yn';
 
 const isOffline = yn(process.env.IS_OFFLINE);
@@ -7,7 +7,7 @@ const instances: Record<string, any> = {
   dynamoDb: undefined,
   lambda: undefined,
   sns: undefined,
-  s3: undefined
+  sqs: undefined
 };
 
 if (isOffline) {
@@ -27,7 +27,7 @@ export const getLambda = (): Lambda => {
   return instances.lambda;
 };
 
-export const getDocumentClient = (): DynamoDB.DocumentClient => {
+export const getDynamoDb = (): DynamoDB.DocumentClient => {
   if (!instances.dynamoDb) {
     instances.dynamoDb = new DynamoDB.DocumentClient({
       endpoint: isOffline ? 'http://localhost:5002' : undefined
@@ -43,6 +43,15 @@ export const getSNS = (): SNS => {
     });
   }
   return instances.sns;
+};
+
+export const getSQS = (): SQS => {
+  if (!instances.sqs) {
+    instances.sqs = new SQS({
+      endpoint: isOffline ? 'http://localhost:7002' : undefined
+    });
+  }
+  return instances.sqs;
 };
 
 export const getApiGateway = (endpoint): ApiGatewayManagementApi => {

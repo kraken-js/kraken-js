@@ -1,4 +1,4 @@
-import { ConnectionStore, SubscriptionStore } from '..';
+import { ConnectionStore, SubscriptionStore } from '@kraken.js/core';
 
 export const mockRootPlugins = (inject) => {
   const connections = {};
