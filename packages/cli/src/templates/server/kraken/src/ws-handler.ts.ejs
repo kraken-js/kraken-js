@@ -1,4 +1,29 @@
-import { wsHandler } from '@kraken.js/aws';
-import { graphqlSchema } from './schema';
+import { graphqlSchema as krakenJsAws, wsHandler } from '@kraken.js/aws';
+import { krakenIt } from '@kraken.js/core';
 
-export const handler = wsHandler(graphqlSchema);
+const demoSchema = {
+  typeDefs: `
+    type Query {
+      _: String
+    }
+    type Subscription {
+        onPing(channel: String): String @sub(triggerName: "onPing#{channel}")
+    }
+    type Mutation {
+        ping(channel: String!): Ping @pub(triggerName: "onPing#{channel}")
+    }
+    type Ping {
+        channel: String!
+        timestamp: Float!
+    }`,
+  resolvers: {
+    Mutation: {
+      ping: (_, { channel }) => ({ channel, timestamp: Date.now() })
+    }
+  }
+};
+
+export const handler = wsHandler(krakenIt([
+  krakenJsAws,
+  demoSchema
+]));

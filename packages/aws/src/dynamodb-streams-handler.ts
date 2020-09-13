@@ -1,7 +1,7 @@
 import { Subscription, SubscriptionManager } from '@kraken.js/core';
 import { DynamoDBRecord, DynamoDBStreamEvent } from 'aws-lambda';
 import { DynamoDB } from 'aws-sdk';
-import { dynamoDbSubscriptionManager } from './dynamodb-managers';
+import { dynamoDbSubscriptionStore } from './dynamodb-stores';
 
 const getItem = (record: DynamoDBRecord) => {
   if (record.dynamodb?.NewImage) return DynamoDB.Converter.unmarshall(record.dynamodb?.NewImage as any);
@@ -27,7 +27,7 @@ interface DynamodbStreamsHandlerParams {
  * @param subscriptions SubscriptionManager for querying subscriptions
  */
 export const dynamodbStreamsHandler = ({ triggerName, typeName, subscriptions }: DynamodbStreamsHandlerParams) => {
-  if (!subscriptions) subscriptions = dynamoDbSubscriptionManager();
+  if (!subscriptions) subscriptions = dynamoDbSubscriptionStore();
 
   return async (event: DynamoDBStreamEvent) => {
     await Promise.all(event.Records.map(record => {

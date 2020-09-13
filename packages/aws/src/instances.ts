@@ -1,5 +1,5 @@
 import { ApiGatewayManagementApi, config as awsConfig, DynamoDB, Lambda, SNS } from 'aws-sdk';
-import yn from 'yn';
+import * as yn from 'yn';
 
 const isOffline = yn(process.env.IS_OFFLINE);
 const instances: Record<string, any> = {

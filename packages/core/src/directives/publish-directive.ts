@@ -7,15 +7,12 @@ export class PublishDirective extends SchemaDirectiveVisitor {
     const triggerName = this.args.triggerName;
     const typeName = field.type?.name;
 
-    field.resolve = async function(source, args, context, info) {
+    field.resolve = async function(source, args, context: Kraken.ExecutionContext, info) {
       const payload = await resolve.apply(this, [source, args, context, info]);
-      const { $subscriptions } = context;
-
-      await $subscriptions.publish(triggerName, {
-        __metadata: { __typename: typeName },
+      await context.$pubsub(context).publish(triggerName, {
+        __typename: typeName,
         ...payload
       });
-
       return payload;
     };
   }
