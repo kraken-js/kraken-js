@@ -87,13 +87,15 @@ declare global {
     }
 
     interface Context {
+      $pubsubMode?: 'IN' | 'OUT'
+      $pubsubStrategy?: 'AS_IS' | 'GRAPHQL'
+
       [key: string]: any
     }
 
     interface Plugins {
       $connections: ConnectionStore
       $subscriptions: SubscriptionStore
-      $pubsubMode: 'IN' | 'OUT'
       $pubsub: (context: ExecutionContext) => PubSub
     }
 

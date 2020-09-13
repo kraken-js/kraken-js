@@ -1,7 +1,7 @@
 import { krakenIt } from '@kraken.js/core';
 import { parse } from 'graphql';
 import gql from 'graphql-tag';
-import { rootPlugins } from './utils';
+import { mockRootPlugins } from './utils';
 
 describe('Kraken', () => {
   const gqlInitOperation = { type: 'connection_init', payload: {} as any };
@@ -11,7 +11,7 @@ describe('Kraken', () => {
 
   it('should execute simple graphql operation', async () => {
     const { gqlExecute, onGqlInit } = krakenIt({
-      plugins: rootPlugins,
+      plugins: mockRootPlugins,
       typeDefs: gql('type Query { hello: String }'),
       resolvers: { Query: { hello: () => 'hello world' } }
     });
@@ -25,7 +25,7 @@ describe('Kraken', () => {
     const onBeforeExecute = jest.fn();
 
     const { gqlExecute, onGqlInit } = krakenIt({
-      plugins: rootPlugins,
+      plugins: mockRootPlugins,
       typeDefs: gql('type Query { hello: String }'),
       resolvers: { Query: { hello: () => 'hello world' } },
       onBeforeExecute
@@ -52,7 +52,7 @@ describe('Kraken', () => {
     const onAfterExecute = jest.fn();
 
     const { gqlExecute, onGqlInit } = krakenIt({
-      plugins: rootPlugins,
+      plugins: mockRootPlugins,
       typeDefs: gql('type Query { hello: String }'),
       resolvers: { Query: { hello: (_, __, ctx) => 'hello world ' + ctx.operation.id } },
       onAfterExecute
@@ -72,7 +72,7 @@ describe('Kraken', () => {
     const { gqlExecute, onGqlInit } = krakenIt({
       typeDefs: gql('type Query { hello: String }'),
       resolvers: { Query: { hello: (_, __, context) => context.value } },
-      plugins: rootPlugins,
+      plugins: mockRootPlugins,
       onConnectionInit: () => {
         return { value: 'hello from context' };
       }
@@ -88,7 +88,7 @@ describe('Kraken', () => {
       typeDefs: gql('type Query { hello: String }'),
       resolvers: { Query: { hello: (_, __, context) => context.$value } },
       plugins: inject => {
-        rootPlugins(inject);
+        mockRootPlugins(inject);
         inject('value', 'hello from plugins');
       }
     }]);

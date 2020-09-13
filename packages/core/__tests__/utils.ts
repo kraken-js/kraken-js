@@ -1,6 +1,6 @@
 import { ConnectionStore, SubscriptionStore } from '..';
 
-export const rootPlugins = (inject) => {
+export const mockRootPlugins = (inject) => {
   const connections = {};
   const subscriptions = {};
   const send = jest.fn();
