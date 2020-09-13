@@ -66,7 +66,7 @@ type Ping {
 ```sh
 wscat --connect ws://localhost:4001
 # initialize the connection (required)
-> {"type":"connection_init"} 
+> {"type":"connection_init"}
 < {"type":"connection_ack"}
 
 # start a subscription

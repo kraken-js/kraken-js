@@ -1,59 +1,122 @@
 import { IExecutableSchemaDefinition } from '@graphql-tools/schema';
-
-export interface HandlerConfig<C extends Connection<T>, S extends Subscription, T = any>
-  extends IExecutableSchemaDefinition<T> {
-  context?: ((payload: any) => T)
-
-  validate?: boolean;
-
-  connections?: ConnectionManager<C, T>
-  subscriptions?: SubscriptionManager<S>
-}
-
-export interface Connection<T> {
-  connectionId: string
-  context: T
-}
-
-export interface Subscription {
-  connectionId: string
-  subscriptionId: string
-  triggerName: string
-
-  [key: string]: string
-}
-
-export interface PayloadMetadata {
-  __typename?: string
-  __created?: boolean
-  __updated?: boolean
-  __deleted?: boolean
-  __timestamp?: number
-}
+import { DocumentNode, ExecutionResult, GraphQLSchema } from 'graphql';
+import { Maybe } from 'graphql/jsutils/Maybe';
+import { PromiseOrValue } from 'graphql/jsutils/PromiseOrValue';
 
 export interface Payload {
-  __metadata?: PayloadMetadata
+  [key: string]: any
+}
+
+export interface ConnectionStore {
+  save(connection: Partial<Kraken.Connection>): Promise<Kraken.Connection>;
+
+  get(connectionId: string, retries?: number): Promise<Kraken.Connection>;
+
+  delete(connection: Partial<Kraken.Connection>): Promise<void>;
+
+  send(connection: Kraken.ConnectionInfo, payload: Payload): Promise<void>
+}
+
+export interface SubscriptionStore {
+  save(subscription: Partial<Kraken.Subscription>): Promise<Kraken.Subscription>
+
+  delete(connectionId: string, operationId: string): Promise<void>;
+
+  deleteAll(connectionId: string): Promise<void>;
+
+  findByTriggerName(triggerName: string): Promise<Kraken.Subscription[]>
+}
+
+export interface PubSub {
+  subscribe(triggerName: string, vars?: Record<string, any>): Promise<Kraken.Subscription>
+
+  publish(triggerName: string, payload: any): Promise<void>
+}
+
+export interface KrakenSchema extends Partial<IExecutableSchemaDefinition<Kraken.Context>> {
+  plugins?(inject): void;
+
+  onConnectionInit?(context: Partial<Kraken.Context>): PromiseOrValue<Partial<Kraken.Context>>;
+
+  onBeforeExecute?(context: Kraken.Context, document: DocumentNode): PromiseOrValue<Partial<Kraken.Context>>;
+
+  onAfterExecute?(context: Kraken.Context, response: ExecutionResult): PromiseOrValue<void>;
+}
+
+export interface ExecutionArgs {
+  connectionInfo: Kraken.ConnectionInfo,
+  operationId: string,
+  document: DocumentNode;
+  rootValue?: any;
+  contextValue?: Kraken.Context;
+  variableValues?: Maybe<{ [key: string]: any }>;
+  operationName?: Maybe<string>;
+}
+
+export interface KrakenRuntime extends Kraken.Plugins {
+  schema: GraphQLSchema;
+
+  gqlExecute(args: ExecutionArgs): PromiseOrValue<ExecutionResult>;
+
+  onGqlInit(connection: Kraken.ConnectionInfo, operation: Omit<GqlOperation<Kraken.InitParams>, 'id'>): PromiseOrValue<Kraken.Context>;
+
+  onGqlStart(connection: Kraken.ConnectionInfo, operation: GqlOperation): PromiseOrValue<void>
+
+  onGqlStop(connection: Kraken.ConnectionInfo, operation: Omit<GqlOperation, 'payload'>): PromiseOrValue<void>
+
+  onGqlConnectionTerminate(connection: Kraken.ConnectionInfo): PromiseOrValue<void>
+}
+
+export interface GqlOperationPayload {
+  query: string
+  variables?: Record<string, any>
 
   [key: string]: any
 }
 
-export interface ConnectionManager<C extends Connection<T>, T> {
-  save(connection: Partial<C>): Promise<C>;
-
-  get(connectionId: string, retries?: number): Promise<C>;
-
-  delete(connection: Partial<C>): Promise<void>;
-
-  send(connection: Partial<C>, payload: any): Promise<void>;
+export interface GqlOperation<P = GqlOperationPayload> {
+  id?: string
+  type: string
+  payload: P
 }
 
-export interface SubscriptionManager<S extends Subscription> {
-  subscribe(triggerName: string, options: Partial<S>): Promise<void>
+declare global {
+  namespace Kraken {
+    interface InitParams {
+      [key: string]: any
+    }
 
-  publish(triggerName: string, payload: Payload): Promise<void>
+    interface Context {
+      [key: string]: any
+    }
 
-  unsubscribe(connectionId: string, subscriptionId: string): Promise<void>;
+    interface Plugins {
+      $connections: ConnectionStore
+      $subscriptions: SubscriptionStore
+      $pubsub: (context: ExecutionContext) => PubSub
+    }
 
-  unsubscribeAll(connectionId: string): Promise<void>;
+    interface ConnectionInfo {
+      connectionId: string
+    }
+
+    type ExecutionContext = Context & Plugins & {
+      connectionInfo: ConnectionInfo
+      operationId: string
+    }
+
+    interface Connection extends ConnectionInfo {
+      context: Context
+
+      [key: string]: any
+    }
+
+    interface Subscription extends ConnectionInfo {
+      operationId: string
+      triggerName: string
+      document: string
+
+      [key: string]: any
+    }
+  }
 }
-

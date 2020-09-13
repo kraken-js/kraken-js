@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "esModuleInterop": true,
     "moduleResolution": "node",
     "target": "es2019",
     "declaration": true,

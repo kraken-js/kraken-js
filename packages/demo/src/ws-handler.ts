@@ -1,5 +1,5 @@
-import { graphqlSchema as krakenJsAws, wsHandler } from '@kraken.js/aws';
-import { mergeGraphqlSchemas } from '@kraken.js/core';
+import { dynamoDbStores, wsHandler } from '@kraken.js/aws';
+import { krakenIt } from '@kraken.js/core';
 
 const demoSchema = {
   typeDefs: `
@@ -26,7 +26,7 @@ const demoSchema = {
   }
 };
 
-export const handler = wsHandler(mergeGraphqlSchemas([
-  krakenJsAws,
+export const handler = wsHandler(krakenIt([
+  dynamoDbStores,
   demoSchema
 ]));

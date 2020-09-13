@@ -12,14 +12,14 @@ resources:
         AttributeDefinitions:
           - AttributeName: connectionId
             AttributeType: S
-          - AttributeName: subscriptionId
+          - AttributeName: operationId
             AttributeType: S
           - AttributeName: triggerName
             AttributeType: S
         KeySchema:
           - AttributeName: connectionId
             KeyType: HASH
-          - AttributeName: subscriptionId
+          - AttributeName: operationId
             KeyType: RANGE
         GlobalSecondaryIndexes:
           - IndexName: byTriggerName

@@ -2,4 +2,4 @@
 export * as manifest from './package.json';
 export * from './src/types';
 export * from './src/constants';
-export * from './src/merge-graphql-schemas';
+export * from './src/kraken';
