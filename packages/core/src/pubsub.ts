@@ -1,3 +1,4 @@
+import { parse, print } from 'graphql';
 import { GQL_DATA } from './constants';
 import { PubSub } from './types';
 
@@ -15,7 +16,7 @@ const variables = (value: any = {}) => Object.entries(value)
     return vars;
   }, {});
 
-const submitJobs = (jobs: (() => Promise<any>)[], concurrency = 25) => {
+const submitJobs = (jobs: (() => Promise<any>)[], concurrency = 100) => {
   let workers = 0;
   let index = 0;
 
@@ -38,32 +39,73 @@ const submitJobs = (jobs: (() => Promise<any>)[], concurrency = 25) => {
   });
 };
 
-export const krakenPubSub = () =>
-  (context: Kraken.ExecutionContext): PubSub => ({
-    async publish(triggerName: string, payload: any) {
-      const interpolatedTriggerName = interpolate(triggerName, payload); // onMessage#{channel} => onMessage#general
-      const subscriptionName = triggerName.split('#')[0]; // onMessage#{channel} => onMessage
+class KrakenPubSub implements PubSub {
+  constructor(protected context: Kraken.ExecutionContext) {
+  }
 
-      const subscriptions = await context.$subscriptions.findByTriggerName(interpolatedTriggerName);
-      const jobs = subscriptions.map(subscription => {
-        return async () => await context.$connections.send(subscription, {
+  async publish(triggerName: string, payload: any) {
+    const interpolatedTriggerName = interpolate(triggerName, payload); // onMessage#{channel} => onMessage#general
+
+    const subscriptions = await this.context.$subscriptions.findByTriggerName(interpolatedTriggerName);
+    const jobs = subscriptions.map(subscription => {
+      return this.distribute(subscription, payload);
+    });
+
+    await submitJobs(jobs);
+  }
+
+  private distribute(subscription: Kraken.Subscription, payload: any) {
+    return async () => {
+      // GRAPHQL runs the subscription operation with $pubsubMode: OUT and send the response to the connection
+      if (this.context.$pubsubStrategy === 'GRAPHQL') {
+        const response = await this.context.gqlExecute({
+          rootValue: payload,
+          connectionInfo: subscription,
+          operationId: subscription.operationId,
+          document: parse(subscription.document),
+          operationName: subscription.operationName,
+          variableValues: subscription.variableValues,
+          contextValue: {
+            $pubsubMode: 'OUT'
+          }
+        });
+        return await this.context.$connections.send(subscription, {
           id: subscription.operationId,
           type: GQL_DATA,
-          payload: { data: { [subscriptionName]: payload } }
+          payload: response
         });
-      });
+      }
 
-      await submitJobs(jobs);
-    },
-
-    async subscribe(triggerName: string, vars?: Record<string, any>) {
-      const interpolatedTriggerName = interpolate(triggerName, vars); // onMessage#{channel} => onMessage#general
-      const $vars = variables(vars);
-      return await context.$subscriptions.save({
-        ...context.connectionInfo,
-        operationId: context.operationId,
-        triggerName: interpolatedTriggerName,
-        ...$vars
+      // AS_IS tries to guess the subscriptionName from the triggerName and just sends the payload AS IS
+      const [subscriptionName] = subscription.triggerName.split('#');
+      return await this.context.$connections.send(subscription, {
+        id: subscription.operationId,
+        type: GQL_DATA,
+        payload: { data: { [subscriptionName]: payload } }
       });
+    };
+  }
+
+  async subscribe(triggerName: string, vars?: Record<string, any>) {
+    if (this.context.$pubsubMode === 'OUT') {
+      // skip storing the subscription as it's in OUT mode, sending message
+      return;
     }
-  });
+
+    const interpolatedTriggerName = interpolate(triggerName, vars); // onMessage#{channel} => onMessage#general
+    const $vars = variables(vars);
+    return await this.context.$subscriptions.save({
+      ...this.context.connectionInfo,
+
+      operationId: this.context.operation.id,
+      document: print(this.context.operation.document),
+      operationName: this.context.operation.operationName,
+      variableValues: this.context.operation.variableValues,
+
+      triggerName: interpolatedTriggerName,
+      ...$vars
+    });
+  }
+}
+
+export const krakenPubSub = () => (context: Kraken.ExecutionContext): PubSub => new KrakenPubSub(context);
