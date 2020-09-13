@@ -46,9 +46,9 @@ export interface KrakenSchema extends Partial<IExecutableSchemaDefinition<Kraken
 export interface ExecutionArgs {
   connectionInfo: Kraken.ConnectionInfo,
   operationId: string,
-  document: DocumentNode;
   rootValue?: any;
   contextValue?: Kraken.Context;
+  document: DocumentNode;
   variableValues?: Maybe<{ [key: string]: any }>;
   operationName?: Maybe<string>;
 }
@@ -93,6 +93,7 @@ declare global {
     interface Plugins {
       $connections: ConnectionStore
       $subscriptions: SubscriptionStore
+      $pubsubMode: 'IN' | 'OUT'
       $pubsub: (context: ExecutionContext) => PubSub
     }
 
@@ -103,6 +104,14 @@ declare global {
     type ExecutionContext = Context & Plugins & {
       connectionInfo: ConnectionInfo
       operationId: string
+      operation: {
+        id: string
+        document: DocumentNode
+        operationName: string
+        variableValues?: any
+      }
+
+      gqlExecute(args: ExecutionArgs): PromiseOrValue<ExecutionResult>;
     }
 
     interface Connection extends ConnectionInfo {
@@ -115,6 +124,8 @@ declare global {
       operationId: string
       triggerName: string
       document: string
+      operationName: string
+      variableValues?: any
 
       [key: string]: any
     }

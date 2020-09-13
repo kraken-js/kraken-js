@@ -41,41 +41,60 @@ describe('Kraken Operations', () => {
       type: 'connection_init',
       payload: {}
     });
-    await kraken.onGqlStart(connection, {
-      id: '1',
-      type: 'start',
-      payload: { query: 'subscription { onMessage(channel: "general") { channel message } }' }
-    });
+    for (let i = 0; i < 101; i++) {
+      await kraken.onGqlStart(connection, {
+        id: 's' + i,
+        type: 'start',
+        payload: { query: 'subscription { onMessage(channel: "general") { __typename channel message } }' }
+      });
+    }
     await kraken.onGqlStart(connection, {
       id: '2',
       type: 'start',
-      payload: { query: 'subscription { onMessage(channel: "random") { channel message } }' }
+      payload: { query: 'subscription { onMessage(channel: "random") { __typename channel message } }' }
     });
     await kraken.onGqlStart(connection, {
       id: '3',
       type: 'start',
-      payload: { query: 'mutation { sendMessage(channel: "general", message: "hi") { channel message } }' }
+      payload: { query: 'mutation { sendMessage(channel: "general", message: "hi") { __typename channel message } }' }
     });
     await kraken.onGqlStop(connection, {
-      type: 'stop', id: '1'
+      type: 'stop', id: '2'
     });
     await kraken.onGqlConnectionTerminate(connection);
 
-    expect(kraken.$connections.send).toHaveBeenNthCalledWith(1, connection, {
+    // connection accepted
+    expect(kraken.$connections.send).toHaveBeenCalledWith(connection, {
       type: GQL_CONNECTION_ACK
     });
-    expect(kraken.$connections.send).toHaveBeenNthCalledWith(2, expect.objectContaining(connection), {
-      id: '1',
+
+    // publish to general channel
+    for (let i = 0; i < 101; i++) {
+      expect(kraken.$connections.send).toHaveBeenCalledWith(expect.objectContaining(connection), {
+        id: 's' + i,
+        type: GQL_DATA,
+        payload: { data: { onMessage: { __typename: 'Message', channel: 'general', message: 'hi' } } }
+      });
+    }
+    // not publish to random channel
+    expect(kraken.$connections.send).not.toHaveBeenCalledWith(expect.objectContaining(connection), {
+      id: '2',
       type: GQL_DATA,
-      payload: { data: { onMessage: { __typename: 'Message', channel: 'general', message: 'hi' } } }
+      payload: { data: { onMessage: { __typename: 'Message', channel: expect.any(String), message: 'hi' } } }
     });
-    expect(kraken.$connections.send).toHaveBeenNthCalledWith(3, expect.objectContaining(connection), {
+    // mutation response
+    expect(kraken.$connections.send).toHaveBeenCalledWith(expect.objectContaining(connection), {
       id: '3',
       type: GQL_DATA,
-      payload: { data: { sendMessage: { channel: 'general', message: 'hi' } } }
+      payload: { data: { sendMessage: { __typename: 'Message', channel: 'general', message: 'hi' } } }
     });
-    expect(kraken.$connections.send).toHaveBeenNthCalledWith(4, expect.objectContaining(connection), {
+    expect(kraken.$connections.send).toHaveBeenCalledWith(expect.objectContaining(connection), {
       id: '3',
+      type: GQL_COMPLETE
+    });
+    // stop subscription
+    expect(kraken.$connections.send).toHaveBeenCalledWith(expect.objectContaining(connection), {
+      id: '2',
       type: GQL_COMPLETE
     });
   });

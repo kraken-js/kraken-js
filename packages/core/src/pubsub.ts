@@ -1,3 +1,4 @@
+import { parse, print } from 'graphql';
 import { GQL_DATA } from './constants';
 import { PubSub } from './types';
 
@@ -15,7 +16,7 @@ const variables = (value: any = {}) => Object.entries(value)
     return vars;
   }, {});
 
-const submitJobs = (jobs: (() => Promise<any>)[], concurrency = 25) => {
+const submitJobs = (jobs: (() => Promise<any>)[], concurrency = 100) => {
   let workers = 0;
   let index = 0;
 
@@ -42,26 +43,45 @@ export const krakenPubSub = () =>
   (context: Kraken.ExecutionContext): PubSub => ({
     async publish(triggerName: string, payload: any) {
       const interpolatedTriggerName = interpolate(triggerName, payload); // onMessage#{channel} => onMessage#general
-      const subscriptionName = triggerName.split('#')[0]; // onMessage#{channel} => onMessage
 
       const subscriptions = await context.$subscriptions.findByTriggerName(interpolatedTriggerName);
       const jobs = subscriptions.map(subscription => {
-        return async () => await context.$connections.send(subscription, {
-          id: subscription.operationId,
-          type: GQL_DATA,
-          payload: { data: { [subscriptionName]: payload } }
-        });
+        return async () => {
+          const response = await context.gqlExecute({
+            rootValue: payload,
+            connectionInfo: subscription,
+            operationId: subscription.operationId,
+            document: parse(subscription.document),
+            operationName: subscription.operationName,
+            variableValues: subscription.variableValues,
+            contextValue: {
+              $pubsubMode: 'OUT'
+            }
+          });
+          await context.$connections.send(subscription, {
+            id: subscription.operationId,
+            type: GQL_DATA,
+            payload: response
+          });
+        };
       });
 
       await submitJobs(jobs);
     },
 
     async subscribe(triggerName: string, vars?: Record<string, any>) {
+      if (context.$pubsubMode === 'OUT') return;
+
       const interpolatedTriggerName = interpolate(triggerName, vars); // onMessage#{channel} => onMessage#general
       const $vars = variables(vars);
       return await context.$subscriptions.save({
         ...context.connectionInfo,
-        operationId: context.operationId,
+
+        operationId: context.operation.id,
+        document: print(context.operation.document),
+        operationName: context.operation.operationName,
+        variableValues: context.operation.variableValues,
+
         triggerName: interpolatedTriggerName,
         ...$vars
       });

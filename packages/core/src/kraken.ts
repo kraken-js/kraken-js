@@ -70,7 +70,12 @@ export const krakenIt = <T>(schemas: KrakenSchema | KrakenSchema[]): KrakenRunti
       ...$plugins,
       ...executionContextValue,
       connectionInfo: args.connectionInfo,
-      operationId: args.operationId,
+      operation: {
+        id: args.operationId,
+        document: args.document,
+        operationName: args.operationName,
+        variableValues: args.variableValues
+      },
       gqlExecute
     };
 

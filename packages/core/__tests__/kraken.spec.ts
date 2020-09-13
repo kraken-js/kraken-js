@@ -39,7 +39,12 @@ describe('Kraken', () => {
     expect(onBeforeExecute).toHaveBeenCalledWith(expect.objectContaining({
       $connections: expect.anything(),
       connectionInfo,
-      operationId
+      operation: expect.objectContaining({
+        id: operationId,
+        document: expect.objectContaining({
+          definitions: expect.anything()
+        })
+      })
     }), expect.objectContaining({ definitions: expect.anything() }));
   });
 
@@ -49,7 +54,7 @@ describe('Kraken', () => {
     const { gqlExecute, onGqlInit } = krakenIt({
       plugins: rootPlugins,
       typeDefs: gql('type Query { hello: String }'),
-      resolvers: { Query: { hello: (_, __, ctx) => 'hello world ' + ctx.operationId } },
+      resolvers: { Query: { hello: (_, __, ctx) => 'hello world ' + ctx.operation.id } },
       onAfterExecute
     });
 
