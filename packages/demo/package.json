@@ -10,7 +10,8 @@
     "dev": "sls offline start --stage offline",
     "sls:print": "sls print --stage offline",
     "sls:package": "sls package --stage offline",
-    "package": "echo 'not yeat implemented'"
+    "package": "echo 'not yeat implemented'",
+    "test": "echo 'not yeat implemented'"
   },
   "dependencies": {
     "@kraken.js/aws": "0.0.1"
