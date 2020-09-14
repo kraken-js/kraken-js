@@ -57,7 +57,7 @@ class DynamoDbConnectionManager<T> implements ConnectionStore {
 
   async delete({ connectionId, apiGatewayUrl }) {
     await Promise.all([
-      this.context.$dynamoDb.dynamoDb.delete({
+      this.context.$dynamoDb.delete({
         TableName: this.tableName,
         Key: { connectionId, operationId: rootOperationId }
       }).promise(),
