@@ -109,7 +109,7 @@ declare global {
       connectionId: string
     }
 
-    type ExecutionContext = Context & Plugins & {
+    type ExecutionContext = Plugins & Context & {
       connectionInfo?: ConnectionInfo
       operation?: {
         id: string

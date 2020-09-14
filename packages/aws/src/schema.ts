@@ -8,7 +8,7 @@ export const graphqlSchema = (config?: AwsSchemaConfig): KrakenSchema => ({
     inject('connections', dynamoDbConnectionStore(config));
     inject('subscriptions', dynamoDbSubscriptionStore(config));
     inject('lambda', getLambda);
-    inject('dynamodb', getDynamoDb);
+    inject('dynamoDb', getDynamoDb);
     inject('sns', getSNS);
     inject('sqs', getSQS);
   }

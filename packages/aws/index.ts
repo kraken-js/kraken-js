@@ -15,7 +15,7 @@ declare global {
   namespace Kraken {
     interface Plugins {
       $lambda: Lambda
-      $dynamodb: DynamoDB.DocumentClient
+      $dynamoDb: DynamoDB.DocumentClient
       $sqs: SQS
       $sns: SNS
     }
