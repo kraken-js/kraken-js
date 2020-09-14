@@ -1,13 +1,14 @@
 {
   "name": "@kraken.js/webpack",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Commons Webpack Stuff",
   "author": "@kraken.js",
   "license": "MIT",
   "repository": "github:kraken-js/kraken.js",
   "scripts": {
     "test": "echo 'not yeat implemented'",
-    "package": "echo 'not yeat implemented'"
+    "package": "echo 'not yeat implemented'",
+    "publish": "echo 'not yeat implemented'"
   },
   "dependencies": {
     "graphql-tag": "^2.10.3",
