@@ -39,6 +39,8 @@ jobs:
             node_modules
             */*/node_modules
           key: ${{ runner.OS }}-${{ hashFiles('yarn.lock') }}
+      
+      - run: ls -lah
 
       - if: github.event_name == 'push'
         name: Read package.json Version
