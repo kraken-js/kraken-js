@@ -61,14 +61,14 @@ class DynamoDbConnectionManager<T> implements ConnectionStore {
         TableName: this.tableName,
         Key: { connectionId, operationId: rootOperationId }
       }).promise(),
-      this.context.$apiGateway(apiGatewayUrl).deleteConnection({
+      this.context.$apiGateway.get(apiGatewayUrl).deleteConnection({
         ConnectionId: connectionId
       }).promise().catch(e => void e) // it's ok to fail with 410 here
     ]);
   }
 
   async send({ connectionId, apiGatewayUrl }, payload: any) {
-    const apiGateway = this.context.$apiGateway(apiGatewayUrl as string);
+    const apiGateway = this.context.$apiGateway.get(apiGatewayUrl as string);
     await postToConnection(apiGateway, connectionId, payload);
   }
 }

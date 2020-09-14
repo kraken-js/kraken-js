@@ -1,4 +1,4 @@
-import { DynamoDB, Lambda, SNS, SQS } from 'aws-sdk';
+import { ApiGatewayManagementApi, DynamoDB, Lambda, SNS, SQS } from 'aws-sdk';
 // @ts-ignore
 export * as serverless from './resources/serverless.yml';
 // @ts-ignore
@@ -16,6 +16,7 @@ declare global {
     interface Plugins {
       $lambda: Lambda
       $dynamoDb: DynamoDB.DocumentClient
+      $apiGateway: { get: (endpoint: string) => ApiGatewayManagementApi }
       $sqs: SQS
       $sns: SNS
     }
