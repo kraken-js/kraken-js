@@ -1,22 +1,11 @@
 import { ConnectionStore, SubscriptionStore } from '@kraken.js/core';
-import { ApiGatewayManagementApi, DynamoDB } from 'aws-sdk';
-import { getApiGateway, getDocumentClient } from './instances';
+import { ApiGatewayManagementApi } from 'aws-sdk';
+import { AwsSchemaConfig } from './types';
 
 const subscriptionsBatchLoadLimit = 100;
-type ApiGatewayFactory = (endpoint: string) => ApiGatewayManagementApi;
-
-interface DynamoDbConfig {
-  dynamoDb?: DynamoDB.DocumentClient
-  apiGateway?: ApiGatewayFactory
-  tableName?: string
-}
-
 const rootOperationId = '$connection';
 
-const waitForConnectionTimeout = () =>
-  process.env.WS_WAIT_FOR_CONNECTION_TIMEOUT_MS
-    ? parseInt(process.env.WS_WAIT_FOR_CONNECTION_TIMEOUT_MS)
-    : 50;
+const waitForConnectionTimeout = 50;
 
 const getTableName = () => {
   return `WsSubscriptions-${process.env.STAGE}`;
@@ -35,18 +24,16 @@ export const ttl = (seconds = 7200) => Math.floor(Date.now() / 1000) + seconds; 
 
 class DynamoDbConnectionManager<T> implements ConnectionStore {
   protected tableName: string;
-  protected dynamoDb: DynamoDB.DocumentClient;
-  protected apiGateway: ApiGatewayFactory;
+  protected waitForConnectionTimeout: number;
 
-  constructor({ dynamoDb, tableName, apiGateway }: DynamoDbConfig) {
-    this.dynamoDb = dynamoDb ? dynamoDb : getDocumentClient();
-    this.apiGateway = apiGateway ? apiGateway : endpoint => getApiGateway(endpoint);
-    this.tableName = tableName ? tableName : getTableName();
+  constructor(protected config: AwsSchemaConfig, protected context: Kraken.ExecutionContext) {
+    this.tableName = config?.connections?.tableName || getTableName();
+    this.waitForConnectionTimeout = config?.connections?.waitForConnectionTimeout || waitForConnectionTimeout;
   }
 
   async save(connection) {
     const item = { ...connection, operationId: rootOperationId, ttl: ttl() };
-    await this.dynamoDb.put({
+    await this.context.$dynamoDb.put({
       TableName: this.tableName,
       Item: item
     }).promise();
@@ -54,13 +41,13 @@ class DynamoDbConnectionManager<T> implements ConnectionStore {
   }
 
   async get(connectionId: string, retries = 10) {
-    const { Item } = await this.dynamoDb.get({
+    const { Item } = await this.context.$dynamoDb.get({
       TableName: this.tableName,
       Key: { connectionId, operationId: rootOperationId }
     }).promise();
     if (!Item) {
       if (retries > 0) {
-        await waitFor(waitForConnectionTimeout());
+        await waitFor(this.waitForConnectionTimeout);
         return this.get(connectionId, --retries);
       }
       throw new Error(`Connection ${connectionId} not found`);
@@ -70,36 +57,32 @@ class DynamoDbConnectionManager<T> implements ConnectionStore {
 
   async delete({ connectionId, apiGatewayUrl }) {
     await Promise.all([
-      this.dynamoDb.delete({
+      this.context.$dynamoDb.dynamoDb.delete({
         TableName: this.tableName,
         Key: { connectionId, operationId: rootOperationId }
       }).promise(),
-      this.apiGateway(apiGatewayUrl).deleteConnection({
+      this.context.$apiGateway(apiGatewayUrl).deleteConnection({
         ConnectionId: connectionId
       }).promise().catch(e => void e) // it's ok to fail with 410 here
     ]);
   }
 
   async send({ connectionId, apiGatewayUrl }, payload: any) {
-    const apiGateway = this.apiGateway(apiGatewayUrl as string);
+    const apiGateway = this.context.$apiGateway(apiGatewayUrl as string);
     await postToConnection(apiGateway, connectionId, payload);
   }
 }
 
 class DynamoDbSubscriptionManager implements SubscriptionStore {
   protected tableName: string;
-  protected dynamoDb: DynamoDB.DocumentClient;
-  protected apiGateway: ApiGatewayFactory;
 
-  constructor({ dynamoDb, tableName, apiGateway }: DynamoDbConfig) {
-    this.dynamoDb = dynamoDb ? dynamoDb : getDocumentClient();
-    this.apiGateway = apiGateway ? apiGateway : endpoint => getApiGateway(endpoint);
-    this.tableName = tableName ? tableName : getTableName();
+  constructor(protected config: AwsSchemaConfig, protected context: Kraken.ExecutionContext) {
+    this.tableName = config?.connections?.tableName || getTableName();
   }
 
   async save(subscription) {
     const item = { ...subscription, ttl: ttl() };
-    await this.dynamoDb.put({
+    await this.context.$dynamoDb.put({
       TableName: this.tableName,
       Item: item
     }).promise();
@@ -108,7 +91,7 @@ class DynamoDbSubscriptionManager implements SubscriptionStore {
   }
 
   async delete(connectionId: string, operationId: string) {
-    await this.dynamoDb.delete({
+    await this.context.$dynamoDb.delete({
       TableName: this.tableName,
       Key: { connectionId, operationId }
     }).promise();
@@ -119,7 +102,7 @@ class DynamoDbSubscriptionManager implements SubscriptionStore {
   }
 
   async findByTriggerName(triggerName: string, lastEvaluatedKey?) {
-    const { Items = [], LastEvaluatedKey } = await this.dynamoDb.query({
+    const { Items = [], LastEvaluatedKey } = await this.context.$dynamoDb.query({
       TableName: this.tableName,
       IndexName: 'byTriggerName',
       KeyConditionExpression: 'triggerName = :triggerName',
@@ -135,7 +118,7 @@ class DynamoDbSubscriptionManager implements SubscriptionStore {
   }
 
   private async batchDeleteAll(connectionId: string, lastEvaluatedKey?) {
-    const { Items = [], LastEvaluatedKey } = await this.dynamoDb.query({
+    const { Items = [], LastEvaluatedKey } = await this.context.$dynamoDb.query({
       TableName: this.tableName,
       KeyConditionExpression: 'connectionId = :connectionId', // AND operationId <> :rootConnectionId (<> not allows in KeyConditionExpression)
       FilterExpression: 'attribute_exists(triggerName)', // only subscriptions have triggerName, root connection does not
@@ -146,7 +129,7 @@ class DynamoDbSubscriptionManager implements SubscriptionStore {
     }).promise();
 
     if (Items.length > 0) {
-      await this.dynamoDb.batchWrite({
+      await this.context.$dynamoDb.batchWrite({
         RequestItems: {
           [this.tableName]: Items.map(({ connectionId, operationId }) => ({
             DeleteRequest: { Key: { connectionId, operationId } }
@@ -160,10 +143,10 @@ class DynamoDbSubscriptionManager implements SubscriptionStore {
   }
 }
 
-export const dynamoDbConnectionStore = <T>(config: DynamoDbConfig = {}) => {
-  return new DynamoDbConnectionManager<T>(config);
+export const dynamoDbConnectionStore = (config: AwsSchemaConfig) => (context: Kraken.ExecutionContext) => {
+  return new DynamoDbConnectionManager(config, context);
 };
 
-export const dynamoDbSubscriptionStore = (config: DynamoDbConfig = {}) => {
-  return new DynamoDbSubscriptionManager(config);
+export const dynamoDbSubscriptionStore = (config: AwsSchemaConfig) => (context: Kraken.ExecutionContext) => {
+  return new DynamoDbSubscriptionManager(config, context);
 };

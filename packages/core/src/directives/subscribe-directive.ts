@@ -7,11 +7,17 @@ export class SubscribeDirective extends SchemaDirectiveVisitor {
     const triggerName = this.args.triggerName || field.name;
 
     field.resolve = async function(source, args, context: Kraken.ExecutionContext, info) {
-      if (context.$pubsubMode === 'OUT') {
-        return info.rootValue;
+      if (context.$subMode === 'OUT') {
+        const sourceWithFieldValue = { ...source, [info.fieldName]: info.rootValue };
+        return resolve.apply(this, [sourceWithFieldValue, args, context, info]);
       }
-      await context.$pubsub(context).subscribe(triggerName, args);
-      return await resolve.apply(this, [source, args, context, info]);
+
+      try {
+        await context.$pubsub.subscribe(triggerName, args);
+        return await resolve.apply(this, [source, args, context, info]);
+      } catch (e) {
+        console.error(e);
+      }
     };
   }
 }

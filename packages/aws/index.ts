@@ -1,3 +1,4 @@
+import { DynamoDB, Lambda, SNS, SQS } from 'aws-sdk';
 // @ts-ignore
 export * as serverless from './resources/serverless.yml';
 // @ts-ignore
@@ -12,6 +13,13 @@ export * from './src/schema';
 
 declare global {
   namespace Kraken {
+    interface Plugins {
+      $lambda: Lambda
+      $dynamodb: DynamoDB.DocumentClient
+      $sqs: SQS
+      $sns: SNS
+    }
+
     interface ConnectionInfo {
       apiGatewayUrl: string
       connectedAt?: number

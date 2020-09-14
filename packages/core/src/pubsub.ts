@@ -39,25 +39,47 @@ const submitJobs = (jobs: (() => Promise<any>)[], concurrency = 100) => {
   });
 };
 
-class KrakenPubSub implements PubSub {
+export class KrakenPubSub implements PubSub {
   constructor(protected context: Kraken.ExecutionContext) {
   }
 
-  async publish(triggerName: string, payload: any) {
-    const interpolatedTriggerName = interpolate(triggerName, payload); // onMessage#{channel} => onMessage#general
+  async subscribe(triggerName: string, vars?: Record<string, any>) {
+    if (this.context.$subMode === 'OUT') {
+      // skip storing the subscription as it's in OUT mode, sending message
+      return;
+    }
 
-    const subscriptions = await this.context.$subscriptions.findByTriggerName(interpolatedTriggerName);
-    const jobs = subscriptions.map(subscription => {
-      return this.distribute(subscription, payload);
+    const interpolatedTriggerName = interpolate(triggerName, vars); // onMessage#{channel} => onMessage#general
+    return await this.context.$subscriptions.save({
+      ...this.context.connectionInfo,
+
+      operationId: this.context.operation.id,
+      document: print(this.context.operation.document),
+      operationName: this.context.operation.operationName,
+      variableValues: this.context.operation.variableValues,
+
+      triggerName: interpolatedTriggerName,
+      ...variables(vars)
     });
+  }
 
+  async publish(triggerName: string, payload: any) {
+    if (this.context.$pubStrategy === 'BROADCASTER') {
+      if (this.context.$broadcaster) {
+        return await this.context.$broadcaster.broadcast(triggerName, payload);
+      }
+    }
+
+    const interpolatedTriggerName = interpolate(triggerName, payload);
+    const subscriptions = await this.context.$subscriptions.findByTriggerName(interpolatedTriggerName);
+    const jobs = subscriptions.map(subscription => this.sendJob(subscription, payload));
     await submitJobs(jobs);
   }
 
-  private distribute(subscription: Kraken.Subscription, payload: any) {
+  private sendJob(subscription: Kraken.Subscription, payload: any) {
     return async () => {
       // GRAPHQL runs the subscription operation with $pubsubMode: OUT and send the response to the connection
-      if (this.context.$pubsubStrategy === 'GRAPHQL') {
+      if (this.context.$pubStrategy === 'GRAPHQL') {
         const response = await this.context.gqlExecute({
           rootValue: payload,
           connectionInfo: subscription,
@@ -66,7 +88,7 @@ class KrakenPubSub implements PubSub {
           operationName: subscription.operationName,
           variableValues: subscription.variableValues,
           contextValue: {
-            $pubsubMode: 'OUT'
+            $subMode: 'OUT'
           }
         });
         return await this.context.$connections.send(subscription, {
@@ -85,27 +107,8 @@ class KrakenPubSub implements PubSub {
       });
     };
   }
-
-  async subscribe(triggerName: string, vars?: Record<string, any>) {
-    if (this.context.$pubsubMode === 'OUT') {
-      // skip storing the subscription as it's in OUT mode, sending message
-      return;
-    }
-
-    const interpolatedTriggerName = interpolate(triggerName, vars); // onMessage#{channel} => onMessage#general
-    const $vars = variables(vars);
-    return await this.context.$subscriptions.save({
-      ...this.context.connectionInfo,
-
-      operationId: this.context.operation.id,
-      document: print(this.context.operation.document),
-      operationName: this.context.operation.operationName,
-      variableValues: this.context.operation.variableValues,
-
-      triggerName: interpolatedTriggerName,
-      ...$vars
-    });
-  }
 }
 
-export const krakenPubSub = () => (context: Kraken.ExecutionContext): PubSub => new KrakenPubSub(context);
+export const krakenPubSub = () => (context: Kraken.ExecutionContext): PubSub => {
+  return new KrakenPubSub(context);
+};

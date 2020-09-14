@@ -6,7 +6,8 @@ describe('Kraken Operations', () => {
     connectionId: Math.random().toString(32).slice(2)
   });
 
-  const setup = ($pubsubStrategy) => {
+  const setup = (pubStrategy) => {
+    const broadcast = jest.fn();
     return krakenIt([{
       plugins: mockRootPlugins
     }, {
@@ -30,18 +31,61 @@ describe('Kraken Operations', () => {
           sendMessage: (source, args) => args
         }
       },
-      onConnectionInit() {
-        return { $pubsubStrategy };
+      plugins(inject) {
+        inject('broadcaster', { broadcast });
+        inject('pubStrategy', pubStrategy);
       }
     }]);
   };
+
+  it('should execute successfully full cycle operations using BROADCASTER strategy', async () => {
+    const kraken = setup('BROADCASTER');
+    const connection = connectionInfo();
+
+    await kraken.onGqlInit(connection, {
+      type: 'connection_init',
+      payload: {}
+    });
+    await kraken.onGqlStart(connection, {
+      id: '1',
+      type: 'start',
+      payload: { query: 'subscription { onMessage(channel: "general") { __typename channel message } }' }
+    });
+    await kraken.onGqlStart(connection, {
+      id: '2',
+      type: 'start',
+      payload: { query: 'mutation { sendMessage(channel: "general", message: "hi") { __typename channel message } }' }
+    });
+
+    expect(kraken.$connections.send).toHaveBeenCalledTimes(3);
+    // connection accepted
+    expect(kraken.$connections.send).toHaveBeenCalledWith(connection, {
+      type: GQL_CONNECTION_ACK
+    });
+    // mutation response
+    expect(kraken.$connections.send).toHaveBeenCalledWith(expect.objectContaining(connection), {
+      id: '2',
+      type: GQL_DATA,
+      payload: { data: { sendMessage: { __typename: 'Message', channel: 'general', message: 'hi' } } }
+    });
+    expect(kraken.$connections.send).toHaveBeenCalledWith(expect.objectContaining(connection), {
+      id: '2',
+      type: GQL_COMPLETE
+    });
+
+    expect(kraken.$broadcaster.broadcast).toHaveBeenCalledWith('onMessage#{channel}', {
+      __typename: 'Message',
+      channel: 'general',
+      message: 'hi'
+    });
+  });
 
   it.each([
     ['AS_IS'],
     ['GRAPHQL']
   ])('should execute successfully full cycle operations using %s strategy',
-    async ($pubsubStrategy) => {
-      const kraken = setup($pubsubStrategy);
+    async ($pubStrategy) => {
+      const kraken = setup($pubStrategy);
       const connection = connectionInfo();
       const numOfSubscriptions = 511;
 
