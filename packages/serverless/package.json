@@ -1,6 +1,6 @@
 {
   "name": "@kraken.js/serverless",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "license": "MIT",
   "author": "@kraken.js",
   "repository": "github:kraken-js/kraken.js",
@@ -18,7 +18,7 @@
     "LICENSE"
   ],
   "devDependencies": {
-    "@kraken.js/jest": "^0.0.1",
+    "@kraken.js/jest": "0.0.2",
     "@types/serverless": "^1.72.6",
     "jest": "^26.4.2"
   },

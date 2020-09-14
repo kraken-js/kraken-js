@@ -1,6 +1,6 @@
 {
   "name": "@kraken.js/kraken.js",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "license": "MIT",
   "author": "@kraken.js",
@@ -8,10 +8,12 @@
   "scripts": {
     "package": "yarn workspaces run package",
     "test": "yarn workspaces run test",
+    "prepare-release": "scripts/prepare-release.sh",
     "reinstall": "yarn clean && yarn install",
     "clean": "rimraf \"**/{node_modules,dist,yarn.lock}\""
   },
   "devDependencies": {
+    "glob": "^7.1.6",
     "rimraf": "^3.0.2"
   },
   "workspaces": [

@@ -1,12 +1,13 @@
 {
   "name": "@kraken.js/jest",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Commons Jest Stuff",
   "author": "@kraken.js",
   "repository": "github:kraken-js/kraken.js",
   "scripts": {
     "test": "echo 'not yeat implemented'",
-    "package": "echo 'not yeat implemented'"
+    "package": "echo 'not yeat implemented'",
+    "publish": "echo 'not yeat implemented'"
   },
   "dependencies": {
     "@types/jest": "^26.0.0",

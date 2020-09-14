@@ -40,18 +40,33 @@ jobs:
             */*/node_modules
           key: ${{ runner.OS }}-${{ hashFiles('yarn.lock') }}
 
-      - name: Install Dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: yarn install --frozen-lockfile
+      - if: github.event_name == 'push'
+        name: Read package.json Version
+        uses: actions/github-script@v3
+        id: package-version
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: return require('./package.json').version;
+          result-encoding: string
 
-      - name: Workspace Package
-        run: yarn package
+      - if: github.event_name == 'release'
+        name: Read Relesase Version
+        uses: actions/github-script@v3
+        id: release-version
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: return context.payload.ref.replace(/\/refs\/tags\//, '').slice(1);
+          result-encoding: string
 
-      - name: Bump Version
-        run: yarn version --new-version "0.0.1-${GITHUB_SHA::8}" --no-git-tag-version
-        working-directory: ${{ matrix.package }}
+      - if: github.event_name == 'push'
+        name: Prepare For Patch Release
+        run: yarn prepare-release --new-version "${{ steps.package-version.outputs.result }}-${GITHUB_SHA::7}"
 
-      - name: Publish
+      - if: github.event_name == 'release'
+        name: Prepare For Patch Release
+        run: yarn prepare-release --new-version "${{ steps.release-version.outputs.result }}"
+
+      - name: Publish ${{ matrix.package }}
         run: yarn publish --non-interactive --access public
         working-directory: ${{ matrix.package }}
         env:
