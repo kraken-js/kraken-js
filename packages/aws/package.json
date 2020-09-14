@@ -5,9 +5,11 @@
   "author": "@kraken.js",
   "repository": "github:kraken-js/kraken.js",
   "main": "dist/main.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "test": "jest --passWithNoTests --runInBand",
-    "package": "webpack-cli --output-path dist --clean",
+    "prepackage": "rimraf dist",
+    "package": "webpack-cli",
     "prepublishOnly": "yarn package"
   },
   "files": [
@@ -17,7 +19,7 @@
     "README.md",
     "LICENSE"
   ],
-  "dependencies": {
+  "peerDependencies": {
     "@kraken.js/core": "0.0.2",
     "graphql": "^15.3.0",
     "yn": "^4.0.0"

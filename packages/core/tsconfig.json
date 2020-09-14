@@ -1,12 +1,18 @@
 {
   "compilerOptions": {
     "esModuleInterop": true,
+    "resolveJsonModule": true,
     "moduleResolution": "node",
     "target": "es2019",
     "declaration": true,
     "outDir": "dist"
   },
+  "include": [
+    "index.ts",
+    "src/**/*.ts"
+  ],
   "exclude": [
+    "__tests__",
     "node_modules"
   ]
 }

@@ -63,7 +63,7 @@ jobs:
         run: yarn prepare-release --new-version "${{ steps.package-version.outputs.result }}-${GITHUB_SHA::7}"
 
       - if: github.event_name == 'release'
-        name: Prepare For Patch Release
+        name: Prepare For New Release
         run: yarn prepare-release --new-version "${{ steps.release-version.outputs.result }}"
 
       - name: Publish ${{ matrix.package }}

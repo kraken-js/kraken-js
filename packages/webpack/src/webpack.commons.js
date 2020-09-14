@@ -46,11 +46,7 @@ module.exports = (dirname, entry) => ({
         loader: 'ts-loader',
         exclude: /node_modules/,
         options: {
-          happyPackMode: true,
-          transpileOnly: true,
-          experimentalWatchApi: true,
-          onlyCompileBundledFiles: true,
-          allowTsInNodeModules: true
+          onlyCompileBundledFiles: true
         }
       }
     ]
