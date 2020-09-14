@@ -74,12 +74,14 @@ export const krakenIt = <T>(schemas: KrakenSchema | KrakenSchema[]): KrakenRunti
   };
 
   const executableSchema = makeExecutableSchema(schema);
-  const gqlExecute = async (args: ExecutionArgs) => {
-    const executionContextValue = args.contextValue;
-    const connection = await $plugins.$connections.get(args.connectionInfo.connectionId);
+  const gqlExecute = async (args: ExecutionArgs, kraken?: Kraken.ExecutionContext) => {
+    const $kraken = kraken || assignPlugins({});
 
+    const connection = await $kraken.$connections.get(args.connectionInfo.connectionId);
     const connectionContextValue = connection.context;
-    const contextValue = assignPlugins({
+    const executionContextValue = args.contextValue;
+
+    Object.assign($kraken, {
       ...connectionContextValue,
       ...executionContextValue,
       connectionInfo: args.connectionInfo,
@@ -93,18 +95,18 @@ export const krakenIt = <T>(schemas: KrakenSchema | KrakenSchema[]): KrakenRunti
     });
 
     for (const fn of onBeforeExecute) {
-      const out = await fn(contextValue, args.document);
-      Object.assign(contextValue, out);
+      const out = await fn($kraken, args.document);
+      Object.assign($kraken, out);
     }
 
     const response = execute({
       ...args,
-      contextValue,
+      contextValue: $kraken,
       schema: executableSchema
     });
 
     for (const fn of onAfterExecute) {
-      await fn(contextValue, response);
+      await fn($kraken, response);
     }
 
     return response;
@@ -112,18 +114,19 @@ export const krakenIt = <T>(schemas: KrakenSchema | KrakenSchema[]): KrakenRunti
 
   const onGqlInit = async (connection: Kraken.ConnectionInfo, operation: GqlOperation<Kraken.InitParams>) => {
     const context = {};
-    const onConnectionInitParams = { ...$plugins, connectionParams: operation.payload };
+    const $kraken = assignPlugins({ connectionParams: operation.payload });
     for (const fn of onConnectionInit) {
-      const out = await fn(onConnectionInitParams);
+      const out = await fn($kraken);
       Object.assign(context, out);
     }
 
-    await $plugins.$connections.save({ ...connection, context });
-    await $plugins.$connections.send(connection, { type: GQL_CONNECTION_ACK });
+    await $kraken.$connections.save({ ...connection, context });
+    await $kraken.$connections.send(connection, { type: GQL_CONNECTION_ACK });
     return context;
   };
 
   const onGqlStart = async (connection: Kraken.ConnectionInfo, operation: GqlOperation) => {
+    const $kraken = assignPlugins({});
     const document = parse(operation.payload.query as string);
     const variableValues = operation.payload.variables;
     const operationId = operation.id;
@@ -132,17 +135,17 @@ export const krakenIt = <T>(schemas: KrakenSchema | KrakenSchema[]): KrakenRunti
       operationId,
       document,
       variableValues
-    });
+    }, $kraken);
 
     // only send response if not subscription request, to avoid sending null response on subscribe initial message
     const operationDefinition = document.definitions[0] as OperationDefinitionNode;
     if (operationDefinition.operation !== 'subscription') {
-      await $plugins.$connections.send(connection, {
+      await $kraken.$connections.send(connection, {
         id: operationId,
         type: GQL_DATA,
         payload: response
       });
-      await $plugins.$connections.send(connection, {
+      await $kraken.$connections.send(connection, {
         id: operationId,
         type: GQL_COMPLETE
       });
@@ -150,16 +153,18 @@ export const krakenIt = <T>(schemas: KrakenSchema | KrakenSchema[]): KrakenRunti
   };
 
   const onGqlStop = async (connection: Kraken.ConnectionInfo, operation: GqlOperation) => {
+    const $kraken = assignPlugins({});
     await Promise.all([
-      $plugins.$connections.send(connection, { id: operation.id, type: GQL_COMPLETE }),
-      $plugins.$subscriptions.delete(connection.connectionId, operation.id)
+      $kraken.$connections.send(connection, { id: operation.id, type: GQL_COMPLETE }),
+      $kraken.$subscriptions.delete(connection.connectionId, operation.id)
     ]);
   };
 
   const onGqlConnectionTerminate = async (connection: Kraken.ConnectionInfo) => {
+    const $kraken = assignPlugins({});
     await Promise.all([
-      $plugins.$connections.delete(connection),
-      $plugins.$subscriptions.deleteAll(connection.connectionId)
+      $kraken.$connections.delete(connection),
+      $kraken.$subscriptions.deleteAll(connection.connectionId)
     ]);
   };
 
