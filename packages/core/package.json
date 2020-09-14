@@ -7,7 +7,8 @@
   "main": "dist/main.js",
   "scripts": {
     "test": "jest --passWithNoTests",
-    "package": "webpack-cli --output-path dist --clean",
+    "prepackage": "rimraf dist",
+    "package": "webpack-cli && tsc --emitDeclarationOnly",
     "prepublishOnly": "yarn package"
   },
   "files": [

@@ -1,12 +1,14 @@
 {
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "moduleResolution": "node",
     "target": "es2019",
     "declaration": true,
     "outDir": "dist"
   },
   "exclude": [
+    "__tests__",
     "node_modules"
   ]
 }
