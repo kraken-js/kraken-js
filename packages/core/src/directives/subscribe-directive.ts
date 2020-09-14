@@ -12,12 +12,8 @@ export class SubscribeDirective extends SchemaDirectiveVisitor {
         return resolve.apply(this, [sourceWithFieldValue, args, context, info]);
       }
 
-      try {
-        await context.$pubsub.subscribe(triggerName, args);
-        return await resolve.apply(this, [source, args, context, info]);
-      } catch (e) {
-        console.error(e);
-      }
+      await context.$pubsub.subscribe(triggerName, args);
+      return await resolve.apply(this, [source, args, context, info]);
     };
   }
 }
