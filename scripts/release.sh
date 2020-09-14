@@ -1,16 +1,12 @@
 #!/usr/bin/env bash
 set -eu
 
-declare input_version=${1:-}
-declare version="patch"
-
-if [[ "$input_version" == "minor" ]]; then
-  version="minor"
-elif [[ "$input_version" == "major" ]]; then
-  version="major"
-elif [[ ! -z "$input_version" ]]; then
-  version="--new-version $input_version"
-fi
+# --patch
+# --minor
+# --major
+# --new-version 0.0.x
+declare version=${1:-"--patch"}
+[[ "$version" == "--new-version" ]] && version="$1 $2"
 
 echo "Setting new version to '$version'"
 yarn version $version --no-git-tag-version
