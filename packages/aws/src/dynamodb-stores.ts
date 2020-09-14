@@ -107,7 +107,6 @@ class DynamoDbSubscriptionManager implements SubscriptionStore {
       IndexName: 'byTriggerName',
       KeyConditionExpression: 'triggerName = :triggerName',
       ExpressionAttributeValues: { ':triggerName': triggerName },
-      ProjectionExpression: 'connectionId, operationId, apiGatewayUrl',
       ExclusiveStartKey: lastEvaluatedKey,
       Limit: subscriptionsBatchLoadLimit
     }).promise();
