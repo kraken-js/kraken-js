@@ -5,7 +5,7 @@ export const mockRootPlugins = (inject) => {
   const subscriptions = {};
   const send = jest.fn();
 
-  inject('connections', {
+  inject('connections', () => ({
     async get(connectionId: string): Promise<Kraken.Connection> {
       if (!connections[connectionId]) throw new Error('connection ' + connectionId + ' not found');
       return connections[connectionId] as Kraken.Connection;
@@ -18,9 +18,9 @@ export const mockRootPlugins = (inject) => {
       delete connections[connection.connectionId];
     },
     send: send as any
-  } as ConnectionStore);
+  } as ConnectionStore));
 
-  inject('subscriptions', {
+  inject('subscriptions', () => ({
     async save(subscription: Partial<Kraken.Subscription>): Promise<Kraken.Subscription> {
       subscriptions[subscription.connectionId + '#' + subscription.operationId] = subscription;
       return subscription as Kraken.Subscription;
@@ -41,5 +41,5 @@ export const mockRootPlugins = (inject) => {
           return sub.triggerName === triggerName;
         }) as Kraken.Subscription[];
     }
-  } as SubscriptionStore);
+  } as SubscriptionStore));
 };
