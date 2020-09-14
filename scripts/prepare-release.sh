@@ -9,5 +9,12 @@ declare version=${1:-"--patch"}
 [[ "$version" == "--new-version" ]] && version="$1 $2"
 
 echo "Setting new version to '$version'"
+
+# update root version
 yarn version $version --no-git-tag-version
+# propagate changes to monorepo packages
 node scripts/update-version.js
+# install new version
+yarn install --frozen-lockfile
+# package all
+yarn package

@@ -8,7 +8,7 @@
   "scripts": {
     "package": "yarn workspaces run package",
     "test": "yarn workspaces run test",
-    "release": "scripts/release.sh",
+    "prepare-release": "scripts/prepare-release.sh",
     "reinstall": "yarn clean && yarn install",
     "clean": "rimraf \"**/{node_modules,dist,yarn.lock}\""
   },
