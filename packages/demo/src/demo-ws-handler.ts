@@ -27,6 +27,6 @@ const demoSchema = {
 };
 
 export const handler = wsHandler(krakenIt([
-  graphqlSchema,
+  graphqlSchema(),
   demoSchema
 ]));
