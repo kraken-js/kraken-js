@@ -37,10 +37,12 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Install Global Packages
+        if: matrix.package = 'packages/cli'
         run: npm install -g serverless
 
-      - name: Workspace Package
-        run: yarn package
+      - name: Package Modules for CLI
+        if: matrix.package = 'packages/cli'
+        run: yarn workspace @kraken.js/serverless run package
 
       - name: Unit Tests
         working-directory: ${{ matrix.package }}
