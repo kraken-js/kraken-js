@@ -48,4 +48,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           working-directory: ${{ matrix.package }}
-          test-command: yarn test --colors
+          test-command: yarn test --colors --coverage
