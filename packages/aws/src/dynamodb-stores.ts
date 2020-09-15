@@ -2,10 +2,9 @@ import { ConnectionStore, SubscriptionStore } from '@kraken.js/core';
 import { ApiGatewayManagementApi } from 'aws-sdk';
 import { AwsSchemaConfig } from './types';
 
-const subscriptionsBatchLoadLimit = 100;
-const rootOperationId = '$connection';
-
+const subscriptionsBatchLoadLimit = 75;
 const waitForConnectionTimeout = 50;
+const rootOperationId = '$connection';
 
 const getTableName = () => {
   return `WsSubscriptions-${process.env.STAGE}`;

@@ -4,7 +4,7 @@ import { GQL_COMPLETE, GQL_CONNECTION_ACK, GQL_DATA } from './constants';
 import { PublishDirective } from './directives/publish-directive';
 import { SubscribeDirective } from './directives/subscribe-directive';
 import { krakenPubSub } from './pubsub';
-import { ExecutionArgs, GqlOperation, KrakenRuntime, KrakenSchema } from './types';
+import { ExecutionArgs, GqlOperation, Injector, KrakenRuntime, KrakenSchema } from './types';
 import { pushToArray } from './utils';
 
 export const pubsubTypeDefs = `
@@ -31,7 +31,11 @@ export const krakenIt = <T>(schemas: KrakenSchema | KrakenSchema[]): KrakenRunti
   };
 
   const plugins = [
-    (inject) => inject('pubsub', krakenPubSub())
+    (inject: Injector) => {
+      inject('subMode', 'IN');
+      inject('pubStrategy', 'GRAPHQL');
+      inject('pubsub', krakenPubSub());
+    }
   ];
   const onConnectionInit: ((context) => Kraken.Context)[] = [];
   const onBeforeExecute: ((context, document) => void)[] = [];
@@ -61,14 +65,16 @@ export const krakenIt = <T>(schemas: KrakenSchema | KrakenSchema[]): KrakenRunti
   const createExecutionContext = ctx => {
     Object.getOwnPropertyNames($plugins).forEach(plugin => {
       const $ = { [plugin]: $plugins[plugin] };
-      Object.defineProperty(ctx, plugin, {
-        get() {
-          if (typeof $[plugin] === 'function') {
-            $[plugin] = $[plugin](ctx);
+      if (ctx[plugin] === undefined) {
+        Object.defineProperty(ctx, plugin, {
+          get() {
+            if (typeof $[plugin] === 'function') {
+              $[plugin] = $[plugin](ctx);
+            }
+            return $[plugin];
           }
-          return $[plugin];
-        }
-      });
+        });
+      }
     });
     return Object.seal(ctx);
   };
@@ -99,7 +105,7 @@ export const krakenIt = <T>(schemas: KrakenSchema | KrakenSchema[]): KrakenRunti
       Object.assign($context, out);
     }
 
-    const response = execute({
+    const response = await execute({
       ...args,
       contextValue: $context,
       schema: executableSchema

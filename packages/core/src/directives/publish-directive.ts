@@ -12,7 +12,7 @@ export class PublishDirective extends SchemaDirectiveVisitor {
       await context.$pubsub.publish(triggerName, {
         __typename: typeName,
         ...result
-      });
+      }).catch(e => console.error(e));
       return result;
     };
   }

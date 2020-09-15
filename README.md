@@ -37,7 +37,7 @@ With this simple schema and an even simpler resolver
 
 ```graphql
 type Subscription {
-    onPing(channel: String): String @sub(triggerName: "onPing#{channel}")
+    onPing(channel: String): Ping @sub(triggerName: "onPing#{channel}")
 }
 
 type Mutation {

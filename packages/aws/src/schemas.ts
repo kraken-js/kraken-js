@@ -7,10 +7,10 @@ export const graphqlSchema = (config?: AwsSchemaConfig): KrakenSchema => ({
   plugins: inject => {
     inject('connections', dynamoDbConnectionStore(config));
     inject('subscriptions', dynamoDbSubscriptionStore(config));
-    inject('lambda', getLambda);
-    inject('dynamoDb', getDynamoDb);
-    inject('apiGateway', { get: getApiGateway });
-    inject('sns', getSNS);
-    inject('sqs', getSQS);
+    inject('sns', () => getSNS(config?.sns));
+    inject('sqs', () => getSQS(config?.sqs));
+    inject('lambda', () => getLambda(config?.lambda));
+    inject('dynamoDb', () => getDynamoDb(config?.dynamoDb));
+    inject('apiGateway', () => ({ get: config?.apiGateway ? () => config.apiGateway : getApiGateway }));
   }
 });
