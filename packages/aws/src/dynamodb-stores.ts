@@ -68,7 +68,12 @@ class DynamoDbConnectionManager<T> implements ConnectionStore {
 
   async send({ connectionId, apiGatewayUrl }, payload: any) {
     const apiGateway = this.context.$apiGateway.get(apiGatewayUrl as string);
-    await postToConnection(apiGateway, connectionId, payload);
+    await postToConnection(apiGateway, connectionId, payload).catch(() =>
+      Promise.all([
+        this.context.$connections.delete({ connectionId }),
+        this.context.$subscriptions.deleteAll(connectionId)
+      ])
+    );
   }
 }
 
