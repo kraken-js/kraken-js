@@ -12,7 +12,7 @@ const getApiGatewayUrl = (event: APIGatewayProxyEvent) => {
   return `https://${event.requestContext.domainName}/${event.requestContext.stage}`;
 };
 
-const onWsConnect = async <C>(event: APIGatewayProxyEvent) => {
+const onWsConnect = <C>(event: APIGatewayProxyEvent) => {
   const secWsProtocolHeader = Object.keys(event.headers).find(header =>
     header.toLowerCase() === 'sec-websocket-protocol'
   );

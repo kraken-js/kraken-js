@@ -55,16 +55,17 @@ const setupTest = () => {
 
   const handler = wsHandler(kraken);
   const connectionId = Math.random().toString(32);
-  const execute = async (body) => {
-    await handler({
+  const execute = (body, routeKey?, headers?) =>
+    handler({
       requestContext: {
         connectionId: connectionId,
         domainName: 'domain.fake',
-        stage: process.env.STAGE
+        stage: process.env.STAGE,
+        routeKey
       },
+      headers,
       body: JSON.stringify(body)
     } as any, null, null);
-  };
 
   return {
     execute,
@@ -75,6 +76,54 @@ const setupTest = () => {
 };
 
 describe('AWS Websocket Handler', () => {
+  const wsHeader = 'Sec-WebSocket-Protocol';
+  it.each([
+    [{}, { body: '', statusCode: 200 }],
+    [{ [wsHeader]: 'graphql-ws' }, { body: '', statusCode: 200, headers: { [wsHeader]: 'graphql-ws' } }],
+    [{ 'NOT-THE-RIGHT-HEADER': 'graphql-ws' }, { body: '', statusCode: 200 }]
+  ])('should respond to connection headers %o with %o', async (headers, response) => {
+    const { execute } = setupTest();
+    await execute({ type: GQL_CONNECTION_INIT });
+    const actual = await execute(null, '$connect', headers);
+    expect(actual).toEqual(response);
+  });
+
+  it('should cleanup connection and subscriptions on disconnect event', async () => {
+    const { execute, dynamoDb } = setupTest();
+
+    await execute({ type: GQL_CONNECTION_INIT });
+    await execute({
+      id: '1',
+      type: GQL_START,
+      payload: { query: 'subscription { onMessage(channel: "general") { __typename channel message } }' }
+    });
+
+    const { Count: before } = await dynamoDb.scan({
+      TableName: 'WsSubscriptions-test',
+      Select: 'COUNT'
+    }).promise();
+    expect(before).toEqual(2);
+
+    await execute(null, '$disconnect');
+
+    const { Count: after } = await dynamoDb.scan({
+      TableName: 'WsSubscriptions-test',
+      Select: 'COUNT'
+    }).promise();
+    expect(after).toEqual(0);
+  });
+
+  it('should do nothing on ping operation', async () => {
+    const { execute } = setupTest();
+    await execute({ type: 'ping' });
+  });
+
+  it('should fail when operation is run and the connection is not initialized', async () => {
+    const { execute, connectionId } = setupTest();
+    const actual = execute({ id: '1', type: GQL_START, payload: { query: 'query { hello }' } });
+    await expect(actual).rejects.toThrow(`Connection ${connectionId} not found`);
+  });
+
   describe('should successfully execute pub/sub', () => {
     const numOfSubscriptions = 77;
     const { execute, connectionId, dynamoDb } = setupTest();

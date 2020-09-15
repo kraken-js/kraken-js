@@ -44,4 +44,4 @@ jobs:
 
       - name: Unit Tests
         working-directory: ${{ matrix.package }}
-        run: yarn test --colors
+        run: yarn test --colors --coverage
