@@ -8,9 +8,9 @@ export const graphql = async ({ kraken }, { spinner, toolbox }) => {
   filesystem.remove(graphqlSchemaFile);
   filesystem.write(graphqlSchemaFile, ''); // touch
 
-  await patching.append(graphqlSchemaFile, `import { mergeGraphqlSchemas } from '@kraken.js/core';\n`);
+  await patching.append(graphqlSchemaFile, `import { krakenIt } from '@kraken.js/core';\n`);
   const modules = await graphqlModules({ kraken, graphqlSchemaFile }, { spinner, toolbox });
   await patching.append(graphqlSchemaFile, `\n`);
-  await patching.append(graphqlSchemaFile, `export const graphqlSchema = mergeGraphqlSchemas([\n\t${modules.join(',\n\t')}\n]);\n`);
+  await patching.append(graphqlSchemaFile, `export const krakenSchema = krakenIt([\n\t${modules.join(',\n\t')}\n]);\n`);
   spinner.stopAndPersist({ symbol: '✅', text: 'finished loading graphql modules' });
 };
