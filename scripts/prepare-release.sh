@@ -6,7 +6,7 @@ set -eu
 # --major
 # --new-version 0.0.x
 declare version="$@"
-[[ ! -z "$version" ]] && version="--patch"
+[[ -z "$version" ]] && version="--patch"
 
 echo "Setting new version to '$version'"
 
