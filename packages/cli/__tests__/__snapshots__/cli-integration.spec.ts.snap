@@ -69,10 +69,10 @@ functions:
 `;
 
 exports[`kraken.js After Generate Project should generate src/schema.ts file 1`] = `
-"import { mergeGraphqlSchemas } from '@kraken.js/core';
+"import { krakenIt } from '@kraken.js/core';
 import { graphqlSchema as krakenJsAws } from '@kraken.js/aws';
 
-export const graphqlSchema = mergeGraphqlSchemas([
+export const krakenSchema = krakenIt([
 	krakenJsAws
 ]);
 "

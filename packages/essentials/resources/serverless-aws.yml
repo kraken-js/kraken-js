@@ -41,6 +41,12 @@ custom:
       REGION: ${self:custom.region}
       SERVICE: ${self:service.name}
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+    offline:
+      AWS_LAMBDA_ENDPOINT: https://0.0.0.0:4002
+      AWS_APIGATEWAY_ENDPOINT: https://0.0.0.0:4001
+      AWS_DYNAMODB_ENDPOINT: https://0.0.0.0:5002
+      AWS_SNS_ENDPOINT: https://0.0.0.0:6002
+      AWS_SQS_ENDPOINT: https://0.0.0.0:7002
   webpack:
     includeModules:
       forceExclude: [ aws-sdk ]

@@ -2,6 +2,12 @@ import { ApiGatewayManagementApi, config as awsConfig, DynamoDB, Lambda, SNS, SQ
 import yn from 'yn';
 
 const isOffline = yn(process.env.IS_OFFLINE);
+const dynamoDbEndpoint = process.env.AWS_DYNAMODB_ENDPOINT;
+const lambdaEndpoint = process.env.AWS_LAMBDA_ENDPOINT;
+const snsEndpoint = process.env.AWS_SNS_ENDPOINT;
+const sqsEndpoint = process.env.AWS_SQS_ENDPOINT;
+const apiGatewayEndpoint = process.env.AWS_APIGATEWAY_ENDPOINT;
+
 const instances: Record<string, any> = {
   apiGateway: {},
   dynamoDb: undefined,
@@ -17,38 +23,38 @@ if (isOffline) {
   });
 }
 
-export const getLambda = (): Lambda => {
+export const getLambda = (lambda?: Lambda): Lambda => {
   if (!instances.lambda) {
-    instances.lambda = new Lambda({
+    instances.lambda = lambda || new Lambda({
       apiVersion: '2015-03-31',
-      endpoint: isOffline ? 'http://localhost:4002' : undefined
+      endpoint: isOffline ? lambdaEndpoint : undefined
     });
   }
   return instances.lambda;
 };
 
-export const getDynamoDb = (): DynamoDB.DocumentClient => {
+export const getDynamoDb = (dynamoDb?: DynamoDB.DocumentClient): DynamoDB.DocumentClient => {
   if (!instances.dynamoDb) {
-    instances.dynamoDb = new DynamoDB.DocumentClient({
-      endpoint: isOffline ? 'http://localhost:5002' : undefined
+    instances.dynamoDb = dynamoDb || new DynamoDB.DocumentClient({
+      endpoint: isOffline ? dynamoDbEndpoint : undefined
     });
   }
   return instances.dynamoDb;
 };
 
-export const getSNS = (): SNS => {
+export const getSNS = (sns?: SNS): SNS => {
   if (!instances.sns) {
-    instances.sns = new SNS({
-      endpoint: isOffline ? 'http://localhost:6002' : undefined
+    instances.sns = sns || new SNS({
+      endpoint: isOffline ? snsEndpoint : undefined
     });
   }
   return instances.sns;
 };
 
-export const getSQS = (): SQS => {
+export const getSQS = (sqs?: SQS): SQS => {
   if (!instances.sqs) {
-    instances.sqs = new SQS({
-      endpoint: isOffline ? 'http://localhost:7002' : undefined
+    instances.sqs = sqs || new SQS({
+      endpoint: isOffline ? sqsEndpoint : undefined
     });
   }
   return instances.sqs;
@@ -57,7 +63,7 @@ export const getSQS = (): SQS => {
 export const getApiGateway = (endpoint): ApiGatewayManagementApi => {
   if (!instances.apiGateway[endpoint]) {
     instances.apiGateway[endpoint] = new ApiGatewayManagementApi({
-      endpoint: isOffline ? 'http://localhost:4001' : endpoint
+      endpoint: isOffline ? apiGatewayEndpoint : endpoint
     });
   }
   return instances.apiGateway[endpoint];

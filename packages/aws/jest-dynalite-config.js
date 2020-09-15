@@ -5,12 +5,12 @@ module.exports = {
       BillingMode: 'PAY_PER_REQUEST',
       AttributeDefinitions: [
         { AttributeName: 'connectionId', AttributeType: 'S' },
-        { AttributeName: 'subscriptionId', AttributeType: 'S' },
+        { AttributeName: 'operationId', AttributeType: 'S' },
         { AttributeName: 'triggerName', AttributeType: 'S' }
       ],
       KeySchema: [
         { AttributeName: 'connectionId', KeyType: 'HASH' },
-        { AttributeName: 'subscriptionId', KeyType: 'RANGE' }
+        { AttributeName: 'operationId', KeyType: 'RANGE' }
       ],
       GlobalSecondaryIndexes: [{
         IndexName: 'byTriggerName',
@@ -21,5 +21,5 @@ module.exports = {
       }]
     }
   ],
-  basePort: 8007
+  basePort: 5002
 };
