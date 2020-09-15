@@ -35,7 +35,6 @@ const batchLoadFn = (plugins: Kraken.Plugins): DataLoader.BatchLoadFn<GetRequest
       return req;
     }, {});
 
-    // Perform the batch lookup
     const results = await plugins.$dynamoDb
       .batchGet({ RequestItems: requestItems })
       .promise();
