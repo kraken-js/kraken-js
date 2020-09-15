@@ -11,6 +11,8 @@ export const graphqlSchema = (config?: AwsSchemaConfig): KrakenSchema => ({
     inject('sqs', () => getSQS(config?.sqs));
     inject('lambda', () => getLambda(config?.lambda));
     inject('dynamoDb', () => getDynamoDb(config?.dynamoDb));
-    inject('apiGateway', () => ({ get: config?.apiGateway ? () => config.apiGateway : getApiGateway }));
+    inject('apiGateway', () => ({
+      get: endpoint => config.apiGateway || getApiGateway(endpoint)
+    }));
   }
 });
