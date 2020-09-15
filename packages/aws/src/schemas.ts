@@ -1,4 +1,5 @@
 import { KrakenSchema } from '@kraken.js/core';
+import { dynamoDbDataLoader } from './dynamodb-dataloader';
 import { dynamoDbConnectionStore, dynamoDbSubscriptionStore } from './dynamodb-stores';
 import { getApiGateway, getDynamoDb, getLambda, getSNS, getSQS } from './instances';
 import { AwsSchemaConfig } from './types';
@@ -11,6 +12,7 @@ export const graphqlSchema = (config?: AwsSchemaConfig): KrakenSchema => ({
     inject('sqs', () => getSQS(config?.sqs));
     inject('lambda', () => getLambda(config?.lambda));
     inject('dynamoDb', () => getDynamoDb(config?.dynamoDb));
+    inject('dynamoDbDataLoader', dynamoDbDataLoader);
     inject('apiGateway', () => ({
       get: endpoint => config.apiGateway || getApiGateway(endpoint)
     }));

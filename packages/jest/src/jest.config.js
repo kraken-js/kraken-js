@@ -7,6 +7,8 @@ module.exports = () => ({
   testEnvironment: 'node',
   restoreMocks: true,
   clearMocks: true,
+  collectCoverage: true,
+  collectCoverageFrom: ['index.ts', 'src/**/*.{ts,js}'],
   modulePaths: ['node_modules', '.'],
   setupFiles: [path.join(__dirname, 'jest.setup.js')],
   globals: { 'ts-jest': { isolatedModules: true } },

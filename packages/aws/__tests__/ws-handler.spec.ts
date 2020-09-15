@@ -48,7 +48,7 @@ const setupTest = () => {
     graphqlSchema({
       dynamoDb,
       apiGateway: apiGatewayMock,
-      connections: { waitForConnectionTimeout: 5 }
+      connections: { waitForConnectionTimeout: 20 }
     }),
     testSchema
   ]);
@@ -125,7 +125,7 @@ describe('AWS Websocket Handler', () => {
   });
 
   describe('should successfully execute pub/sub', () => {
-    const numOfSubscriptions = 77;
+    const numOfSubscriptions = 511;
     const { execute, connectionId, dynamoDb } = setupTest();
 
     beforeEach(async () => {
