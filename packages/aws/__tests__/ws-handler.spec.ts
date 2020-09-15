@@ -48,7 +48,7 @@ const setupTest = () => {
     graphqlSchema({
       dynamoDb,
       apiGateway: apiGatewayMock,
-      connections: { waitForConnectionTimeout: 20 }
+      connections: { waitForConnectionTimeout: 5 }
     }),
     testSchema
   ]);
