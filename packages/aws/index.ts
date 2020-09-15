@@ -1,4 +1,5 @@
 import { ApiGatewayManagementApi, DynamoDB, Lambda, SNS, SQS } from 'aws-sdk';
+import { DynamodbDataloader } from './src/dynamodb-dataloader';
 // @ts-ignore
 export * as serverless from './resources/serverless.yml';
 // @ts-ignore
@@ -19,6 +20,7 @@ declare global {
       $apiGateway: { get: (endpoint: string) => ApiGatewayManagementApi }
       $sqs: SQS
       $sns: SNS
+      $dynamoDbDataLoader: DynamodbDataloader
     }
 
     interface ConnectionInfo {

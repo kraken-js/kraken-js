@@ -27,7 +27,10 @@ export const krakenIt = <T>(schemas: KrakenSchema | KrakenSchema[]): KrakenRunti
     schemaDirectives: {
       ...pubsubSchemaDirectives
     },
-    schemaTransforms: []
+    schemaTransforms: [],
+    logger: {
+      log: e => console.error(e)
+    }
   };
 
   const plugins = [

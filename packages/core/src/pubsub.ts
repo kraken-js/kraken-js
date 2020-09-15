@@ -90,7 +90,8 @@ export class KrakenPubSub implements PubSub {
           contextValue: {
             $subMode: 'OUT'
           }
-        });
+        }).catch(error => ({ errors: [error] }));
+
         return await this.context.$connections.send(subscription, {
           id: subscription.operationId,
           type: GQL_DATA,

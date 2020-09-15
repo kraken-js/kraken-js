@@ -40,30 +40,35 @@ class DynamoDbConnectionManager<T> implements ConnectionStore {
   }
 
   async get(connectionId: string, retries = 10) {
-    const { Item } = await this.context.$dynamoDb.get({
+    const request = {
       TableName: this.tableName,
       Key: { connectionId, operationId: rootOperationId }
-    }).promise();
-    if (!Item) {
+    };
+
+    const connection = await this.context.$dynamoDbDataLoader.load(request);
+    if (!connection) {
       if (retries > 0) {
+        this.context.$dynamoDbDataLoader.clear(request);
         await waitFor(this.waitForConnectionTimeout);
-        return this.get(connectionId, --retries);
+        return await this.get(connectionId, --retries);
       }
       throw new Error(`Connection ${connectionId} not found`);
     }
-    return Item;
+    return connection;
   }
 
   async delete({ connectionId, apiGatewayUrl }) {
+    const request = {
+      TableName: this.tableName,
+      Key: { connectionId, operationId: rootOperationId }
+    };
     await Promise.all([
-      this.context.$dynamoDb.delete({
-        TableName: this.tableName,
-        Key: { connectionId, operationId: rootOperationId }
-      }).promise(),
+      this.context.$dynamoDb.delete(request).promise(),
       this.context.$apiGateway.get(apiGatewayUrl).deleteConnection({
         ConnectionId: connectionId
       }).promise().catch(e => void e) // it's ok to fail with 410 here
     ]);
+    this.context.$dynamoDbDataLoader.clear(request); // cleanup loader
   }
 
   async send({ connectionId, apiGatewayUrl }, payload: any) {

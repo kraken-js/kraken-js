@@ -120,7 +120,7 @@ declare global {
         variableValues?: any
       }
 
-      gqlExecute(args: ExecutionArgs): PromiseOrValue<ExecutionResult>;
+      gqlExecute(args: ExecutionArgs): Promise<ExecutionResult>;
     }
 
     interface Connection extends ConnectionInfo {
