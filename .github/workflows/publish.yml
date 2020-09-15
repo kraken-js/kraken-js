@@ -53,22 +53,9 @@ jobs:
           script: return require(`${process.env.GITHUB_WORKSPACE}/package.json`).version;
           result-encoding: string
 
-      - if: github.event_name == 'release'
-        name: Read Relesase Version
-        uses: actions/github-script@v3
-        id: release-version
-        with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: return context.payload.ref.replace(/\/refs\/tags\//, '').slice(1);
-          result-encoding: string
-
       - if: github.event_name == 'push'
         name: Prepare For Patch Release
         run: yarn prepare-release --new-version "${{ steps.package-version.outputs.result }}-${GITHUB_SHA::7}"
-
-      - if: github.event_name == 'release'
-        name: Prepare For New Release
-        run: yarn prepare-release --new-version "${{ steps.release-version.outputs.result }}"
 
       - name: Publish ${{ matrix.package }}
         run: yarn publish --non-interactive --access public
