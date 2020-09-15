@@ -44,8 +44,8 @@ jobs:
 
       - name: Unit Tests
         uses: mattallty/jest-github-action@v1
-        working-directory: ${{ matrix.package }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          working-directory: ${{ matrix.package }}
           test-command: yarn test --colors
