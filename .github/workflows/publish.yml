@@ -40,6 +40,10 @@ jobs:
             */*/node_modules
           key: ${{ runner.OS }}-${{ hashFiles('yarn.lock') }}
 
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: yarn install --frozen-lockfile
+
       - if: github.event_name == 'push'
         name: Read package.json Version
         uses: actions/github-script@v3
