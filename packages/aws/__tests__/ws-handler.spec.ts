@@ -7,7 +7,7 @@ import {
   GQL_DATA,
   GQL_START,
   GQL_STOP,
-  krakenIt,
+  krakenJs,
   KrakenSchema
 } from '@kraken.js/core';
 import { ApiGatewayManagementApi, DynamoDB } from 'aws-sdk';
@@ -44,7 +44,7 @@ const setupTest = () => {
     region: 'local'
   });
 
-  const kraken = krakenIt([
+  const kraken = krakenJs([
     graphqlSchema({
       dynamoDb,
       apiGateway: apiGatewayMock,
