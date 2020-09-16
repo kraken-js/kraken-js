@@ -1,5 +1,5 @@
 import { graphqlSchema, wsHandler } from '@kraken.js/aws';
-import { krakenIt } from '@kraken.js/core';
+import { krakenJs } from '@kraken.js/core';
 
 const demoSchema = {
   typeDefs: `
@@ -26,7 +26,7 @@ const demoSchema = {
   }
 };
 
-export const handler = wsHandler(krakenIt([
+export const handler = wsHandler(krakenJs([
   graphqlSchema(),
   demoSchema
 ]));

@@ -1,4 +1,4 @@
-import { GQL_COMPLETE, GQL_CONNECTION_ACK, GQL_DATA, krakenIt } from '@kraken.js/core';
+import { GQL_COMPLETE, GQL_CONNECTION_ACK, GQL_DATA, krakenJs } from '@kraken.js/core';
 import { mockRootPlugins } from './utils';
 
 describe('Kraken Operations', () => {
@@ -8,7 +8,7 @@ describe('Kraken Operations', () => {
 
   const setup = (pubStrategy) => {
     const broadcast = jest.fn();
-    return krakenIt([{
+    return krakenJs([{
       plugins: mockRootPlugins
     }, {
       typeDefs: [`

@@ -1,4 +1,4 @@
-import { krakenIt } from '@kraken.js/core';
+import { krakenJs } from '@kraken.js/core';
 import { parse } from 'graphql';
 import gql from 'graphql-tag';
 import { mockRootPlugins } from './utils';
@@ -10,7 +10,7 @@ describe('Kraken', () => {
   const connectionInfo = { connectionId };
 
   it('should execute simple graphql operation', async () => {
-    const { gqlExecute, onGqlInit } = krakenIt({
+    const { gqlExecute, onGqlInit } = krakenJs({
       plugins: mockRootPlugins,
       typeDefs: gql('type Query { hello: String }'),
       resolvers: { Query: { hello: () => 'hello world' } }
@@ -21,10 +21,26 @@ describe('Kraken', () => {
     expect(response).toEqual({ data: { hello: 'hello world' } });
   });
 
+  it('should execute merged graphql operation', async () => {
+    const { gqlExecute, onGqlInit } = krakenJs([{
+      plugins: mockRootPlugins
+    }, {
+      typeDefs: gql('type Query { hello: String }'),
+      resolvers: { Query: { hello: () => 'hello world 1' } }
+    }, {
+      typeDefs: gql('type Query { hello: String }'),
+      resolvers: { Query: { hello: () => 'hello world 2' } }
+    }]);
+
+    await onGqlInit({ connectionId }, gqlInitOperation);
+    const response = await gqlExecute({ connectionInfo, operationId, document: parse('query { hello }') });
+    expect(response).toEqual({ data: { hello: 'hello world 2' } });
+  });
+
   it('should execute call onBeforeExecute before each execution', async () => {
     const onBeforeExecute = jest.fn();
 
-    const { gqlExecute, onGqlInit } = krakenIt({
+    const { gqlExecute, onGqlInit } = krakenJs({
       plugins: mockRootPlugins,
       typeDefs: gql('type Query { hello: String }'),
       resolvers: { Query: { hello: () => 'hello world' } },
@@ -51,7 +67,7 @@ describe('Kraken', () => {
   it('should execute call onAfterExecute after each execution', async () => {
     const onAfterExecute = jest.fn();
 
-    const { gqlExecute, onGqlInit } = krakenIt({
+    const { gqlExecute, onGqlInit } = krakenJs({
       plugins: mockRootPlugins,
       typeDefs: gql('type Query { hello: String }'),
       resolvers: { Query: { hello: (_, __, ctx) => 'hello world ' + ctx.operation.id } },
@@ -69,7 +85,7 @@ describe('Kraken', () => {
   });
 
   it('should inject value to context and make it available during execution', async () => {
-    const { gqlExecute, onGqlInit } = krakenIt({
+    const { gqlExecute, onGqlInit } = krakenJs({
       typeDefs: gql('type Query { hello: String }'),
       resolvers: { Query: { hello: (_, __, context) => context.value } },
       plugins: mockRootPlugins,
@@ -84,7 +100,7 @@ describe('Kraken', () => {
   });
 
   it('should inject value to context as plugin and make it available during execution', async () => {
-    const { gqlExecute, onGqlInit } = krakenIt([{
+    const { gqlExecute, onGqlInit } = krakenJs([{
       typeDefs: gql('type Query { hello: String }'),
       resolvers: { Query: { hello: (_, __, context) => context.$value } },
       plugins: inject => {
