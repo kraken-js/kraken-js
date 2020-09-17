@@ -10,10 +10,10 @@
     "clean": "npx rimraf dist",
     "prepackage": "npx rimraf dist",
     "package": "webpack-cli",
-    "postpackage": "size-limit",
     "pretest": "npx rimraf dist",
     "test": "jest",
-    "prepublishOnly": "yarn package"
+    "prepublishOnly": "yarn package && yarn check-size-limit",
+    "check-size-limit": "size-limit"
   },
   "files": [
     "dist",

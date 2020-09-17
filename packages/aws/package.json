@@ -11,8 +11,8 @@
     "test": "jest --passWithNoTests --runInBand",
     "prepackage": "npx rimraf dist",
     "package": "webpack-cli",
-    "postpackage": "size-limit",
-    "prepublishOnly": "yarn package"
+    "prepublishOnly": "yarn package && yarn check-size-limit",
+    "check-size-limit": "size-limit"
   },
   "files": [
     "dist",
