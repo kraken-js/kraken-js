@@ -9,12 +9,13 @@
     "package": "yarn workspaces run package",
     "test": "yarn workspaces run test",
     "prepare-release": "scripts/prepare-release.sh",
+    "release": "yarn publish --access public",
     "reinstall": "yarn clean && yarn install",
-    "clean": "rimraf \"**/{node_modules,dist,yarn.lock}\""
+    "clean:all": "npx rimraf \"**/{node_modules,dist,yarn.lock}\"",
+    "clean:dist": "npx rimraf \"**/{dist}\""
   },
   "devDependencies": {
-    "glob": "^7.1.6",
-    "rimraf": "^3.0.2"
+    "glob": "^7.1.6"
   },
   "workspaces": [
     "packages/*"

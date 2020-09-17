@@ -16,5 +16,3 @@ yarn version $version --no-git-tag-version
 node scripts/update-version.js
 # install new version
 yarn install --frozen-lockfile
-# package all
-yarn package

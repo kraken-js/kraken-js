@@ -6,8 +6,9 @@
   "repository": "github:kraken-js/kraken.js",
   "main": "dist/index.js",
   "scripts": {
+    "pretest": "npx rimraf dist",
     "test": "jest --passWithNoTests --runInBand",
-    "prepackage": "rimraf dist",
+    "prepackage": "npx rimraf dist",
     "package": "tsc --project .",
     "prepublishOnly": "yarn package"
   },

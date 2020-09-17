@@ -1,4 +1,4 @@
-import { GQL_COMPLETE, GQL_CONNECTION_ACK, GQL_DATA, krakenJs } from '@kraken.js/core';
+import { GQL_COMPLETE, GQL_CONNECTION_ACK, GQL_DATA, krakenJs, KrakenSchema } from '@kraken.js/core';
 import { mockRootPlugins } from './utils';
 
 describe('Kraken Operations', () => {
@@ -6,12 +6,31 @@ describe('Kraken Operations', () => {
     connectionId: Math.random().toString(32).slice(2)
   });
 
-  const setup = (pubStrategy) => {
-    const broadcast = jest.fn();
-    return krakenJs([{
-      plugins: mockRootPlugins
-    }, {
-      typeDefs: [`
+  const asIsPubStrategy: KrakenSchema = {
+    plugins: (injector) => {
+      injector('pubStrategy', 'AS_IS');
+    }
+  };
+
+  const graphqlPubStrategy: KrakenSchema = {
+    plugins: (injector) => {
+      injector('pubStrategy', 'GRAPHQL');
+    }
+  };
+
+  const broadcasterPubStrategy: KrakenSchema = {
+    plugins: (inject => {
+      const broadcast = jest.fn();
+      inject('pubStrategy', 'BROADCASTER');
+      inject('broadcaster', { broadcast });
+    })
+  };
+
+  const setup = (...extraSchemas: KrakenSchema[]) => {
+    return krakenJs([
+      { plugins: mockRootPlugins },
+      {
+        typeDefs: [`
         type Query {
           _: String
         }
@@ -25,21 +44,59 @@ describe('Kraken Operations', () => {
           channel: String
           message: String
         }`
-      ],
-      resolvers: {
-        Mutation: {
-          sendMessage: (source, args) => args
+        ],
+        resolvers: {
+          Mutation: {
+            sendMessage: (source, args) => args
+          }
         }
       },
-      plugins(inject) {
-        inject('broadcaster', { broadcast });
-        inject('pubStrategy', pubStrategy);
-      }
-    }]);
+      ...extraSchemas
+    ]);
   };
 
+  it.each([
+    ['AS_IS', asIsPubStrategy, {
+      __typename: 'Message', channel: 'random', message: 'DOES IT WORKS?'
+    }],
+    ['GRAPHQL', graphqlPubStrategy, {
+      __typename: 'Message', channel: 'random', message: 'DOES IT WORKS?', resolvedOnly: 'IT WORKS'
+    }]
+  ])('should really run GRAPHQL compared to AS_IS (round %s)', async (_, pubStrategy, onMessage) => {
+    const extraSchema = {
+      typeDefs: `extend type Message { resolvedOnly: String }`,
+      resolvers: {
+        Message: { resolvedOnly: () => 'IT WORKS' }
+      }
+    };
+
+    const kraken = setup(pubStrategy, extraSchema);
+    const connection = connectionInfo();
+
+    await kraken.onGqlInit(connection, {
+      type: 'connection_init',
+      payload: {}
+    });
+    await kraken.onGqlStart(connection, {
+      id: '1',
+      type: 'start',
+      payload: { query: 'subscription { onMessage(channel: "random") { __typename channel message resolvedOnly } }' }
+    });
+    await kraken.onGqlStart(connection, {
+      id: '2',
+      type: 'start',
+      payload: { query: 'mutation { sendMessage(channel: "random", message: "DOES IT WORKS?") { channel message } }' }
+    });
+
+    expect(kraken.$connections.send).toHaveBeenCalledWith(expect.objectContaining(connection), {
+      id: '1',
+      type: GQL_DATA,
+      payload: { data: { onMessage } }
+    });
+  });
+
   it('should execute successfully full cycle operations using BROADCASTER strategy', async () => {
-    const kraken = setup('BROADCASTER');
+    const kraken = setup(broadcasterPubStrategy);
     const connection = connectionInfo();
 
     await kraken.onGqlInit(connection, {
@@ -81,11 +138,11 @@ describe('Kraken Operations', () => {
   });
 
   it.each([
-    ['AS_IS'],
-    ['GRAPHQL']
+    ['AS_IS', asIsPubStrategy],
+    ['GRAPHQL', graphqlPubStrategy]
   ])('should execute successfully full cycle operations using %s strategy',
-    async ($pubStrategy) => {
-      const kraken = setup($pubStrategy);
+    async (_: Kraken.PublishingStrategy, pubStrategy: KrakenSchema) => {
+      const kraken = setup(pubStrategy);
       const connection = connectionInfo();
       const numOfSubscriptions = 511;
 
