@@ -44,10 +44,7 @@ module.exports = (dirname, entry) => ({
       {
         test: /\.(tsx?)$/,
         loader: 'ts-loader',
-        exclude: /node_modules/,
-        options: {
-          onlyCompileBundledFiles: true
-        }
+        exclude: /node_modules/
       }
     ]
   },

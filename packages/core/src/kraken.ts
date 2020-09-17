@@ -36,22 +36,23 @@ const defaultSchema: KrakenSchema = {
   }
 };
 
-const executionContextBuilder = ($plugins: Kraken.Plugins) => <T>(ctx: T): T & Kraken.ExecutionContext => {
-  Object.getOwnPropertyNames($plugins).forEach(plugin => {
-    const $ = { [plugin]: $plugins[plugin] };
-    if (ctx[plugin] === undefined) {
-      Object.defineProperty(ctx, plugin, {
-        get() {
-          if (typeof $[plugin] === 'function') {
-            $[plugin] = $[plugin](ctx);
+const executionContextBuilder = ($plugins: Kraken.Plugins) =>
+  <T>(ctx: T): T & Kraken.ExecutionContext => {
+    Object.getOwnPropertyNames($plugins).forEach(plugin => {
+      const $ = { [plugin]: $plugins[plugin] };
+      if (ctx[plugin] === undefined) {
+        Object.defineProperty(ctx, plugin, {
+          get() {
+            if (typeof $[plugin] === 'function') {
+              $[plugin] = $[plugin](ctx);
+            }
+            return $[plugin];
           }
-          return $[plugin];
-        }
-      });
-    }
-  });
-  return ctx as T & Kraken.ExecutionContext;
-};
+        });
+      }
+    });
+    return ctx as T & Kraken.ExecutionContext;
+  };
 
 const getResolvers = (schemaDefinition: KrakenSchema) => {
   if (!schemaDefinition.resolvers) return [];
@@ -64,9 +65,7 @@ export const krakenJs = <T>(config: Config): KrakenRuntime => {
   const configs = Array.isArray(config) ? config : [config];
 
   const $plugins = {} as Kraken.Plugins;
-  const pluginInjector = (name, value) => {
-    $plugins['$' + name] = value;
-  };
+  const pluginInjector = (name, value) => $plugins['$' + name] = value;
   corePlugins(pluginInjector);
 
   const onConnectionInit: ((context) => Kraken.Context)[] = [];
@@ -74,9 +73,7 @@ export const krakenJs = <T>(config: Config): KrakenRuntime => {
   const onAfterExecute: ((context, response) => void)[] = [];
 
   const schemaDefinition = configs.reduce((result, each) => {
-    if ('plugins' in each) {
-      each.plugins(pluginInjector);
-    }
+    if ('plugins' in each) each.plugins(pluginInjector);
     if ('onConnectionInit' in each) onConnectionInit.push(each.onConnectionInit);
     if ('onBeforeExecute' in each) onBeforeExecute.push(each.onBeforeExecute);
     if ('onAfterExecute' in each) onAfterExecute.push(each.onAfterExecute);
@@ -109,15 +106,15 @@ export const krakenJs = <T>(config: Config): KrakenRuntime => {
   }, defaultSchema);
 
   const executableSchema = makeExecutableSchema(schemaDefinition as any);
-  const contextBuilder = executionContextBuilder($plugins);
-  const $root = contextBuilder({});
+  const makeExecutionContext = executionContextBuilder($plugins);
+  const $root = makeExecutionContext({});
 
   const gqlExecute = async (args: ExecutionArgs) => {
     const connection = await $root.$connections.get(args.connectionInfo.connectionId);
     const connectionContextValue = connection.context;
     const executionContextValue = args.contextValue;
 
-    const $context = contextBuilder({
+    const $context = makeExecutionContext({
       ...connectionContextValue,
       ...executionContextValue,
       connectionInfo: args.connectionInfo,
@@ -153,7 +150,7 @@ export const krakenJs = <T>(config: Config): KrakenRuntime => {
   };
 
   const onGqlInit = async (connection: Kraken.ConnectionInfo, operation: GqlOperation<Kraken.InitParams>) => {
-    const $context = contextBuilder({ connectionParams: operation.payload });
+    const $context = makeExecutionContext({ connectionParams: operation.payload });
 
     const connectionContext = {};
     for (const fn of onConnectionInit) {
@@ -208,7 +205,7 @@ export const krakenJs = <T>(config: Config): KrakenRuntime => {
     ]);
   };
 
-  return contextBuilder({
+  return makeExecutionContext({
     schema: executableSchema,
     gqlExecute,
     onGqlInit,

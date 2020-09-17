@@ -40,6 +40,7 @@ export interface Broadcaster {
 export type Injector = (name: string, value: ((ctx: Kraken.ExecutionContext) => any) | any) => void;
 
 export interface KrakenSchema extends Partial<IExecutableSchemaDefinition<Kraken.Context>> {
+
   plugins?(inject: Injector): void;
 
   onConnectionInit?(context: Partial<Kraken.Context>): PromiseOrValue<Partial<Kraken.Context>>;

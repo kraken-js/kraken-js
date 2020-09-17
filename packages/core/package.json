@@ -7,9 +7,12 @@
   "main": "dist/main.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "test": "jest --passWithNoTests",
-    "prepackage": "rimraf dist",
+    "clean": "npx rimraf dist",
+    "prepackage": "npx rimraf dist",
     "package": "webpack-cli",
+    "postpackage": "size-limit",
+    "pretest": "npx rimraf dist",
+    "test": "jest",
     "prepublishOnly": "yarn package"
   },
   "files": [
@@ -27,7 +30,17 @@
   "devDependencies": {
     "@kraken.js/jest": "0.0.3",
     "@kraken.js/webpack": "0.0.3",
+    "@size-limit/preset-small-lib": "^4.6.0",
     "@types/aws-lambda": "^8.10.62",
     "jest": "^26.4.2"
-  }
+  },
+  "size-limit": [
+    {
+      "gzip": false,
+      "limit": "350 KB",
+      "ignore": [
+        "graphql"
+      ]
+    }
+  ]
 }
