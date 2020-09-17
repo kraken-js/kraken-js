@@ -1,6 +1,8 @@
 # @kraken.js
 
-Real Serverless Graphql Experience with Realtime Powers!
+Real Serverless Graphql Experience with Realtime Powers! 
+
+![Continuous Integration](https://github.com/kraken-js/kraken-js/workflows/Continuous%20Integration/badge.svg)
 
 ## Instalation
 
