@@ -55,9 +55,7 @@ jobs:
 
       - if: github.event_name == 'push'
         name: Prepare For Patch Release
-        run: |
-          yarn prepare-release --new-version "${{ steps.package-version.outputs.result }}-${GITHUB_SHA::7}"
-          npx size-limit
+        run: yarn prepare-release --new-version "${{ steps.package-version.outputs.result }}-${GITHUB_SHA::7}"
 
       - name: Publish ${{ matrix.package }}
         run: yarn publish --non-interactive --access public
