@@ -26,9 +26,9 @@ const corePlugins = (inject: Injector) => {
 };
 
 const defaultSchema: KrakenSchema = {
-  typeDefs: buildDocumentFromTypeDefinitions([
+  typeDefs: [
     pubsubTypeDefs
-  ]),
+  ],
   resolvers: {},
   schemaTransforms: [],
   schemaDirectives: {

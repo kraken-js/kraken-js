@@ -56,7 +56,7 @@ jobs:
       - if: github.event_name == 'push'
         name: Prepare For Patch Release
         run: |
-          yarn pre:release --new-version "${{ steps.package-version.outputs.result }}-${GITHUB_SHA::7}"
+          yarn prepare-release --new-version "${{ steps.package-version.outputs.result }}-${GITHUB_SHA::7}"
           npx size-limit
 
       - name: Publish ${{ matrix.package }}
