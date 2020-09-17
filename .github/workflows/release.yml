@@ -54,8 +54,11 @@ jobs:
           result-encoding: string
 
       - if: github.event_name == 'push'
-        name: Prepare For Patch Release
+        name: Prepare For Release
         run: yarn prepare-release --new-version "${{ steps.package-version.outputs.result }}-${GITHUB_SHA::7}"
+
+      - name: Package All
+        run: yarn package
 
       - name: Publish ${{ matrix.package }}
         run: yarn publish --non-interactive --access public

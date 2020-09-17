@@ -3,7 +3,9 @@ const webpackCommons = require('./webpack.commons');
 
 module.exports = (dirname, entry) => ({
   ...webpackCommons(dirname, entry),
-  externals: [nodeExternals({
-    additionalModuleDirs: ['../../node_modules']
-  })]
+  externals: [
+    nodeExternals({
+      additionalModuleDirs: ['../../node_modules']
+    })
+  ]
 });
