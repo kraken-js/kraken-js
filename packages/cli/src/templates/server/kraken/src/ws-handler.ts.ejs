@@ -23,7 +23,7 @@ const demoSchema = {
   }
 };
 
-export const handler = wsHandler(krakenIt([
+export const handler = wsHandler(krakenJs([
   krakenJsAws(),
   demoSchema
 ]));
