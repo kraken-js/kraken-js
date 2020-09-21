@@ -1,4 +1,4 @@
-import { parse, print } from 'graphql';
+import { ExecutionResult, parse, print } from 'graphql';
 import { GQL_DATA } from './constants';
 import { PubSub } from './types';
 
@@ -88,33 +88,37 @@ export class KrakenPubSub implements PubSub {
   private sendJob(subscription: Kraken.Subscription, payload: any) {
     return async () => {
       // GRAPHQL runs the subscription operation with $pubsubMode: OUT and send the response to the connection
-      if (this.getPubStrategy(subscription.triggerName) === 'GRAPHQL') {
-        const response = await this.context.gqlExecute({
-          rootValue: payload,
-          connectionInfo: subscription,
-          operationId: subscription.operationId,
-          document: parse(subscription.document),
-          operationName: subscription.operationName,
-          variableValues: subscription.variableValues,
-          contextValue: {
-            $subMode: 'OUT'
-          }
-        }).catch(error => ({ errors: [error] }));
+      const pubStrategy = this.getPubStrategy(subscription.triggerName);
+      const getResponse = async (): Promise<ExecutionResult> => {
+        if (pubStrategy === 'GRAPHQL') {
+          return await this.context.gqlExecute({
+            rootValue: payload,
+            connectionInfo: subscription,
+            operationId: subscription.operationId,
+            document: parse(subscription.document),
+            operationName: subscription.operationName,
+            variableValues: subscription.variableValues,
+            contextValue: {
+              $subMode: 'OUT'
+            }
+          }).catch(error => {
+            return ({ errors: [error] }) as ExecutionResult;
+          });
+        }
+        // AS_IS tries to guess the subscriptionName from the triggerName and just sends the payload AS IS
+        const [subscriptionName] = subscription.triggerName.split('#');
+        return { data: { [subscriptionName]: payload } };
+      };
 
-        return await this.context.$connections.send(subscription, {
+      const response = await getResponse();
+      const hasValidData = response.data && Object.values(response.data).some(Boolean);
+      if (hasValidData || response.errors) {
+        await this.context.$connections.send(subscription, {
           id: subscription.operationId,
           type: GQL_DATA,
           payload: response
         });
       }
-
-      // AS_IS tries to guess the subscriptionName from the triggerName and just sends the payload AS IS
-      const [subscriptionName] = subscription.triggerName.split('#');
-      return await this.context.$connections.send(subscription, {
-        id: subscription.operationId,
-        type: GQL_DATA,
-        payload: { data: { [subscriptionName]: payload } }
-      });
     };
   }
 }

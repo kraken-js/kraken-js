@@ -208,7 +208,6 @@ describe('Kraken Operations', () => {
       });
     });
 
-
   it('should publish with specific publishing strategy', async () => {
     const extraSchema = {
       typeDefs: `
@@ -275,6 +274,69 @@ describe('Kraken Operations', () => {
       payload: {
         data: { pubAsIs: { __typename: 'DifferentResponses', id: '666' } }
       }
+    });
+  });
+
+  it('should allow filtering and modifying the message on subscribe field resolver', async () => {
+    const extraSchema = {
+      resolvers: {
+        Subscription: {
+          onMessage: ({
+            subscribe(source, args, context, info) {
+              if (args.channel === 'shall-not-pass') {
+                return null;
+              }
+              return {
+                ...source[info.fieldName],
+                message: 'customized message'
+              };
+            }
+          })
+        }
+      }
+    };
+
+    const kraken = setup(extraSchema);
+    const connection = connectionInfo();
+
+    await kraken.onGqlInit(connection, {
+      type: 'connection_init',
+      payload: {}
+    });
+    await kraken.onGqlStart(connection, {
+      id: '1.1',
+      type: 'start',
+      payload: { query: 'subscription { onMessage(channel: "octopus") { channel message } }' }
+    });
+    await kraken.onGqlStart(connection, {
+      id: '1.2',
+      type: 'start',
+      payload: { query: 'mutation { sendMessage(channel: "octopus", message: "original message") { channel } }' }
+    });
+    await kraken.onGqlStart(connection, {
+      id: '2.1',
+      type: 'start',
+      payload: { query: 'subscription { onMessage(channel: "shall-not-pass") { channel message } }' }
+    });
+    await kraken.onGqlStart(connection, {
+      id: '2.2',
+      type: 'start',
+      payload: { query: 'mutation { sendMessage(channel: "shall-not-pass", message: "shall I?") { channel } }' }
+    });
+
+    // connection init, mutation 1 + completed, mutation 2 + completed, subscription 1.1 response (not subscription 2.1)
+    expect(kraken.$connections.send).toHaveBeenCalledTimes(6);
+    expect(kraken.$connections.send).toHaveBeenCalledWith(expect.objectContaining(connection), {
+      id: '1.1',
+      type: GQL_DATA,
+      payload: {
+        data: { onMessage: { channel: 'octopus', message: 'customized message' } }
+      }
+    });
+    expect(kraken.$connections.send).not.toHaveBeenCalledWith(expect.objectContaining(connection), {
+      id: '2.1',
+      type: GQL_DATA,
+      payload: expect.anything()
     });
   });
 });

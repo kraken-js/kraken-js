@@ -8,7 +8,7 @@ export class SubscribeDirective extends SchemaDirectiveVisitor {
 
     field.resolve = async function(source, args, context: Kraken.ExecutionContext, info) {
       if (context.$subMode === 'OUT') {
-        const sourceWithFieldValue = { ...source, [info.fieldName]: info.rootValue };
+        const sourceWithFieldValue = { [info.fieldName]: info.rootValue };
         return subscribe.apply(this, [sourceWithFieldValue, args, context, info]);
       }
 
