@@ -10,7 +10,7 @@ import { ExecutionArgs, GqlOperation, Injector, KrakenRuntime, KrakenSchema } fr
 type Config = KrakenSchema | KrakenSchema[]
 
 export const pubsubTypeDefs = `
-directive @pub(triggerName: String!) on FIELD_DEFINITION
+directive @pub(triggerNames: [String!]!) on FIELD_DEFINITION
 directive @sub(triggerName: String) on FIELD_DEFINITION
 `;
 
@@ -166,7 +166,7 @@ export const krakenJs = <T>(config: Config): KrakenRuntime => {
   };
 
   const onGqlStart = async (connection: Kraken.ConnectionInfo, operation: GqlOperation) => {
-    const document = parse(operation.payload.query as string);
+    const document = parse(operation.payload.query);
     const variableValues = operation.payload.variables;
     const operationId = operation.id;
     const response = await gqlExecute({
@@ -212,5 +212,5 @@ export const krakenJs = <T>(config: Config): KrakenRuntime => {
     onGqlStart,
     onGqlStop,
     onGqlConnectionTerminate
-  });
+  }) as KrakenRuntime;
 };

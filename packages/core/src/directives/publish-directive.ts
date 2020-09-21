@@ -4,15 +4,17 @@ import { defaultFieldResolver } from 'graphql';
 export class PublishDirective extends SchemaDirectiveVisitor {
   visitFieldDefinition(field) {
     const { resolve = defaultFieldResolver } = field;
-    const triggerName = this.args.triggerName;
-    const typeName = field.type?.name;
+    const typeName = field.type.name;
+    const triggerNames = this.args.triggerNames;
 
     field.resolve = async function(source, args, context: Kraken.ExecutionContext, info) {
       const result = await resolve.apply(this, [source, args, context, info]);
-      await context.$pubsub.publish(triggerName, {
-        __typename: typeName,
-        ...result
-      }).catch(e => console.error(e));
+      for (const triggerName of triggerNames) {
+        await context.$pubsub.publish(triggerName, {
+          __typename: typeName,
+          ...result
+        });
+      }
       return result;
     };
   }

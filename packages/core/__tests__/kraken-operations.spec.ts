@@ -35,7 +35,7 @@ describe('Kraken Operations', () => {
           _: String
         }
         type Mutation {
-          sendMessage(channel: String, message: String): Message @pub(triggerName: "onMessage#{channel}")
+          sendMessage(channel: String, message: String): Message @pub(triggerNames: ["onMessage#{channel}"])
         }
         type Subscription {
           onMessage(channel: String): Message @sub(triggerName: "onMessage#{channel}")
@@ -207,4 +207,74 @@ describe('Kraken Operations', () => {
         type: GQL_COMPLETE
       });
     });
+
+
+  it('should publish with specific publishing strategy', async () => {
+    const extraSchema = {
+      typeDefs: `
+      type Mutation {
+        publish(id: ID!): DifferentResponses @pub(triggerNames: ["pubGraphql#{id}", "pubAsIs#{id}"])
+      }
+      type Subscription {
+        pubGraphql(id: ID!): DifferentResponses @sub(triggerName: "pubGraphql#{id}")
+        pubAsIs(id: ID!): DifferentResponses @sub(triggerName: "pubAsIs#{id}")
+      }
+      type DifferentResponses {
+        id: ID!
+        resolvedOnly: String
+      }`,
+      resolvers: {
+        Mutation: {
+          publish: (_, args) => args
+        },
+        DifferentResponses: {
+          resolvedOnly: () => 'graphql resolved'
+        }
+      },
+      plugins(injector) {
+        injector('pubStrategy', {
+          pubGraphql: 'GRAPHQL',
+          pubAsIs: 'AS_IS'
+        });
+      }
+    };
+
+    const kraken = setup(extraSchema);
+    const connection = connectionInfo();
+
+    await kraken.onGqlInit(connection, {
+      type: 'connection_init',
+      payload: {}
+    });
+    await kraken.onGqlStart(connection, {
+      id: '1',
+      type: 'start',
+      payload: { query: 'subscription { pubGraphql(id: "666") { id resolvedOnly } }' }
+    });
+    await kraken.onGqlStart(connection, {
+      id: '2',
+      type: 'start',
+      payload: { query: 'subscription { pubAsIs(id: "666") { id resolvedOnly } }' }
+    });
+    await kraken.onGqlStart(connection, {
+      id: '3',
+      type: 'start',
+      payload: { query: 'mutation { publish(id: "666") { id resolvedOnly } }' }
+    });
+
+    expect(kraken.$connections.send).toHaveBeenCalledWith(expect.objectContaining(connection), {
+      id: '1',
+      type: GQL_DATA,
+      payload: {
+        data: { pubGraphql: { id: '666', resolvedOnly: 'graphql resolved' } }
+      }
+    });
+    expect(kraken.$connections.send).toHaveBeenCalledWith(expect.objectContaining(connection), {
+      id: '2',
+      type: GQL_DATA,
+      payload: {
+        data: { pubAsIs: { __typename: 'DifferentResponses', id: '666' } }
+      }
+    });
+  });
 });

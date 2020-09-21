@@ -64,7 +64,7 @@ export class KrakenPubSub implements PubSub {
   }
 
   async publish(triggerName: string, payload: any) {
-    if (this.context.$pubStrategy === 'BROADCASTER') {
+    if (this.getPubStrategy(triggerName) === 'BROADCASTER') {
       if (this.context.$broadcaster) {
         return await this.context.$broadcaster.broadcast(triggerName, payload);
       }
@@ -76,10 +76,19 @@ export class KrakenPubSub implements PubSub {
     await submitJobs(jobs);
   }
 
+  private getPubStrategy(triggerName: string) {
+    if (typeof this.context.$pubStrategy === 'string') {
+      return this.context.$pubStrategy;
+    }
+
+    const [subscriptionName] = triggerName.split('#');
+    return this.context.$pubStrategy[subscriptionName];
+  }
+
   private sendJob(subscription: Kraken.Subscription, payload: any) {
     return async () => {
       // GRAPHQL runs the subscription operation with $pubsubMode: OUT and send the response to the connection
-      if (this.context.$pubStrategy === 'GRAPHQL') {
+      if (this.getPubStrategy(subscription.triggerName) === 'GRAPHQL') {
         const response = await this.context.gqlExecute({
           rootValue: payload,
           connectionInfo: subscription,

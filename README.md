@@ -41,7 +41,7 @@ type Subscription {
 }
 
 type Mutation {
-    ping(channel: String!): Ping @pub(triggerName: "onPing#{channel}")
+    ping(channel: String!): Ping @pub(triggerNames: ["onPing#{channel}"])
 }
 
 type Ping {
