@@ -1,6 +1,6 @@
 {
   "name": "@kraken.js/core",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "license": "MIT",
   "author": "@kraken.js",
   "repository": "github:kraken-js/kraken.js",
@@ -23,13 +23,13 @@
     "LICENSE"
   ],
   "dependencies": {
-    "@graphql-tools/merge": "^6.2.2",
-    "@graphql-tools/schema": "^6.2.2",
+    "@graphql-tools/merge": "^6.2.3",
+    "@graphql-tools/schema": "^6.2.3",
     "graphql": "^15.3.0"
   },
   "devDependencies": {
-    "@kraken.js/jest": "0.0.3",
-    "@kraken.js/webpack": "0.0.3",
+    "@kraken.js/jest": "0.0.4",
+    "@kraken.js/webpack": "0.0.4",
     "@size-limit/preset-small-lib": "^4.6.0",
     "@types/aws-lambda": "^8.10.62",
     "jest": "^26.4.2"
