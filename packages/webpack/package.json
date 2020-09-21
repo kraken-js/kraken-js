@@ -1,6 +1,6 @@
 {
   "name": "@kraken.js/webpack",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Commons Webpack Stuff",
   "author": "@kraken.js",
   "license": "MIT",
@@ -16,9 +16,9 @@
     "raw-loader": "^4.0.1",
     "serverless-webpack": "^5.3.4",
     "size-limit": "^4.6.0",
-    "ts-loader": "^8.0.3",
-    "typescript": "^4.0.2",
-    "webpack": "^4.42.1",
+    "ts-loader": "^8.0.4",
+    "typescript": "^4.0.3",
+    "webpack": "^4.44.2",
     "webpack-cli": "^3.3.11",
     "webpack-node-externals": "^2.5.2"
   }
