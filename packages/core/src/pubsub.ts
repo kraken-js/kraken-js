@@ -1,4 +1,4 @@
-import { parse, print } from 'graphql';
+import { ExecutionResult, parse, print } from 'graphql';
 import { GQL_DATA } from './constants';
 import { PubSub } from './types';
 
@@ -39,6 +39,10 @@ const submitJobs = (jobs: (() => Promise<any>)[], concurrency = 100) => {
   });
 };
 
+const hasValidResponse = (result?: ExecutionResult) => {
+  return result?.data && Object.values(result.data).some(Boolean) || result?.errors;
+};
+
 export class KrakenPubSub implements PubSub {
   constructor(protected context: Kraken.ExecutionContext) {
   }
@@ -64,7 +68,7 @@ export class KrakenPubSub implements PubSub {
   }
 
   async publish(triggerName: string, payload: any) {
-    if (this.context.$pubStrategy === 'BROADCASTER') {
+    if (this.getPubStrategy(triggerName) === 'BROADCASTER') {
       if (this.context.$broadcaster) {
         return await this.context.$broadcaster.broadcast(triggerName, payload);
       }
@@ -76,36 +80,48 @@ export class KrakenPubSub implements PubSub {
     await submitJobs(jobs);
   }
 
+  private getPubStrategy(triggerName: string) {
+    if (typeof this.context.$pubStrategy === 'string') {
+      return this.context.$pubStrategy;
+    }
+
+    const [subscriptionName] = triggerName.split('#');
+    return this.context.$pubStrategy[subscriptionName];
+  }
+
   private sendJob(subscription: Kraken.Subscription, payload: any) {
     return async () => {
       // GRAPHQL runs the subscription operation with $pubsubMode: OUT and send the response to the connection
-      if (this.context.$pubStrategy === 'GRAPHQL') {
-        const response = await this.context.gqlExecute({
-          rootValue: payload,
-          connectionInfo: subscription,
-          operationId: subscription.operationId,
-          document: parse(subscription.document),
-          operationName: subscription.operationName,
-          variableValues: subscription.variableValues,
-          contextValue: {
-            $subMode: 'OUT'
-          }
-        }).catch(error => ({ errors: [error] }));
+      const pubStrategy = this.getPubStrategy(subscription.triggerName);
+      const getResponse = async (): Promise<ExecutionResult> => {
+        if (pubStrategy === 'GRAPHQL') {
+          return await this.context.gqlExecute({
+            rootValue: payload,
+            connectionInfo: subscription,
+            operationId: subscription.operationId,
+            document: parse(subscription.document),
+            operationName: subscription.operationName,
+            variableValues: subscription.variableValues,
+            contextValue: {
+              $subMode: 'OUT'
+            }
+          }).catch(error => {
+            return ({ errors: [error] }) as ExecutionResult;
+          });
+        }
+        // AS_IS tries to guess the subscriptionName from the triggerName and just sends the payload AS IS
+        const [subscriptionName] = subscription.triggerName.split('#');
+        return { data: { [subscriptionName]: payload } };
+      };
 
-        return await this.context.$connections.send(subscription, {
+      const response = await getResponse();
+      if (hasValidResponse(response)) {
+        await this.context.$connections.send(subscription, {
           id: subscription.operationId,
           type: GQL_DATA,
           payload: response
         });
       }
-
-      // AS_IS tries to guess the subscriptionName from the triggerName and just sends the payload AS IS
-      const [subscriptionName] = subscription.triggerName.split('#');
-      return await this.context.$connections.send(subscription, {
-        id: subscription.operationId,
-        type: GQL_DATA,
-        payload: { data: { [subscriptionName]: payload } }
-      });
     };
   }
 }

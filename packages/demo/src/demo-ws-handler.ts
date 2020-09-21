@@ -7,10 +7,10 @@ const demoSchema = {
       hello: String!
     }
     type Subscription {
-        onPing(channel: String): Ping @sub(triggerName: "onPing#{channel}")
+        onPing(channel: String): Ping @sub(triggerNames: ["onPing#{channel}"])
     }
     type Mutation {
-        ping(channel: String!): Ping @pub(triggerName: "onPing#{channel}")
+        ping(channel: String!): Ping @pub(triggerNames: ["onPing#{channel}"])
     }
     type Ping {
         channel: String!

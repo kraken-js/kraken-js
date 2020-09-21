@@ -25,7 +25,7 @@ const apiGatewayMock = {
 const testSchema: KrakenSchema = {
   typeDefs: `
     type Query { hello(name: String): String }
-    type Mutation { sendMessage(channel: String, message: String): Message @pub(triggerName: "onMessage#{channel}") }
+    type Mutation { sendMessage(channel: String, message: String): Message @pub(triggerNames: ["onMessage#{channel}"]) }
     type Subscription { onMessage(channel: String): Message @sub(triggerName: "onMessage#{channel}") }
     type Message {
       channel: String
