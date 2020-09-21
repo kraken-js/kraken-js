@@ -39,6 +39,10 @@ const submitJobs = (jobs: (() => Promise<any>)[], concurrency = 100) => {
   });
 };
 
+const hasValidResponse = (result?: ExecutionResult) => {
+  return result?.data && Object.values(result.data).some(Boolean) || result?.errors;
+};
+
 export class KrakenPubSub implements PubSub {
   constructor(protected context: Kraken.ExecutionContext) {
   }
@@ -111,8 +115,7 @@ export class KrakenPubSub implements PubSub {
       };
 
       const response = await getResponse();
-      const hasValidData = response.data && Object.values(response.data).some(Boolean);
-      if (hasValidData || response.errors) {
+      if (hasValidResponse(response)) {
         await this.context.$connections.send(subscription, {
           id: subscription.operationId,
           type: GQL_DATA,
