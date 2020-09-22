@@ -14,7 +14,7 @@ export const graphqlSchema = (config?: AwsSchemaConfig): KrakenSchema => ({
     inject('dynamoDb', () => getDynamoDb(config?.dynamoDb));
     inject('dynamoDbDataLoader', dynamoDbDataLoader);
     inject('apiGateway', () => ({
-      get: endpoint => config.apiGateway || getApiGateway(endpoint)
+      get: endpoint => config?.apiGateway || getApiGateway(endpoint)
     }));
   }
 });
