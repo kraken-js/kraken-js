@@ -24,7 +24,6 @@
   "dependencies": {
     "@kraken.js/core": "0.0.4",
     "dataloader": "^2.0.0",
-    "graphql": "^15.0.0",
     "yn": "^4.0.0"
   },
   "devDependencies": {
@@ -32,8 +31,13 @@
     "@kraken.js/webpack": "0.0.4",
     "@size-limit/preset-small-lib": "^4.6.0",
     "@types/aws-lambda": "^8.10.62",
+    "aws-sdk": "^2.758.0",
     "jest": "^26.4.2",
-    "jest-dynalite": "^3.0.0"
+    "jest-dynalite": "^3.0.0",
+    "size-limit": "^4.6.0"
+  },
+  "peerDependencies": {
+    "graphql": "^15.0.0"
   },
   "size-limit": [
     {
