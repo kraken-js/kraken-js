@@ -10,7 +10,7 @@
     "test": "yarn workspaces run test",
     "prepare-release": "scripts/prepare-release.sh",
     "release": "yarn publish --access public",
-    "reinstall": "yarn clean && yarn install",
+    "reinstall": "yarn clean:all && yarn install",
     "clean:all": "npx rimraf \"**/{node_modules,dist,yarn.lock}\"",
     "clean:dist": "npx rimraf \"**/{dist}\""
   },

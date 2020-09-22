@@ -24,8 +24,7 @@
   ],
   "dependencies": {
     "@graphql-tools/merge": "^6.2.3",
-    "@graphql-tools/schema": "^6.2.3",
-    "graphql": "^15.3.0"
+    "@graphql-tools/schema": "^6.2.3"
   },
   "devDependencies": {
     "@kraken.js/jest": "0.0.4",
@@ -33,6 +32,9 @@
     "@size-limit/preset-small-lib": "^4.6.0",
     "@types/aws-lambda": "^8.10.62",
     "jest": "^26.4.2"
+  },
+  "peerDependencies": {
+    "graphql": "^15.0.0"
   },
   "size-limit": [
     {

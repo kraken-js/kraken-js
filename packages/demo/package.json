@@ -15,12 +15,12 @@
   },
   "dependencies": {
     "@kraken.js/aws": "0.0.4",
-    "@kraken.js/core": "0.0.4"
+    "@kraken.js/core": "0.0.4",
+    "graphql": "^15.3.0"
   },
   "devDependencies": {
     "@kraken.js/essentials": "0.0.4",
     "@kraken.js/serverless": "0.0.4",
-    "@kraken.js/webpack": "0.0.4",
-    "webpack-bundle-analyzer": "^3.9.0"
+    "@kraken.js/webpack": "0.0.4"
   }
 }
