@@ -5,14 +5,11 @@ import { GQL_COMPLETE, GQL_CONNECTION_ACK, GQL_DATA } from './constants';
 import { PublishDirective } from './directives/publish-directive';
 import { SubscribeDirective } from './directives/subscribe-directive';
 import { krakenPubSub } from './pubsub';
+// @ts-ignore
+import * as krakenTypesDefs from './schema.graphql';
 import { ExecutionArgs, GqlOperation, Injector, KrakenRuntime, KrakenSchema } from './types';
 
 type Config = KrakenSchema | KrakenSchema[]
-
-export const pubsubTypeDefs = `
-directive @pub(triggerNames: [String!]!) on FIELD_DEFINITION
-directive @sub(triggerName: String) on FIELD_DEFINITION
-`;
 
 export const pubsubSchemaDirectives = {
   pub: PublishDirective,
@@ -27,7 +24,7 @@ const corePlugins = (inject: Injector) => {
 
 const defaultSchema: KrakenSchema = {
   typeDefs: [
-    pubsubTypeDefs
+    krakenTypesDefs
   ],
   resolvers: {},
   schemaTransforms: [],

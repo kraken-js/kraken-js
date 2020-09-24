@@ -15,9 +15,10 @@ jobs:
       fail-fast: true
       matrix:
         package:
+          - packages/aws
+          - packages/auth
           - packages/cli
           - packages/core
-          - packages/aws
           - packages/webpack
           - packages/essentials
           - packages/serverless

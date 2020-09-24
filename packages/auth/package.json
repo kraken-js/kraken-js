@@ -1,5 +1,5 @@
 {
-  "name": "@kraken.js/core",
+  "name": "@kraken.js/auth",
   "version": "0.0.4",
   "license": "MIT",
   "author": "@kraken.js",
@@ -7,11 +7,10 @@
   "main": "dist/main.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "clean": "npx rimraf dist",
+    "pretest": "npx rimraf dist",
+    "test": "jest --passWithNoTests --runInBand",
     "prepackage": "npx rimraf dist",
     "package": "webpack-cli",
-    "pretest": "npx rimraf dist",
-    "test": "jest",
     "prepublishOnly": "yarn package && yarn check-size-limit",
     "check-size-limit": "size-limit"
   },
@@ -23,16 +22,12 @@
     "LICENSE",
     "*.graphql"
   ],
-  "dependencies": {
-    "@graphql-tools/merge": "^6.2.3",
-    "@graphql-tools/schema": "^6.2.3"
-  },
   "devDependencies": {
     "@kraken.js/jest": "0.0.4",
     "@kraken.js/webpack": "0.0.4",
     "@size-limit/preset-small-lib": "^4.6.0",
-    "@types/aws-lambda": "^8.10.62",
-    "jest": "^26.4.2"
+    "jest": "^26.4.2",
+    "size-limit": "^4.6.0"
   },
   "peerDependencies": {
     "graphql": "^15.0.0"
@@ -42,7 +37,7 @@
       "gzip": false,
       "limit": "350 KB",
       "ignore": [
-        "graphql"
+        "aws-sdk"
       ]
     }
   ]
