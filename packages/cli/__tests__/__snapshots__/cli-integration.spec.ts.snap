@@ -2,6 +2,7 @@
 
 exports[`kraken.js After Generate Project serverless print --stage offline 1`] = `
 "service: electric-wolf-kraken
+configValidationMode: 'off'
 provider:
   name: aws
 plugins:

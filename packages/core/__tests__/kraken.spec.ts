@@ -89,7 +89,7 @@ describe('Kraken', () => {
       typeDefs: gql('type Query { hello: String }'),
       resolvers: { Query: { hello: (_, __, context) => context.value } },
       plugins: mockRootPlugins,
-      onConnectionInit: () => {
+      onConnect: () => {
         return { value: 'hello from context' };
       }
     });

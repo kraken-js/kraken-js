@@ -43,7 +43,7 @@ export interface KrakenSchema extends Partial<IExecutableSchemaDefinition<Kraken
 
   plugins?(inject: Injector): void;
 
-  onConnectionInit?(context: Partial<Kraken.Context>): PromiseOrValue<Partial<Kraken.Context>>;
+  onConnect?(context: Partial<Kraken.Context>): PromiseOrValue<Partial<Kraken.Context>>;
 
   onBeforeExecute?(context: Kraken.Context, document: DocumentNode): PromiseOrValue<Partial<Kraken.Context>>;
 

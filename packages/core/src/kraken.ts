@@ -68,13 +68,13 @@ export const krakenJs = <T>(config: Config): KrakenRuntime => {
   const pluginInjector = (name, value) => $plugins['$' + name] = value;
   corePlugins(pluginInjector);
 
-  const onConnectionInit: ((context) => Kraken.Context)[] = [];
+  const onConnect: ((context) => Kraken.Context)[] = [];
   const onBeforeExecute: ((context, document) => void)[] = [];
   const onAfterExecute: ((context, response) => void)[] = [];
 
   const schemaDefinition = configs.reduce((result, each) => {
     if ('plugins' in each) each.plugins(pluginInjector);
-    if ('onConnectionInit' in each) onConnectionInit.push(each.onConnectionInit);
+    if ('onConnect' in each) onConnect.push(each.onConnect);
     if ('onBeforeExecute' in each) onBeforeExecute.push(each.onBeforeExecute);
     if ('onAfterExecute' in each) onAfterExecute.push(each.onAfterExecute);
 
@@ -153,7 +153,7 @@ export const krakenJs = <T>(config: Config): KrakenRuntime => {
     const $context = makeExecutionContext({ connectionParams: operation.payload });
 
     const connectionContext = {};
-    for (const fn of onConnectionInit) {
+    for (const fn of onConnect) {
       if (fn) {
         const out = await fn($context);
         Object.assign(connectionContext, out);

@@ -20,7 +20,7 @@ describe('kraken.js', () => {
   });
 
   describe('After Generate Project', () => {
-    const timeout = 30000;
+    const timeout = 60000;
     const state = { cwd: undefined };
 
     beforeAll(async () => {
