@@ -1,0 +1,11 @@
+directive @auth(rules: [AuthRule], silent: Boolean = true) on OBJECT | FIELD_DEFINITION
+
+input AuthRule {
+  # source of value
+  args: String
+  source: String
+  authorizer: String
+  # rules
+  match: [String]
+  truthy: Boolean
+}

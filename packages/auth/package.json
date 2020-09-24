@@ -1,0 +1,43 @@
+{
+  "name": "@kraken.js/auth",
+  "version": "0.0.4",
+  "license": "MIT",
+  "author": "@kraken.js",
+  "repository": "github:kraken-js/kraken.js",
+  "main": "dist/main.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "pretest": "npx rimraf dist",
+    "test": "jest --passWithNoTests --runInBand",
+    "prepackage": "npx rimraf dist",
+    "package": "webpack-cli",
+    "prepublishOnly": "yarn package && yarn check-size-limit",
+    "check-size-limit": "size-limit"
+  },
+  "files": [
+    "dist",
+    "package.json",
+    "tsconfig.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "devDependencies": {
+    "@kraken.js/jest": "0.0.4",
+    "@kraken.js/webpack": "0.0.4",
+    "@size-limit/preset-small-lib": "^4.6.0",
+    "jest": "^26.4.2",
+    "size-limit": "^4.6.0"
+  },
+  "peerDependencies": {
+    "graphql": "^15.0.0"
+  },
+  "size-limit": [
+    {
+      "gzip": false,
+      "limit": "350 KB",
+      "ignore": [
+        "aws-sdk"
+      ]
+    }
+  ]
+}
