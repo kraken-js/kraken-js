@@ -51,7 +51,6 @@ module.exports = (dirname, entry) => ({
 
   optimization: {
     removeAvailableModules: isProduction,
-    minimize: isProduction,
     usedExports: isProduction,
     sideEffects: isProduction
   },

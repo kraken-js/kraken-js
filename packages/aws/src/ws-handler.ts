@@ -1,6 +1,7 @@
 import { GQL_CONNECTION_INIT, GQL_CONNECTION_TERMINATE, GQL_START, GQL_STOP, KrakenRuntime } from '@kraken.js/core';
 import { APIGatewayProxyEvent, APIGatewayProxyHandler } from 'aws-lambda';
 
+const region = process.env.AWS_REGION;
 const WS_CONNECT = '$connect';
 const WS_DISCONNECT = '$disconnect';
 const okResponse = {
@@ -9,7 +10,7 @@ const okResponse = {
 };
 
 const getApiGatewayUrl = (event: APIGatewayProxyEvent) => {
-  return `https://${event.requestContext.domainName}/${event.requestContext.stage}`;
+  return `https://${event.requestContext.apiId}.execute-api.${region}.amazonaws.com/${event.requestContext.stage}`;
 };
 
 const onWsConnect = <C>(event: APIGatewayProxyEvent) => {

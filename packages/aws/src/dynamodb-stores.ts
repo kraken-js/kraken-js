@@ -21,7 +21,7 @@ const postToConnection = async (apiGateway: ApiGatewayManagementApi, connectionI
 
 export const ttl = (seconds = 7200) => Math.floor(Date.now() / 1000) + seconds; // 2 hours
 
-class DynamoDbConnectionManager<T> implements ConnectionStore {
+class DynamoDbConnectionStore<T> implements ConnectionStore {
   protected tableName: string;
   protected waitForConnectionTimeout: number;
 
@@ -82,7 +82,7 @@ class DynamoDbConnectionManager<T> implements ConnectionStore {
   }
 }
 
-class DynamoDbSubscriptionManager implements SubscriptionStore {
+class DynamoDbSubscriptionStore implements SubscriptionStore {
   protected tableName: string;
 
   constructor(protected config: AwsSchemaConfig, protected context: Kraken.ExecutionContext) {
@@ -152,9 +152,9 @@ class DynamoDbSubscriptionManager implements SubscriptionStore {
 }
 
 export const dynamoDbConnectionStore = (config: AwsSchemaConfig) => (context: Kraken.ExecutionContext) => {
-  return new DynamoDbConnectionManager(config, context);
+  return new DynamoDbConnectionStore(config, context);
 };
 
 export const dynamoDbSubscriptionStore = (config: AwsSchemaConfig) => (context: Kraken.ExecutionContext) => {
-  return new DynamoDbSubscriptionManager(config, context);
+  return new DynamoDbSubscriptionStore(config, context);
 };

@@ -13,7 +13,7 @@
   ],
   "scripts": {
     "test": "jest --passWithNoTests",
-    "prepackage": "rimraf dist",
+    "prepackage": "npx rimraf dist",
     "package": "webpack-cli",
     "prepublishOnly": "yarn package"
   },
