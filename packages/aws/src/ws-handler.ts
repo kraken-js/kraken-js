@@ -23,8 +23,9 @@ const onWsConnect = <C>(event: APIGatewayProxyEvent) => {
 
 export const wsHandler = <T = any>(kraken: KrakenRuntime): APIGatewayProxyHandler => {
   return async (event: APIGatewayProxyEvent) => {
-    const routeKey = event.requestContext.routeKey as string;
+    if (!event.requestContext) return okResponse; // warm up or something else
 
+    const routeKey = event.requestContext.routeKey as string;
     const connectionId = event.requestContext.connectionId as string;
     const connectedAt = event.requestContext.connectedAt as number;
     const apiGatewayUrl = getApiGatewayUrl(event);
