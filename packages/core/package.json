@@ -20,7 +20,8 @@
     "package.json",
     "tsconfig.json",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "*.graphql"
   ],
   "dependencies": {
     "@graphql-tools/merge": "^6.2.3",
