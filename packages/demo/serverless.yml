@@ -1,5 +1,7 @@
 service: demo-kraken
 
+configValidationMode: off
+
 provider:
   name: aws
 

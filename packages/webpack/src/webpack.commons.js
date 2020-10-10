@@ -46,7 +46,6 @@ module.exports = (dirname, entry) => ({
         loader: 'ts-loader',
         exclude: /node_modules/,
         options: {
-          happyPackMode: true,
           onlyCompileBundledFiles: true,
           allowTsInNodeModules: true
         }
@@ -56,6 +55,7 @@ module.exports = (dirname, entry) => ({
 
   optimization: {
     removeAvailableModules: isProduction,
+    minimize: isProduction,
     usedExports: isProduction,
     sideEffects: isProduction
   },
