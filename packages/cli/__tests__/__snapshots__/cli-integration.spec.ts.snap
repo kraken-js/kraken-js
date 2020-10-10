@@ -74,7 +74,7 @@ exports[`kraken.js After Generate Project should generate src/schema.ts file 1`]
 import { graphqlSchema as krakenJsAws } from '@kraken.js/aws';
 
 export const krakenSchema = krakenJs([
-	krakenJsAws
+	krakenJsAws()
 ]);
 "
 `;
