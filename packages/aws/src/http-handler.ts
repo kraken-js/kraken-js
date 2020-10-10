@@ -9,7 +9,10 @@ export const httpHandler = <T = any>(kraken: KrakenRuntime): APIGatewayProxyHand
       return { statusCode: 200, body: '', headers: { 'Cache-Control': 'max-age=31536000' } };
     }
     if (event.httpMethod === 'GET') {
-      return await lambdaPlayground({})(event, context, callback) as any;
+      return await lambdaPlayground({
+        endpoint: process.env.GRAPHQL_ENDPOINT,
+        subscriptionEndpoint: process.env.GRAPHQL_WS_ENDPOINT
+      })(event, context, callback) as any;
     }
 
     const request = JSON.parse(event.body);

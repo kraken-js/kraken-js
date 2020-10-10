@@ -40,3 +40,6 @@ functions:
           path: graphql
           method: any
           cors: ${self:custom.cors}
+    environment:
+      GRAPHQL_ENDPOINT: http://localhost:4000/graphql
+      GRAPHQL_WS_ENDPOINT: ws://localhost:4000
