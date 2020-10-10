@@ -36,7 +36,7 @@ describe('kraken.js', () => {
     });
 
     test('serverless print --stage offline', async () => {
-      const output = await system.exec('npx serverless print --stage offline', { env: { CI: 'true' } });
+      const output = await system.exec('serverless print --stage offline', { env: { CI: 'true' } });
       expect(output).toMatchSnapshot();
     });
 
