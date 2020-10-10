@@ -40,8 +40,9 @@ jobs:
       - name: CLI Setup
         if: matrix.package == 'packages/cli'
         run: |
-          npm install -g serverless
           yarn workspace @kraken.js/serverless run package
+          yarn workspace @kraken.js/core run package
+          yarn workspace @kraken.js/aws run package
 
       - name: Unit Tests
         working-directory: ${{ matrix.package }}
