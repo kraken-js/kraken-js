@@ -20,7 +20,7 @@
     "tsconfig.json",
     "README.md",
     "LICENSE",
-    "*.graphql"
+    "src/schema.graphql"
   ],
   "devDependencies": {
     "@kraken.js/jest": "0.0.4",
