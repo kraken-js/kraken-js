@@ -72,7 +72,7 @@ wscat --connect ws://localhost:4001
 < {"type":"connection_ack"}
 
 # start a subscription
-> {"type":"start", "id": "1", "payload":{"query":"subscription { onPing(channel: \"global\") }"}}
+> {"type":"start", "id": "1", "payload":{"query":"subscription { onPing(channel: \"global\") { channel timestamp }}"}}
 
 # publish to the subscription
 > {"type":"start", "id": "2", "payload":{"query":"mutation { ping(channel: \"global\") { channel timestamp } }"}}

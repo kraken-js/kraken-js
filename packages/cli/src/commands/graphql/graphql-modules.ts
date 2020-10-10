@@ -20,7 +20,9 @@ export const graphqlModules = async ({ kraken, graphqlSchemaFile }, { spinner, t
     const importAs = camelize(moduleName);
     const exportedAs = camelize(exportName);
     await patching.append(graphqlSchemaFile, `import { ${exportedAs} as ${importAs} } from '${moduleName}';\n`);
-    modules.push(importAs);
+
+    const { [exportedAs]: resolvedModule } = require(moduleName);
+    modules.push((typeof resolvedModule === 'function') ? `${importAs}()` : importAs);
   }
   return modules;
 };
