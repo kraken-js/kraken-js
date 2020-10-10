@@ -1,4 +1,11 @@
-import { GQL_CONNECTION_INIT, GQL_CONNECTION_TERMINATE, GQL_START, GQL_STOP, KrakenRuntime } from '@kraken.js/core';
+import {
+  GQL_CONNECTION_ERROR,
+  GQL_CONNECTION_INIT,
+  GQL_CONNECTION_TERMINATE,
+  GQL_START,
+  GQL_STOP,
+  KrakenRuntime
+} from '@kraken.js/core';
 import { APIGatewayProxyEvent, APIGatewayProxyHandler } from 'aws-lambda';
 
 const region = process.env.AWS_REGION;
@@ -22,6 +29,19 @@ const onWsConnect = <C>(event: APIGatewayProxyEvent) => {
     : { ...okResponse };
 };
 
+const safeParseEvent = async (event: APIGatewayProxyEvent, kraken: KrakenRuntime, connectionInfo) => {
+  try {
+    return JSON.parse(event.body as string);
+  } catch (e) {
+    const message = `Failed to parse JSON "${event.body}"`;
+    await kraken.$connections.send(connectionInfo, { type: GQL_CONNECTION_ERROR, reason: message });
+
+    const error = new Error(message);
+    error.stack = null; // reduce noise
+    throw error;
+  }
+};
+
 export const wsHandler = <T = any>(kraken: KrakenRuntime): APIGatewayProxyHandler => {
   return async (event: APIGatewayProxyEvent) => {
     if (!event.requestContext) return okResponse; // warm up or something else
@@ -40,7 +60,7 @@ export const wsHandler = <T = any>(kraken: KrakenRuntime): APIGatewayProxyHandle
         return okResponse;
     }
 
-    const operation = JSON.parse(event.body as string);
+    const operation = await safeParseEvent(event, kraken, connectionInfo);
     switch (operation.type) {
       case GQL_CONNECTION_INIT:
         await kraken.onGqlInit(connectionInfo, operation);
