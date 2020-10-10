@@ -106,15 +106,36 @@ export const krakenJs = <T>(config: Config): KrakenRuntime => {
   const makeExecutionContext = executionContextBuilder($plugins);
   const $root = makeExecutionContext({});
 
-  const gqlExecute = async (args: ExecutionArgs) => {
-    const connection = await $root.$connections.get(args.connectionInfo.connectionId);
-    const connectionContextValue = connection.context;
-    const executionContextValue = args.contextValue;
+  const onConnectionInit = async (operation: Pick<GqlOperation<Kraken.InitParams>, 'payload'>) => {
+    const $context = makeExecutionContext({ connectionParams: operation.payload });
+    const contextValue = {};
+    for (const fn of onConnect) {
+      if (fn) {
+        const out = await fn($context);
+        Object.assign(contextValue, out);
+      }
+    }
+    return { $context, contextValue };
+  };
 
+  const gqlExecute = async (args: ExecutionArgs) => {
+    const buildContext = async () => {
+      const executionContextValue = args.contextValue;
+      if (args.connectionInfo) {
+        const connection = await $root.$connections.get(args.connectionInfo.connectionId);
+        const connectionContextValue = connection?.context;
+        return {
+          ...connectionContextValue,
+          ...executionContextValue,
+          connectionInfo: args.connectionInfo
+        };
+      }
+      return executionContextValue;
+    };
+
+    const executionContext = await buildContext();
     const $context = makeExecutionContext({
-      ...connectionContextValue,
-      ...executionContextValue,
-      connectionInfo: args.connectionInfo,
+      ...executionContext,
       operation: {
         id: args.operationId,
         document: args.document,
@@ -147,17 +168,9 @@ export const krakenJs = <T>(config: Config): KrakenRuntime => {
   };
 
   const onGqlInit = async (connection: Kraken.ConnectionInfo, operation: GqlOperation<Kraken.InitParams>) => {
-    const $context = makeExecutionContext({ connectionParams: operation.payload });
+    const { $context, contextValue } = await onConnectionInit(operation);
 
-    const connectionContext = {};
-    for (const fn of onConnect) {
-      if (fn) {
-        const out = await fn($context);
-        Object.assign(connectionContext, out);
-      }
-    }
-
-    await $context.$connections.save({ ...connection, context: connectionContext });
+    await $context.$connections.save({ ...connection, context: contextValue });
     await $context.$connections.send(connection, { type: GQL_CONNECTION_ACK });
     return $context;
   };
@@ -208,6 +221,7 @@ export const krakenJs = <T>(config: Config): KrakenRuntime => {
     onGqlInit,
     onGqlStart,
     onGqlStop,
-    onGqlConnectionTerminate
+    onGqlConnectionTerminate,
+    onConnectionInit
   }) as KrakenRuntime;
 };

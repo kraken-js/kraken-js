@@ -51,7 +51,7 @@ export interface KrakenSchema extends Partial<IExecutableSchemaDefinition<Kraken
 }
 
 export interface ExecutionArgs {
-  connectionInfo: Kraken.ConnectionInfo,
+  connectionInfo?: Kraken.ConnectionInfo,
   operationId: string,
   rootValue?: any;
   contextValue?: Kraken.Context;
@@ -72,6 +72,8 @@ export interface KrakenRuntime extends Kraken.Plugins {
   onGqlStop(connection: Kraken.ConnectionInfo, operation: Omit<GqlOperation, 'payload'>): PromiseOrValue<void>
 
   onGqlConnectionTerminate(connection: Kraken.ConnectionInfo): PromiseOrValue<void>
+
+  onConnectionInit(operation: Omit<GqlOperation<Kraken.InitParams>, 'id'>): Promise<{ $context: Kraken.Context, contextValue: any }>
 }
 
 export interface GqlOperationPayload {

@@ -8,6 +8,7 @@ export * as subscriptions from './resources/serverless-subscriptions.yml';
 export * as manifest from './package.json';
 
 export * from './src/ws-handler';
+export * from './src/http-handler';
 export * from './src/dynamodb-stores';
 export * from './src/dynamodb-streams-handler';
 export * from './src/schemas';
