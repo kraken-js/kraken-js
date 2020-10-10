@@ -12,7 +12,7 @@ module.exports = (dirname, entry) => ({
   mode: isProduction ? 'production' : 'development',
 
   resolve: {
-    extensions: ['.mjs', '.js', '.ts', '.json', '.yml', '.graphql'],
+    extensions: ['.mjs', '.js', '.ts', '.json', '.yml', '.graphql', '.html'],
     mainFields: ['module', 'main'],
     symlinks: true,
     cacheWithContext: false
@@ -37,7 +37,7 @@ module.exports = (dirname, entry) => ({
         use: 'js-yaml-loader'
       },
       {
-        test: /\.(template.html|txt)$/,
+        test: /\.(html|txt)$/,
         exclude: /node_modules/,
         use: 'raw-loader'
       },

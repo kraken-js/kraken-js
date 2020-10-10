@@ -8,6 +8,7 @@
   "scripts": {
     "predev": "sls dynamodb install",
     "dev": "sls offline start --stage offline",
+    "kraken:graphql": "kraken graphql",
     "sls:print": "sls print --stage offline",
     "sls:package": "sls package --stage offline",
     "package": "echo 'not yeat implemented'",

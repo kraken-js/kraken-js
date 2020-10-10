@@ -24,6 +24,7 @@
   "dependencies": {
     "@kraken.js/core": "0.0.4",
     "dataloader": "^2.0.0",
+    "graphql-playground-middleware-lambda": "^1.7.22",
     "yn": "^4.0.0"
   },
   "devDependencies": {

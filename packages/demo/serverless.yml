@@ -33,3 +33,10 @@ functions:
           route: $disconnect
       - websocket:
           route: $default
+  httpGraphqlHandler:
+    handler: src/demo-http-handler.handler
+    events:
+      - http:
+          path: graphql
+          method: any
+          cors: ${self:custom.cors}
