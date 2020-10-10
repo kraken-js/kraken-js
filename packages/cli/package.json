@@ -32,7 +32,8 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "gluegun": "latest"
+    "gluegun": "latest",
+    "import-cwd": "^3.0.0"
   },
   "devDependencies": {
     "@types/jest": "^26.0.10",
