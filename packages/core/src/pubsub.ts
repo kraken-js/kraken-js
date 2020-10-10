@@ -91,9 +91,9 @@ export class KrakenPubSub implements PubSub {
 
   private sendJob(subscription: Kraken.Subscription, payload: any) {
     return async () => {
-      // GRAPHQL runs the subscription operation with $pubsubMode: OUT and send the response to the connection
       const pubStrategy = this.getPubStrategy(subscription.triggerName);
       const getResponse = async (): Promise<ExecutionResult> => {
+        // GRAPHQL runs the subscription operation with $pubsubMode: OUT and send the response to the connection
         if (pubStrategy === 'GRAPHQL') {
           return await this.context.gqlExecute({
             rootValue: payload,
