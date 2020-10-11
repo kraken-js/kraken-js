@@ -27,6 +27,7 @@ custom:
   account: '#{AWS::AccountId}'
   region: us-east-1
   stage: offline
+  version: 1.0.0
   prefix: electric-wolf-kraken-offline
   lambda:
     arnPrefix: >-
