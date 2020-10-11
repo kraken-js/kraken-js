@@ -1,6 +1,6 @@
 {
   "name": "@kraken.js/webpack",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Commons Webpack Stuff",
   "author": "@kraken.js",
   "license": "MIT",
