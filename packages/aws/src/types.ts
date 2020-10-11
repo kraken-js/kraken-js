@@ -1,4 +1,4 @@
-import { ApiGatewayManagementApi, DynamoDB, Lambda, SNS, SQS } from 'aws-sdk';
+import { ApiGatewayManagementApi, CognitoIdentityServiceProvider, DynamoDB, Lambda, SNS, SQS } from 'aws-sdk';
 
 export type AwsSchemaConfig = {
   connections?: {
@@ -13,5 +13,6 @@ export type AwsSchemaConfig = {
   lambda?: Lambda
   sns?: SNS
   sqs?: SQS
+  cognito?: CognitoIdentityServiceProvider
 }
 

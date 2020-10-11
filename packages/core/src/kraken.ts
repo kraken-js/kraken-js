@@ -79,7 +79,10 @@ export const krakenJs = <T>(config: Config): KrakenRuntime => {
     if ('onAfterExecute' in each) onAfterExecute.push(each.onAfterExecute);
 
     if (each.typeDefs) {
-      result.typeDefs = (result.typeDefs as Array<any>).concat(each.typeDefs);
+      result.typeDefs = mergeTypeDefs([
+        buildDocumentFromTypeDefinitions(result.typeDefs),
+        buildDocumentFromTypeDefinitions(each.typeDefs)
+      ]);
     }
     result.resolvers = mergeResolvers([
       ...getResolvers(result),
