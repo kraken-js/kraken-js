@@ -1,7 +1,7 @@
 module.exports = {
   tables: [
     {
-      TableName: 'WsSubscriptions-test',
+      TableName: 'WsSubscriptions-test-stage',
       BillingMode: 'PAY_PER_REQUEST',
       AttributeDefinitions: [
         { AttributeName: 'connectionId', AttributeType: 'S' },

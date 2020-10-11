@@ -211,10 +211,10 @@ describe('Kraken Operations', () => {
   it('should publish with specific publishing strategy', async () => {
     const extraSchema = {
       typeDefs: `
-      type Mutation {
+      extend type Mutation {
         publish(id: ID!): DifferentResponses @pub(triggerNames: ["pubGraphql#{id}", "pubAsIs#{id}"])
       }
-      type Subscription {
+      extend type Subscription {
         pubGraphql(id: ID!): DifferentResponses @sub(triggerName: "pubGraphql#{id}")
         pubAsIs(id: ID!): DifferentResponses @sub(triggerName: "pubAsIs#{id}")
       }

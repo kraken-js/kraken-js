@@ -1,7 +1,8 @@
 export const demoSchema = {
   typeDefs: `
     type Query {
-      hello: String!
+      hello: String! @aws_lambda(name: "hello", shouldParse: false)
+      message: Message! @aws_lambda(name: "message")
     }
     type Subscription {
         onPing(channel: String): Ping @sub(triggerName: "onPing#{channel}")
@@ -9,14 +10,14 @@ export const demoSchema = {
     type Mutation {
         ping(channel: String!): Ping @pub(triggerNames: ["onPing#{channel}"])
     }
+    type Message {
+      message: String!
+    }
     type Ping {
         channel: String!
         timestamp: Float!
     }`,
   resolvers: {
-    Query: {
-      hello: () => process.env.hello
-    },
     Mutation: {
       ping: (_, { channel }) => ({ channel, timestamp: Date.now() })
     }

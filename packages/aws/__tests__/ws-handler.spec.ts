@@ -99,7 +99,7 @@ describe('AWS Websocket Handler', () => {
     });
 
     const { Count: before } = await dynamoDb.scan({
-      TableName: 'WsSubscriptions-test',
+      TableName: 'WsSubscriptions-test-stage',
       Select: 'COUNT'
     }).promise();
     expect(before).toEqual(2);
@@ -107,7 +107,7 @@ describe('AWS Websocket Handler', () => {
     await execute(null, '$disconnect');
 
     const { Count: after } = await dynamoDb.scan({
-      TableName: 'WsSubscriptions-test',
+      TableName: 'WsSubscriptions-test-stage',
       Select: 'COUNT'
     }).promise();
     expect(after).toEqual(0);
@@ -199,7 +199,7 @@ describe('AWS Websocket Handler', () => {
 
     it('cleanup the connection and subscriptions from database', async () => {
       const { Count } = await dynamoDb.scan({
-        TableName: 'WsSubscriptions-test',
+        TableName: 'WsSubscriptions-test-stage',
         Select: 'COUNT'
       }).promise();
       expect(Count).toEqual(0);
