@@ -21,12 +21,13 @@ provider:
     service: ${self:service}
     stage: ${self:custom.stage}
     region: ${self:custom.region}
-    version: ${file(package.json):version}
+    version: ${self:custom.version}
 
 custom:
   account: '#{AWS::AccountId}'
   region: ${self:provider.region}
   stage: ${self:provider.stage}
+  version: ${file(package.json):version}
   prefix: ${self:service.name}-${self:custom.stage}
   lambda:
     arnPrefix: arn:aws:lambda:${self:custom.region}:${self:custom.account}:function:${self:service.name}-${self:custom.stage}
@@ -40,6 +41,7 @@ custom:
       STAGE: ${self:custom.stage}
       REGION: ${self:custom.region}
       SERVICE: ${self:service.name}
+      VERSION: ${self:custom.version}
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
     offline:
       AWS_LAMBDA_ENDPOINT: http://127.0.0.1:4002

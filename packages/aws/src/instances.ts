@@ -1,4 +1,13 @@
-import { ApiGatewayManagementApi, config as awsConfig, DynamoDB, Lambda, SNS, SQS } from 'aws-sdk';
+import {
+  ApiGatewayManagementApi,
+  CognitoIdentityServiceProvider,
+  config as awsConfig,
+  DynamoDB,
+  Lambda,
+  SharedIniFileCredentials,
+  SNS,
+  SQS
+} from 'aws-sdk';
 import yn from 'yn';
 
 const isOffline = yn(process.env.IS_OFFLINE);
@@ -67,4 +76,19 @@ export const getApiGateway = (endpoint): ApiGatewayManagementApi => {
     });
   }
   return instances.apiGateway[endpoint];
+};
+
+export const getCognito = (cognito?: CognitoIdentityServiceProvider): CognitoIdentityServiceProvider => {
+  if (!instances.cognito) {
+    if (cognito) return cognito;
+    if (isOffline) {
+      // not really offline in this case ¯\_(ツ)_/¯
+      const profile = process.env.AWS_PROFILE as string;
+      const credentials = new SharedIniFileCredentials({ profile });
+      instances.cognito = new CognitoIdentityServiceProvider({ credentials });
+    } else {
+      instances.cognito = new CognitoIdentityServiceProvider();
+    }
+  }
+  return instances.cognito;
 };
