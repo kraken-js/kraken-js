@@ -25,6 +25,7 @@
     "jest": "^26.4.2"
   },
   "dependencies": {
-    "cosmiconfig": "^7.0.0"
+    "cosmiconfig": "^7.0.0",
+    "import-cwd": "^3.0.0"
   }
 }
