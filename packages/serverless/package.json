@@ -26,6 +26,6 @@
   },
   "dependencies": {
     "cosmiconfig": "^7.0.0",
-    "import-cwd": "^3.0.0"
+    "ncjsm": "^4.1.0"
   }
 }
