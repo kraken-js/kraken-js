@@ -68,7 +68,6 @@ export default class KrakenJs implements Plugin {
 
     const [moduleRequire, exportName = 'serverless'] = moduleName.split(':');
     const moduleSls = this.require(moduleRequire);
-    console.log(moduleSls);
 
     const {
       [camelize(exportName)]: importedServerless,
