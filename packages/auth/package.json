@@ -1,6 +1,6 @@
 {
   "name": "@kraken.js/auth",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "license": "MIT",
   "author": "@kraken.js",
   "repository": "github:kraken-js/kraken.js",
@@ -23,8 +23,8 @@
     "src/schema.graphql"
   ],
   "devDependencies": {
-    "@kraken.js/jest": "0.0.4",
-    "@kraken.js/webpack": "0.0.4",
+    "@kraken.js/jest": "0.0.5",
+    "@kraken.js/webpack": "0.0.5",
     "@size-limit/preset-small-lib": "^4.6.0",
     "jest": "^26.4.2",
     "size-limit": "^4.6.0"

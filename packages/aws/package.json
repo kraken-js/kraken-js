@@ -1,6 +1,6 @@
 {
   "name": "@kraken.js/aws",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "license": "MIT",
   "author": "@kraken.js",
   "repository": "github:kraken-js/kraken.js",
@@ -22,14 +22,14 @@
     "LICENSE"
   ],
   "dependencies": {
-    "@kraken.js/core": "0.0.4",
+    "@kraken.js/core": "0.0.5",
     "dataloader": "^2.0.0",
     "graphql-playground-middleware-lambda": "^1.7.22",
     "yn": "^4.0.0"
   },
   "devDependencies": {
-    "@kraken.js/jest": "0.0.4",
-    "@kraken.js/webpack": "0.0.4",
+    "@kraken.js/jest": "0.0.5",
+    "@kraken.js/webpack": "0.0.5",
     "@size-limit/preset-small-lib": "^4.6.0",
     "@types/aws-lambda": "^8.10.62",
     "aws-sdk": "^2.758.0",

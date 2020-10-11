@@ -1,6 +1,6 @@
 {
   "name": "@kraken.js/demo",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "private": true,
   "license": "MIT",
   "author": "@kraken.js",
@@ -15,13 +15,13 @@
     "test": "echo 'not yeat implemented'"
   },
   "dependencies": {
-    "@kraken.js/aws": "0.0.4",
-    "@kraken.js/core": "0.0.4",
+    "@kraken.js/aws": "0.0.5",
+    "@kraken.js/core": "0.0.5",
     "graphql": "^15.3.0"
   },
   "devDependencies": {
-    "@kraken.js/essentials": "0.0.4",
-    "@kraken.js/serverless": "0.0.4",
-    "@kraken.js/webpack": "0.0.4"
+    "@kraken.js/essentials": "0.0.5",
+    "@kraken.js/serverless": "0.0.5",
+    "@kraken.js/webpack": "0.0.5"
   }
 }
