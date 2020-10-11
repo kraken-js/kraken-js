@@ -30,6 +30,9 @@ const defaultSchema: KrakenSchema = {
   schemaTransforms: [],
   schemaDirectives: {
     ...pubsubSchemaDirectives
+  },
+  logger: {
+    log: error => console.error(error)
   }
 };
 
@@ -76,10 +79,7 @@ export const krakenJs = <T>(config: Config): KrakenRuntime => {
     if ('onAfterExecute' in each) onAfterExecute.push(each.onAfterExecute);
 
     if (each.typeDefs) {
-      result.typeDefs = mergeTypeDefs([
-        buildDocumentFromTypeDefinitions(result.typeDefs),
-        buildDocumentFromTypeDefinitions(each.typeDefs)
-      ]);
+      result.typeDefs = (result.typeDefs as Array<any>).concat(each.typeDefs);
     }
     result.resolvers = mergeResolvers([
       ...getResolvers(result),
@@ -100,7 +100,7 @@ export const krakenJs = <T>(config: Config): KrakenRuntime => {
       ];
     }
     return result;
-  }, defaultSchema);
+  }, { ...defaultSchema });
 
   const executableSchema = makeExecutableSchema(schemaDefinition as any);
   const makeExecutionContext = executionContextBuilder($plugins);
@@ -152,8 +152,10 @@ export const krakenJs = <T>(config: Config): KrakenRuntime => {
       }
     }
 
+    const document = (typeof args.document === 'string') ? parse(args.document) : args.document;
     const response = await execute({
       ...args,
+      document,
       contextValue: $context,
       schema: executableSchema
     });

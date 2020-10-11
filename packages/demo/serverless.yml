@@ -24,6 +24,10 @@ custom:
       hello: olá mundo
 
 functions:
+  hello:
+    handler: src/handlers.hello
+  message:
+    handler: src/handlers.message
   wsGraphqlHandler:
     handler: src/demo-ws-handler.handler
     events:

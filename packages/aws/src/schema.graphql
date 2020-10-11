@@ -1,0 +1,126 @@
+scalar DynamoDbSet
+
+directive @aws_lambda(
+    name: String
+    shouldParse: Boolean = true
+    invocationType: String! = "RequestResponse"
+) on FIELD_DEFINITION
+
+directive @aws_dynamo_model(
+    table: String
+    timestamps: Boolean
+) on OBJECT
+
+directive @aws_dynamo_query(
+    index: String
+    sourceMapping: [String]
+    scanIndexForward: Boolean
+) on FIELD_DEFINITION
+
+directive @aws_dynamo_get(
+    sourceMapping: [String]
+) on FIELD_DEFINITION
+
+directive @aws_dynamo_scan(
+    index: String
+    sourceMapping: [String]
+) on FIELD_DEFINITION
+
+directive @aws_dynamo_put(
+    sourceMapping: [String]
+    conditional: [String]
+) on FIELD_DEFINITION
+
+directive @aws_dynamo_update(
+    keys: [String]
+    conditional: [String]
+) on FIELD_DEFINITION
+
+directive @aws_dynamo_delete(
+    conditional: [String]
+) on FIELD_DEFINITION
+
+input StringFilterInput {
+    ne: String
+    eq: String
+    le: String
+    lt: String
+    ge: String
+    gt: String
+    in: [String]
+    contains: String
+    notContains: String
+    between: [String]
+    beginsWith: String
+}
+
+input IDFilterInput {
+    ne: ID
+    eq: ID
+    le: ID
+    lt: ID
+    ge: ID
+    gt: ID
+    in: [ID]
+    contains: ID
+    notContains: ID
+    between: [ID]
+    beginsWith: ID
+}
+
+input IntFilterInput {
+    ne: Int
+    eq: Int
+    le: Int
+    lt: Int
+    ge: Int
+    gt: Int
+    in: [Int]
+    contains: Int
+    notContains: Int
+    between: [Int]
+}
+
+input FloatFilterInput {
+    ne: Float
+    eq: Float
+    le: Float
+    lt: Float
+    ge: Float
+    gt: Float
+    in: [Float]
+    contains: Float
+    notContains: Float
+    between: [Float]
+}
+
+input BooleanFilterInput {
+    ne: Boolean
+    eq: Boolean
+}
+
+input UpdateStringInput {
+    set: String
+    remove: Boolean
+    add: String
+    delete: String
+}
+
+input UpdateIntInput {
+    set: Int
+    remove: Boolean
+    add: Int
+    delete: Int
+}
+
+input UpdateFloatInput {
+    set: Float
+    remove: Boolean
+    add: Float
+    delete: Float
+}
+
+input UpdateBooleanInput {
+    set: Boolean
+    remove: Boolean
+}
