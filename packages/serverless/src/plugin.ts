@@ -3,7 +3,7 @@ import { cosmiconfigSync } from 'cosmiconfig';
 import path from 'path';
 import Serverless from 'serverless';
 import Plugin from 'serverless/classes/Plugin';
-import * as importCwd from 'import-cwd';
+import moduleResolver from 'ncjsm/resolve/sync';
 
 const generatedPath = '.kraken';
 
@@ -22,7 +22,7 @@ export default class KrakenJs implements Plugin {
   constructor(protected serverless: Serverless, protected config: Serverless.Config) {
     this.loadServerlessModules();
     this.plugins.forEach(plugin => {
-      this.serverless.pluginManager.addPlugin(importCwd.silent(plugin) as any);
+      this.serverless.pluginManager.addPlugin(this.require(plugin));
     });
     this.serverless.service.validate();
   }
@@ -67,7 +67,7 @@ export default class KrakenJs implements Plugin {
     }
 
     const [moduleRequire, exportName = 'serverless'] = moduleName.split(':');
-    const moduleSls = importCwd.silent(moduleRequire);
+    const moduleSls = this.require(moduleRequire);
 
     const {
       [camelize(exportName)]: importedServerless,
@@ -79,7 +79,7 @@ export default class KrakenJs implements Plugin {
       : importedServerless;
 
     // recursive modules loading
-    this.loadModules(serverless.custom?.kraken);
+    this.loadModules(serverless?.custom?.kraken);
 
     return { serverless, manifest };
   }
@@ -119,6 +119,11 @@ export default class KrakenJs implements Plugin {
     }
 
     return result;
+  }
+
+  private require(name) {
+    const resolvedInfo = moduleResolver(this.serverless.config.servicePath, name);
+    return require(resolvedInfo.targetPath);
   }
 };
 
