@@ -28,12 +28,16 @@ export default class KrakenJs implements Plugin {
   }
 
   loadServerlessModules() {
+    const selfCustomEnvironment = this.serverless.service.custom?.environment;
+
     this.loadModules(this.getKrakenConfig());
     (this.serverless.service as any).plugins.push(...this.plugins.values());
 
     const stage = (this.config as any).stage || (this.config as any).s || 'dev';
     const environment = {
       ...(this.serverless.service.provider as any).environment,
+      ...selfCustomEnvironment?.default,
+      ...selfCustomEnvironment?.[stage],
       ...this.serverless.service.custom.environment?.default,
       ...this.serverless.service.custom.environment?.[stage]
     };
