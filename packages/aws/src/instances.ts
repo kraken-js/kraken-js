@@ -85,9 +85,14 @@ export const getCognito = (cognito?: CognitoIdentityServiceProvider): CognitoIde
       // not really offline in this case ¯\_(ツ)_/¯
       const profile = process.env.AWS_PROFILE as string;
       const credentials = new SharedIniFileCredentials({ profile });
-      instances.cognito = new CognitoIdentityServiceProvider({ credentials });
+      instances.cognito = new CognitoIdentityServiceProvider({
+        credentials,
+        region: process.env.COGNITO_AWS_REGION
+      });
     } else {
-      instances.cognito = new CognitoIdentityServiceProvider();
+      instances.cognito = new CognitoIdentityServiceProvider({
+        region: process.env.COGNITO_AWS_REGION
+      });
     }
   }
   return instances.cognito;
