@@ -87,7 +87,9 @@ export const getCognito = (cognito?: CognitoIdentityServiceProvider): CognitoIde
       const credentials = new SharedIniFileCredentials({ profile });
       instances.cognito = new CognitoIdentityServiceProvider({ credentials });
     } else {
-      instances.cognito = new CognitoIdentityServiceProvider();
+      instances.cognito = new CognitoIdentityServiceProvider({
+        region: process.env.COGNITO_AWS_REGION
+      });
     }
   }
   return instances.cognito;
