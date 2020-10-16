@@ -2,9 +2,13 @@
   "compilerOptions": {
     "moduleResolution": "node",
     "target": "es2019",
-    "declaration": true,
+    "declaration": false,
     "outDir": "dist"
   },
+  "include": [
+    "index.ts",
+    "src/**/*"
+  ],
   "exclude": [
     "node_modules"
   ]

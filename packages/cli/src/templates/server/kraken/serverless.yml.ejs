@@ -16,6 +16,8 @@ custom:
     - '@kraken.js/aws:subscriptions'
 
 functions:
+  hello:
+    handler: src/hello-handler.handler
   wsGraphqlHandler:
     handler: src/ws-handler.handler
     events:
@@ -25,3 +27,9 @@ functions:
           route: $disconnect
       - websocket:
           route: $default
+  httpGraphqlHandler:
+    handler: src/http-handler.handler
+    events:
+      - http:
+        path: graphql
+        method: any

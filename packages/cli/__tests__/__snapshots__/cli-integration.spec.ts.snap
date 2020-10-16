@@ -57,6 +57,10 @@ custom:
   tables:
     subscriptions: WsSubscriptions-offline
 functions:
+  hello:
+    handler: src/hello-handler.handler
+    events: []
+    name: electric-wolf-kraken-offline-hello
   wsGraphqlHandler:
     handler: src/ws-handler.handler
     events:
@@ -67,15 +71,24 @@ functions:
       - websocket:
           route: $default
     name: electric-wolf-kraken-offline-wsGraphqlHandler
+  httpGraphqlHandler:
+    handler: src/http-handler.handler
+    events:
+      - http: null
+        path: graphql
+        method: any
+    name: electric-wolf-kraken-offline-httpGraphqlHandler
 "
 `;
 
 exports[`kraken.js After Generate Project should generate src/schema.ts file 1`] = `
 "import { krakenJs } from '@kraken.js/core';
 import { graphqlSchema as krakenJsAws } from '@kraken.js/aws';
+import { graphqlSchema as electricWolfKraken } from '@electric-wolf/kraken';
 
 export const krakenSchema = krakenJs([
-	krakenJsAws()
+	krakenJsAws(),
+	electricWolfKraken
 ]);
 "
 `;
