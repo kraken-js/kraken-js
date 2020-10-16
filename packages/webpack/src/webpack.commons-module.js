@@ -3,6 +3,11 @@ const webpackCommons = require('./webpack.commons');
 
 module.exports = (dirname, entry) => ({
   ...webpackCommons(dirname, entry),
+  optimization: {
+    removeAvailableModules: false,
+    removeEmptyChunks: false,
+    splitChunks: false
+  },
   externals: [
     nodeExternals({
       additionalModuleDirs: ['../../node_modules']

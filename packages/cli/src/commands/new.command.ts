@@ -54,5 +54,10 @@ module.exports = {
       shell: true,
       stdio: 'inherit'
     });
+    // kraken graphql
+    await system.spawn(`cd ${props.name} && kraken graphql`, {
+      shell: true,
+      stdio: 'inherit'
+    });
   }
 };
