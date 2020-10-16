@@ -77,14 +77,6 @@ functions:
       - http: null
         path: graphql
         method: any
-        cors:
-          origin: '*'
-          maxAge: 86400
-          cacheControl: max-age=86400
-          headers:
-            - Content-Type
-            - Authorization
-            - Range
     name: electric-wolf-kraken-offline-httpGraphqlHandler
 "
 `;
