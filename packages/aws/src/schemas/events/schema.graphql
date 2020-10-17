@@ -1,0 +1,4 @@
+directive @event(
+    source: String
+    type: String
+) on FIELD_DEFINITION
