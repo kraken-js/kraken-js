@@ -1,5 +1,5 @@
+import { httpHandler } from '@kraken.js/aws';
 import { krakenJs, KrakenSchema } from '@kraken.js/core';
-import { httpHandler } from '..';
 
 const testSchema: KrakenSchema = {
   typeDefs: `

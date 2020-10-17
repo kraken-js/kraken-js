@@ -36,8 +36,8 @@ const defaultSchema: KrakenSchema = {
   }
 };
 
-const executionContextBuilder = ($plugins: Kraken.Plugins) =>
-  <T>(ctx: T): T & Kraken.ExecutionContext => {
+const executionContextBuilder = ($plugins: Kraken.Plugins) => {
+  return <T>(ctx: T): T & Kraken.ExecutionContext => {
     Object.getOwnPropertyNames($plugins).forEach(plugin => {
       const $ = { [plugin]: $plugins[plugin] };
       if (ctx[plugin] === undefined) {
@@ -51,8 +51,16 @@ const executionContextBuilder = ($plugins: Kraken.Plugins) =>
         });
       }
     });
+    (ctx as unknown as Kraken.ExecutionContext).serialize = () => {
+      return Object.entries(ctx).reduce((result, [key, value]) => {
+        if (typeof value === 'function') return result;
+        result[key] = value;
+        return result;
+      }, {});
+    };
     return ctx as T & Kraken.ExecutionContext;
   };
+};
 
 const getResolvers = (schemaDefinition: KrakenSchema) => {
   if (!schemaDefinition.resolvers) return [];

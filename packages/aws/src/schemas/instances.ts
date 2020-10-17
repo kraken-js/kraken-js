@@ -3,6 +3,7 @@ import {
   CognitoIdentityServiceProvider,
   config as awsConfig,
   DynamoDB,
+  EventBridge,
   Lambda,
   SharedIniFileCredentials,
   SNS,
@@ -15,6 +16,7 @@ const dynamoDbEndpoint = process.env.AWS_DYNAMODB_ENDPOINT;
 const lambdaEndpoint = process.env.AWS_LAMBDA_ENDPOINT;
 const snsEndpoint = process.env.AWS_SNS_ENDPOINT;
 const sqsEndpoint = process.env.AWS_SQS_ENDPOINT;
+const eventBridgeEndpoint = process.env.AWS_EVENT_BRIDGE_ENDPOINT;
 const apiGatewayEndpoint = process.env.AWS_APIGATEWAY_ENDPOINT;
 
 const instances: Record<string, any> = {
@@ -69,6 +71,15 @@ export const getSQS = (sqs?: SQS): SQS => {
   return instances.sqs;
 };
 
+export const getEventBridge = (eventBridge: EventBridge) => {
+  if (!instances.eventBridge) {
+    instances.eventBridge = eventBridge || new EventBridge({
+      endpoint: isOffline ? eventBridgeEndpoint : undefined
+    });
+  }
+  return instances.eventBridge;
+};
+
 export const getApiGateway = (endpoint): ApiGatewayManagementApi => {
   if (!instances.apiGateway[endpoint]) {
     instances.apiGateway[endpoint] = new ApiGatewayManagementApi({
@@ -76,6 +87,7 @@ export const getApiGateway = (endpoint): ApiGatewayManagementApi => {
     });
   }
   return instances.apiGateway[endpoint];
+
 };
 
 export const getCognito = (cognito?: CognitoIdentityServiceProvider): CognitoIdentityServiceProvider => {

@@ -1,6 +1,6 @@
 import { ConnectionStore, SubscriptionStore } from '@kraken.js/core';
 import { ApiGatewayManagementApi } from 'aws-sdk';
-import { AwsSchemaConfig } from './types';
+import { AwsSchemaConfig } from './config';
 
 const subscriptionsBatchLoadLimit = 75;
 const waitForConnectionTimeout = 50;

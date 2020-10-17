@@ -125,7 +125,7 @@ describe('AWS Websocket Handler', () => {
   });
 
   describe('should successfully execute pub/sub', () => {
-    const numOfSubscriptions = 511;
+    const numOfSubscriptions = 111;
     const { execute, connectionId, dynamoDb } = setupTest();
 
     beforeEach(async () => {

@@ -1,4 +1,4 @@
-export const demoSchema = {
+export const graphqlSchema = {
   typeDefs: `
     type Query {
       hello: String! @aws_lambda(name: "hello", shouldParse: false)

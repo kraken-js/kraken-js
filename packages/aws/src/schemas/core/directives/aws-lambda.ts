@@ -17,15 +17,6 @@ const getFunctionName = (name: string) => {
   return `${service}-${stage}-${name}`;
 };
 
-const makeSerializableContext = $context => {
-  return Object.entries($context).reduce((result, [key, value]) => {
-    if (key.startsWith('$')) return result;
-    if (typeof value === 'function') return result;
-    result[key] = value;
-    return result;
-  }, {});
-};
-
 export class AwsLambdaDirective extends SchemaDirectiveVisitor {
   visitFieldDefinition(field) {
     const { resolve = defaultFieldResolver } = field;
@@ -35,7 +26,7 @@ export class AwsLambdaDirective extends SchemaDirectiveVisitor {
     const isChained = isChainedDirective(field, this);
 
     field.resolve = async (source, args, $context, info) => {
-      const context = makeSerializableContext($context);
+      const context = $context.serialize();
 
       const { Payload, FunctionError } = await $context.$lambda
         .invoke({

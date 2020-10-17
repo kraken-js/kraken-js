@@ -19,6 +19,28 @@ module.exports = {
         ],
         Projection: { ProjectionType: 'ALL' }
       }]
+    },
+
+    {
+      TableName: 'Model-test-stage',
+      BillingMode: 'PAY_PER_REQUEST',
+      AttributeDefinitions: [
+        { AttributeName: 'id', AttributeType: 'S' }
+      ],
+      KeySchema: [
+        { AttributeName: 'id', KeyType: 'HASH' }
+      ]
+    },
+
+    {
+      TableName: 'ExistingTable',
+      BillingMode: 'PAY_PER_REQUEST',
+      AttributeDefinitions: [
+        { AttributeName: 'id', AttributeType: 'S' }
+      ],
+      KeySchema: [
+        { AttributeName: 'id', KeyType: 'HASH' }
+      ]
     }
   ],
   basePort: 5002

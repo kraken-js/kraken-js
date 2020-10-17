@@ -1,0 +1,13 @@
+custom:
+  eventBus: EventBus-${self:custom.stage}
+  eventBusArn: arn:aws:events:${self:custon.region}:${self:custom.account}:event-bus/${self:custom.eventBus}
+  environment:
+    default:
+      EVENT_BUS_NAME: ${self:custom.eventBus}
+
+resources:
+  Resources:
+    EventBus:
+      Type: AWS::Events::EventBus
+      Properties:
+        Name: ${self:custom.eventBus}

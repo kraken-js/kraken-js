@@ -63,17 +63,6 @@ const batchLoadFn = (plugins: Kraken.Plugins): DataLoader.BatchLoadFn<GetRequest
     });
   };
 
-const $singleton = {
-  instance: undefined
-};
-
 export const dynamoDbDataLoader = (plugins: Kraken.Plugins) => {
-  if (!$singleton.instance) {
-    $singleton.instance = new DataLoader<GetRequest, DocumentClient.AttributeMap | null>(
-      batchLoadFn(plugins),
-      { maxBatchSize }
-    );
-  }
-
-  return $singleton.instance;
+  return new DataLoader<GetRequest, any>(batchLoadFn(plugins), { maxBatchSize });
 };

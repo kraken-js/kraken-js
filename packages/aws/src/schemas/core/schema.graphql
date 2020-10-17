@@ -1,24 +1,26 @@
 scalar DynamoDbSet
 
-directive @aws_lambda(
+directive @lambda(
     name: String
     shouldParse: Boolean = true
     invocationType: String! = "RequestResponse"
 ) on FIELD_DEFINITION
 
-directive @aws_dynamo_model(
+directive @model(
     table: String
     timestamps: Boolean
 ) on OBJECT
+
+directive @get(
+    sourceMapping: [String]
+) on FIELD_DEFINITION
+
+## to be implemented
 
 directive @aws_dynamo_query(
     index: String
     sourceMapping: [String]
     scanIndexForward: Boolean
-) on FIELD_DEFINITION
-
-directive @aws_dynamo_get(
-    sourceMapping: [String]
 ) on FIELD_DEFINITION
 
 directive @aws_dynamo_scan(

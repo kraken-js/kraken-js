@@ -123,6 +123,7 @@ declare global {
         variableValues?: any
       }
 
+      serialize(): Context
       gqlExecute(args: ExecutionArgs): Promise<ExecutionResult>;
     }
 
