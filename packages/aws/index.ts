@@ -15,7 +15,7 @@ export * as serverless from './resources/serverless.yml';
 // @ts-ignore
 export * as subscriptions from './resources/serverless-subscriptions.yml';
 // @ts-ignore
-export * as eventBus from './resources/serverless-eventbus.yml';
+export * as events from './resources/serverless-eventbus.yml';
 // @ts-ignore
 export * as manifest from './package.json';
 

@@ -14,6 +14,7 @@ custom:
     - '@kraken.js/essentials:aws'
     - '@kraken.js/aws'
     - '@kraken.js/aws:subscriptions'
+    - '@kraken.js/aws:events'
 
   environment:
     default:

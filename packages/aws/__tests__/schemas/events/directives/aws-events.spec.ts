@@ -1,4 +1,4 @@
-import { eventBridgeSchema } from '@kraken.js/aws';
+import { eventsSchema } from '@kraken.js/aws';
 import { krakenJs, KrakenSchema } from '@kraken.js/core';
 
 const putEventsMock = jest.fn(() => ({
@@ -6,7 +6,7 @@ const putEventsMock = jest.fn(() => ({
 }));
 
 const setupKrakenRuntime = (testSchema: KrakenSchema) => krakenJs([
-  eventBridgeSchema({
+  eventsSchema({
     eventBridge: {
       putEvents: putEventsMock
     } as any
@@ -19,26 +19,28 @@ describe('@event', () => {
     [
       'mutation { analytics1(input: { data: "pageClick1" }) { data } }',
       {
+        Source: 'Analytics',
         Detail: '{"data":"pageClick1"}',
-        EventBusName: 'EventBus-test-stage',
-        Source: 'analytics1'
+        DetailType: 'analytics1',
+        EventBusName: 'EventBus-test-stage'
       }
     ],
     [
       'mutation { analytics2(input: { data: "pageClick2" }) { data } }',
       {
+        Source: 'analytics-2',
+        DetailType: 'analytics2',
         Detail: '{"data":"pageClick2"}',
-        EventBusName: 'EventBus-test-stage',
-        Source: 'analytics-2'
+        EventBusName: 'EventBus-test-stage'
       }
     ],
     [
       'mutation { analytics3(input: { data: "pageClick3" }) { data } }',
       {
-        Detail: '{"data":"pageClick3"}',
-        EventBusName: 'EventBus-test-stage',
         Source: 'analytics-3',
-        DetailType: 'graphql-event'
+        DetailType: 'graphql-event',
+        Detail: '{"data":"pageClick3"}',
+        EventBusName: 'EventBus-test-stage'
       }
     ]
   ])('should emit event with resolved response for %s', async (document, entry) => {

@@ -1,12 +1,25 @@
 custom:
   eventBus: EventBus-${self:custom.stage}
-  eventBusArn: arn:aws:events:${self:custon.region}:${self:custom.account}:event-bus/${self:custom.eventBus}
+  eventBusArn: arn:aws:events:${self:custom.region}:${self:custom.account}:event-bus/${self:custom.eventBus}
   environment:
     default:
       EVENT_BUS_NAME: ${self:custom.eventBus}
 
 resources:
   Resources:
+    EventBusIamPolicy:
+      Type: AWS::IAM::Policy
+      Properties:
+        PolicyName: lambda-eventbus
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - events:*
+              Resource: arn:aws:events:*:*:event-bus/*
+        Roles:
+          - Ref: IamRoleLambdaExecution
     EventBus:
       Type: AWS::Events::EventBus
       Properties:
