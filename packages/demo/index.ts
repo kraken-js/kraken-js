@@ -1,14 +1,14 @@
-export const demoSchema = {
+export const graphqlSchema = {
   typeDefs: `
     type Query {
-      hello: String! @aws_lambda(name: "hello", shouldParse: false)
-      message: Message! @aws_lambda(name: "message")
+      hello: String! @lambda(name: "hello", shouldParse: false)
+      message: Message! @lambda(name: "message")
     }
     type Subscription {
         onPing(channel: String): Ping @sub(triggerName: "onPing#{channel}")
     }
     type Mutation {
-        ping(channel: String!): Ping @pub(triggerNames: ["onPing#{channel}"])
+        ping(channel: String!): Ping @event @pub(triggerNames: ["onPing#{channel}"])
     }
     type Message {
       message: String!

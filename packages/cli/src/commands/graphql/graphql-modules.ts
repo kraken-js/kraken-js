@@ -19,11 +19,11 @@ export const graphqlModules = async ({ kraken, graphqlSchemaFile }, { spinner, t
     spinner && (spinner.text = `🐙 Loading Graphql module ${graphqlModule}`);
 
     const [moduleName, exportName = 'graphqlSchema'] = graphqlModule.split(':');
-    const importAs = camelize(moduleName);
+    const importAs = camelize(exportName === 'graphqlSchema' ? moduleName : [moduleName, exportName].join('-'));
     const exportedAs = camelize(exportName);
     await patching.append(graphqlSchemaFile, `import { ${exportedAs} as ${importAs} } from '${moduleName}';\n`);
 
-    let importedFromCwd = importCwd.silent(moduleName) as any;
+    const importedFromCwd = importCwd.silent(moduleName) as any;
     const { [exportedAs]: resolvedModule } = importedFromCwd ? importedFromCwd : { [exportedAs]: importAs };
     modules.push((typeof resolvedModule === 'function') ? `${importAs}()` : importAs);
   }

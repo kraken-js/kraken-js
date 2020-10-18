@@ -10,7 +10,7 @@ const schemaDirectives = {
   event: EventBridgeEventDirective
 };
 
-export const eventBridgeSchema = (config?: AwsEventsSchemaConfig): KrakenSchema => ({
+export const eventsSchema = (config?: AwsEventsSchemaConfig): KrakenSchema => ({
   typeDefs,
   schemaDirectives,
   plugins(inject: Injector) {

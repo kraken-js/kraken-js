@@ -1,6 +1,7 @@
 module.exports = {
   graphql: [
     '@kraken.js/aws',
-    '@kraken.js/demo:demo-schema'
+    '@kraken.js/aws:events-schema',
+    '@kraken.js/demo'
   ]
 };
