@@ -11,6 +11,7 @@
     "publish": "echo 'not yeat implemented'"
   },
   "dependencies": {
+    "fork-ts-checker-webpack-plugin": "^5.2.0",
     "graphql-tag": "^2.10.3",
     "js-yaml-loader": "^1.2.2",
     "raw-loader": "^4.0.1",
