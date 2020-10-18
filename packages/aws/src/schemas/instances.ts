@@ -1,30 +1,10 @@
-import {
-  ApiGatewayManagementApi,
-  CognitoIdentityServiceProvider,
-  config as awsConfig,
-  DynamoDB,
-  EventBridge,
-  Lambda,
-  SharedIniFileCredentials,
-  SNS,
-  SQS
-} from 'aws-sdk';
+import AWS, { config as awsConfig, EventBridge } from 'aws-sdk';
 import yn from 'yn';
 
 const isOffline = yn(process.env.IS_OFFLINE);
-const dynamoDbEndpoint = process.env.AWS_DYNAMODB_ENDPOINT;
-const lambdaEndpoint = process.env.AWS_LAMBDA_ENDPOINT;
-const snsEndpoint = process.env.AWS_SNS_ENDPOINT;
-const sqsEndpoint = process.env.AWS_SQS_ENDPOINT;
-const eventBridgeEndpoint = process.env.AWS_EVENT_BRIDGE_ENDPOINT;
-const apiGatewayEndpoint = process.env.AWS_APIGATEWAY_ENDPOINT;
 
 const instances: Record<string, any> = {
-  apiGateway: {},
-  dynamoDb: undefined,
-  lambda: undefined,
-  sns: undefined,
-  sqs: undefined
+  apiGateway: {}
 };
 
 if (isOffline) {
@@ -34,78 +14,54 @@ if (isOffline) {
   });
 }
 
-export const getLambda = (lambda?: Lambda): Lambda => {
+export const getLambda = (config?: AWS.Lambda.Types.ClientConfiguration): AWS.Lambda => {
   if (!instances.lambda) {
-    instances.lambda = lambda || new Lambda({
-      apiVersion: '2015-03-31',
-      endpoint: isOffline ? lambdaEndpoint : undefined
-    });
+    instances.lambda = new AWS.Lambda(config);
   }
   return instances.lambda;
 };
 
-export const getDynamoDb = (dynamoDb?: DynamoDB.DocumentClient): DynamoDB.DocumentClient => {
+export const getDynamoDb = (config?: AWS.DynamoDB.Types.ClientConfiguration): AWS.DynamoDB.DocumentClient => {
   if (!instances.dynamoDb) {
-    instances.dynamoDb = dynamoDb || new DynamoDB.DocumentClient({
-      endpoint: isOffline ? dynamoDbEndpoint : undefined
-    });
+    instances.dynamoDb = new AWS.DynamoDB.DocumentClient(config);
   }
   return instances.dynamoDb;
 };
 
-export const getSNS = (sns?: SNS): SNS => {
+export const getSNS = (config?: AWS.SNS.Types.ClientConfiguration): AWS.SNS => {
   if (!instances.sns) {
-    instances.sns = sns || new SNS({
-      endpoint: isOffline ? snsEndpoint : undefined
-    });
+    instances.sns = new AWS.SNS(config);
   }
   return instances.sns;
 };
 
-export const getSQS = (sqs?: SQS): SQS => {
+export const getSQS = (config?: AWS.SQS.Types.ClientConfiguration): AWS.SQS => {
   if (!instances.sqs) {
-    instances.sqs = sqs || new SQS({
-      endpoint: isOffline ? sqsEndpoint : undefined
-    });
+    instances.sqs = new AWS.SQS(config);
   }
   return instances.sqs;
 };
 
-export const getEventBridge = (eventBridge: EventBridge) => {
+export const getEventBridge = (config: AWS.EventBridge.Types.ClientConfiguration) => {
   if (!instances.eventBridge) {
-    instances.eventBridge = eventBridge || new EventBridge({
-      endpoint: isOffline ? eventBridgeEndpoint : undefined
-    });
+    instances.eventBridge = new EventBridge(config);
   }
   return instances.eventBridge;
 };
 
-export const getApiGateway = (endpoint): ApiGatewayManagementApi => {
+export const getCognito = (config?: AWS.CognitoIdentityServiceProvider.Types.ClientConfiguration): AWS.CognitoIdentityServiceProvider => {
+  if (!instances.cognito) {
+    instances.cognito = new AWS.CognitoIdentityServiceProvider(config);
+  }
+  return instances.cognito;
+};
+
+export const getApiGateway = (config: AWS.ApiGatewayManagementApi.Types.ClientConfiguration, endpoint): AWS.ApiGatewayManagementApi => {
   if (!instances.apiGateway[endpoint]) {
-    instances.apiGateway[endpoint] = new ApiGatewayManagementApi({
-      endpoint: isOffline ? apiGatewayEndpoint : endpoint
+    instances.apiGateway[endpoint] = new AWS.ApiGatewayManagementApi({
+      endpoint,
+      ...config
     });
   }
   return instances.apiGateway[endpoint];
-
-};
-
-export const getCognito = (cognito?: CognitoIdentityServiceProvider): CognitoIdentityServiceProvider => {
-  if (!instances.cognito) {
-    if (cognito) return cognito;
-    if (isOffline) {
-      // not really offline in this case ¯\_(ツ)_/¯
-      const profile = process.env.AWS_PROFILE as string;
-      const credentials = new SharedIniFileCredentials({ profile });
-      instances.cognito = new CognitoIdentityServiceProvider({
-        credentials,
-        region: process.env.COGNITO_AWS_REGION
-      });
-    } else {
-      instances.cognito = new CognitoIdentityServiceProvider({
-        region: process.env.COGNITO_AWS_REGION
-      });
-    }
-  }
-  return instances.cognito;
 };

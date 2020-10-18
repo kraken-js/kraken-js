@@ -60,11 +60,6 @@ export default class KrakenJs implements Plugin {
       ...parsedStageDotEnv
     };
 
-    if (verbose) {
-      this.serverless.cli.log('Setting environment variables:');
-      this.serverless.cli.log(Object.entries(environment).map(e => [e[0], e[1]].join('=')).join('\n'));
-    }
-
     delete this.serverless.service.custom.environment;
     this.serverless.service.update({ provider: { environment } });
   }

@@ -27,14 +27,14 @@ export const graphqlSchema = (config?: AwsSchemaConfig): KrakenSchema => ({
   plugins: (inject: Injector) => {
     inject('connections', dynamoDbConnectionStore(config));
     inject('subscriptions', dynamoDbSubscriptionStore(config));
-    inject('sns', () => getSNS(config?.sns));
-    inject('sqs', () => getSQS(config?.sqs));
-    inject('lambda', () => getLambda(config?.lambda));
-    inject('dynamoDb', () => getDynamoDb(config?.dynamoDb));
-    inject('cognito', () => getCognito(config?.cognito));
+    inject('sns', () => config?.sns || getSNS(config?.snsConfig));
+    inject('sqs', () => config?.sqs || getSQS(config?.sqsConfig));
+    inject('lambda', () => config?.lambda || getLambda(config?.lambdaConfig));
+    inject('dynamoDb', () => config?.dynamoDb || getDynamoDb(config?.dynamoDbConfig));
+    inject('cognito', () => config?.cognito || getCognito(config?.cognitoConfig));
     inject('dynamoDbDataLoader', dynamoDbDataLoader);
     inject('apiGateway', () => ({
-      get: endpoint => config?.apiGateway || getApiGateway(endpoint)
+      get: endpoint => config?.apiGateway || getApiGateway(config?.apiGatewayConfig, endpoint)
     }));
   }
 });

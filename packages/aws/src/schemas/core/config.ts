@@ -1,4 +1,4 @@
-import { ApiGatewayManagementApi, CognitoIdentityServiceProvider, DynamoDB, Lambda, SNS, SQS } from 'aws-sdk';
+import AWS from 'aws-sdk';
 
 export type AwsSchemaConfig = {
   connections?: {
@@ -8,11 +8,23 @@ export type AwsSchemaConfig = {
   subscriptions?: {
     tableName?: string
   },
-  dynamoDb?: DynamoDB.DocumentClient
-  apiGateway?: ApiGatewayManagementApi
-  lambda?: Lambda
-  sns?: SNS
-  sqs?: SQS
-  cognito?: CognitoIdentityServiceProvider
+
+  dynamoDb?: AWS.DynamoDB.DocumentClient
+  dynamoDbConfig?: AWS.DynamoDB.Types.ClientConfiguration
+
+  apiGateway?: AWS.ApiGatewayManagementApi
+  apiGatewayConfig?: AWS.ApiGatewayManagementApi.Types.ClientConfiguration
+
+  lambda?: AWS.Lambda
+  lambdaConfig?: AWS.Lambda.Types.ClientConfiguration
+
+  sns?: AWS.SNS
+  snsConfig?: AWS.SNS.Types.ClientConfiguration
+
+  sqs?: AWS.SQS
+  sqsConfig?: AWS.SQS.Types.ClientConfiguration
+
+  cognito?: AWS.CognitoIdentityServiceProvider
+  cognitoConfig?: AWS.CognitoIdentityServiceProvider.Types.ClientConfiguration
 }
 

@@ -7,25 +7,42 @@ const camelize = str => {
   return result[0].toLowerCase() + result.slice(1);
 };
 
-export const graphqlModules = async ({ kraken, graphqlSchemaFile }, { spinner, toolbox }) => {
+export const graphqlModules = async ({ kraken, graphqlSchemaFile }, { spinner }): Promise<{ modulesStrings: string [], importsStrings: string[] }> => {
   if (!kraken || !kraken.graphql?.length) {
     spinner.stopAndPersist({ symbol: '🚨', text: 'No graphql modules found on kraken.config.js' });
-    return [];
+    return { modulesStrings: [], importsStrings: [] };
   }
 
-  const { patching } = toolbox;
   const modules: string[] = [];
-  for (const graphqlModule of kraken.graphql) {
+  const imports: string[] = [];
+
+  for (let graphqlModule of kraken.graphql) {
+    let graphqlModuleConfig = null;
+    if (Array.isArray(graphqlModule)) {
+      [graphqlModule, graphqlModuleConfig] = graphqlModule;
+    }
     spinner && (spinner.text = `🐙 Loading Graphql module ${graphqlModule}`);
 
+    // @kraken.js/aws, @kraken.js/aws:event,
     const [moduleName, exportName = 'graphqlSchema'] = graphqlModule.split(':');
-    const importAs = camelize(exportName === 'graphqlSchema' ? moduleName : [moduleName, exportName].join('-'));
-    const exportedAs = camelize(exportName);
-    await patching.append(graphqlSchemaFile, `import { ${exportedAs} as ${importAs} } from '${moduleName}';\n`);
 
+    // @module/auth => graphqlSchema, @module/auth:schema => schema
+    const exportedAs = camelize(exportName);
+
+    // @module/auth:schema => import { xxx as moduleAuthSchema }
+    const importAs = camelize(exportName === 'graphqlSchema' ? moduleName : [moduleName, exportName].join('-'));
+
+    // import { schema as moduleAuthSchema } from '@module/auth';
+    imports.push(`import { ${exportedAs} as ${importAs} } from '${moduleName}';`);
+
+    // check if imported value is a function
     const importedFromCwd = importCwd.silent(moduleName) as any;
     const { [exportedAs]: resolvedModule } = importedFromCwd ? importedFromCwd : { [exportedAs]: importAs };
-    modules.push((typeof resolvedModule === 'function') ? `${importAs}()` : importAs);
+
+    // if function moduleAuthSchema(getStageConfig(...))
+    const graphqlModuleConfigJson = graphqlModuleConfig ? JSON.stringify(graphqlModuleConfig) : '';
+    const moduleConfigArgument = graphqlModuleConfigJson ? 'getStageConfig(' + graphqlModuleConfigJson + ')' : '';
+    modules.push((typeof resolvedModule === 'function') ? `${importAs}(${moduleConfigArgument})` : importAs);
   }
-  return modules;
+  return { importsStrings: imports, modulesStrings: modules };
 };

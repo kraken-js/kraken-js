@@ -34,7 +34,7 @@ describe('kraken.js', () => {
 
     afterAll(() => {
       process.chdir(state.cwd);
-      // filesystem.remove(projectName);
+      filesystem.remove(projectName);
     });
 
     test('serverless print --stage offline', async () => {

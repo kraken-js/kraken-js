@@ -11,7 +11,8 @@
     "prepare-release": "scripts/prepare-release.sh",
     "release": "yarn publish --access public",
     "reinstall": "yarn clean:all && yarn install",
-    "clean:all": "npx rimraf **/{node_modules,yarn.lock}"
+    "clean:all": "npx rimraf **/{node_modules,yarn.lock}",
+    "clean:dist": "npx rimraf **/dist"
   },
   "devDependencies": {
     "glob": "^7.1.6"

@@ -7,6 +7,8 @@ provider:
 
 plugins:
   - '@kraken.js/serverless'
+  - serverless-dynamodb-local
+  - serverless-offline
 
 custom:
   kraken:
@@ -15,6 +17,22 @@ custom:
     - '@kraken.js/aws'
     - '@kraken.js/aws:subscriptions'
     - '@kraken.js/aws:events'
+
+  serverless-offline:
+    noPrependStageInUrl: true
+    httpPort: 4000
+    websocketPort: 4001
+    lambdaPort: 4002
+    useChildProcesses: true
+
+  dynamodb:
+    stages:
+      - offline
+    start:
+      port: 5002
+      inMemory: false
+      migrate: true
+      seed: true
 
   environment:
     default:
