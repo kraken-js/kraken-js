@@ -1,7 +1,5 @@
 plugins:
   - serverless-pseudo-parameters
-  - serverless-dynamodb-local
-  - serverless-offline
 
 provider:
   name: aws
@@ -43,26 +41,6 @@ custom:
       SERVICE: ${self:service.name}
       VERSION: ${self:custom.version}
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
-    offline:
-      AWS_LAMBDA_ENDPOINT: http://127.0.0.1:4002
-      AWS_APIGATEWAY_ENDPOINT: http://127.0.0.1:4001
-      AWS_DYNAMODB_ENDPOINT: http://127.0.0.1:5002
-      AWS_SNS_ENDPOINT: http://127.0.0.1:6002
-      AWS_SQS_ENDPOINT: http://127.0.0.1:7002
   webpack:
     includeModules:
       forceExclude: [ aws-sdk ]
-  serverless-offline:
-    noPrependStageInUrl: true
-    httpPort: 4000
-    websocketPort: 4001
-    lambdaPort: 4002
-    useChildProcesses: true
-  dynamodb:
-    stages:
-      - offline
-    start:
-      port: 5002
-      inMemory: false
-      migrate: true
-      seed: true

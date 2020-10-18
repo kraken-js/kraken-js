@@ -11,25 +11,20 @@ import { ExecutionArgs, GqlOperation, Injector, KrakenRuntime, KrakenSchema } fr
 
 type Config = KrakenSchema | KrakenSchema[]
 
-export const pubsubSchemaDirectives = {
-  pub: PublishDirective,
-  sub: SubscribeDirective
-};
-
-const corePlugins = (inject: Injector) => {
-  inject('subMode', 'IN');
-  inject('pubStrategy', 'GRAPHQL');
-  inject('pubsub', krakenPubSub());
-};
-
-const defaultSchema: KrakenSchema = {
+const rootSchema: KrakenSchema = {
   typeDefs: [
     krakenTypesDefs
   ],
   resolvers: {},
   schemaTransforms: [],
   schemaDirectives: {
-    ...pubsubSchemaDirectives
+    pub: PublishDirective,
+    sub: SubscribeDirective
+  },
+  plugins(inject: Injector) {
+    inject('subMode', 'IN');
+    inject('pubStrategy', 'GRAPHQL');
+    inject('pubsub', krakenPubSub());
   },
   logger: {
     log: error => console.error(error)
@@ -69,17 +64,12 @@ const getResolvers = (schemaDefinition: KrakenSchema) => {
     : [schemaDefinition.resolvers];
 };
 
-export const krakenJs = <T>(config: Config): KrakenRuntime => {
-  const configs = Array.isArray(config) ? config : [config];
-
-  const $plugins = {} as Kraken.Plugins;
-  const pluginInjector = (name, value) => $plugins['$' + name] = value;
-  corePlugins(pluginInjector);
-
+const buildSchemaAndHooks = (configs: KrakenSchema[], pluginInjector: Injector) => {
   const onConnect: ((context) => Kraken.Context)[] = [];
   const onBeforeExecute: ((context, document) => void)[] = [];
   const onAfterExecute: ((context, response) => void)[] = [];
 
+  rootSchema.plugins(pluginInjector);
   const schemaDefinition = configs.reduce((result, each) => {
     if ('plugins' in each) each.plugins(pluginInjector);
     if ('onConnect' in each) onConnect.push(each.onConnect);
@@ -111,9 +101,19 @@ export const krakenJs = <T>(config: Config): KrakenRuntime => {
       ];
     }
     return result;
-  }, { ...defaultSchema });
+  }, { ...rootSchema });
 
   const executableSchema = makeExecutableSchema(schemaDefinition as any);
+  return { onConnect, onBeforeExecute, onAfterExecute, executableSchema };
+};
+
+export const krakenJs = <T>(config: Config): KrakenRuntime => {
+  const configs = Array.isArray(config) ? config : [config];
+
+  const $plugins = {} as Kraken.Plugins;
+  const pluginInjector = (name, value) => $plugins['$' + name] = value;
+
+  const { onConnect, onBeforeExecute, onAfterExecute, executableSchema } = buildSchemaAndHooks(configs, pluginInjector);
   const makeExecutionContext = executionContextBuilder($plugins);
   const $root = makeExecutionContext({});
 

@@ -18,8 +18,6 @@
     "prepublishOnly": "yarn package"
   },
   "dependencies": {
-    "serverless-dynamodb-local": "^0.2.39",
-    "serverless-offline": "^6.7.0",
     "serverless-pseudo-parameters": "^2.5.0",
     "serverless-webpack": "^5.3.4",
     "typescript": "^4.0.3",

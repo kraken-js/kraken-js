@@ -14,7 +14,7 @@ export const eventsSchema = (config?: AwsEventsSchemaConfig): KrakenSchema => ({
   typeDefs,
   schemaDirectives,
   plugins(inject: Injector) {
-    inject('eventBridge', () => getEventBridge(config?.eventBridge));
+    inject('eventBridge', () => config?.eventBridge || getEventBridge(config?.eventBridgeConfig));
     inject('events', eventBridgeEmitter);
   }
 });

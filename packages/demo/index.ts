@@ -8,7 +8,7 @@ export const graphqlSchema = {
         onPing(channel: String): Ping @sub(triggerName: "onPing#{channel}")
     }
     type Mutation {
-        ping(channel: String!): Ping @event @pub(triggerNames: ["onPing#{channel}"])
+        ping(channel: String!): Ping @pub(triggerNames: ["onPing#{channel}"])
     }
     type Message {
       message: String!

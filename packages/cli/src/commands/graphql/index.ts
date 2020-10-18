@@ -8,9 +8,18 @@ export const graphql = async ({ kraken }, { spinner, toolbox }) => {
   filesystem.remove(graphqlSchemaFile);
   filesystem.write(graphqlSchemaFile, ''); // touch
 
-  await patching.append(graphqlSchemaFile, `import { krakenJs } from '@kraken.js/core';\n`);
-  const modules = await graphqlModules({ kraken, graphqlSchemaFile }, { spinner, toolbox });
+  const { modulesStrings, importsStrings } = await graphqlModules({ kraken, graphqlSchemaFile }, { spinner });
+  if (modulesStrings.some(m => m.includes('getStageConfig'))) {
+    await patching.append(graphqlSchemaFile, `import { krakenJs, getStageConfig } from '@kraken.js/core';\n`);
+  } else {
+    await patching.append(graphqlSchemaFile, `import { krakenJs } from '@kraken.js/core';\n`);
+  }
+  await patching.append(graphqlSchemaFile, importsStrings.join('\n'));
+  await patching.append(graphqlSchemaFile, `\n\n`);
+  await patching.append(graphqlSchemaFile, `export const krakenSchema = krakenJs([\n\t`);
+  await patching.append(graphqlSchemaFile, modulesStrings.join(',\n\t'));
   await patching.append(graphqlSchemaFile, `\n`);
-  await patching.append(graphqlSchemaFile, `export const krakenSchema = krakenJs([\n\t${modules.join(',\n\t')}\n]);\n`);
-  spinner.stopAndPersist({ symbol: '✅', text: 'finished loading graphql modules' });
+  await patching.append(graphqlSchemaFile, `]);`);
+  await patching.append(graphqlSchemaFile, `\n`);
+  spinner.stopAndPersist({ symbol: '✅', text: 'schema file is ready' });
 };
