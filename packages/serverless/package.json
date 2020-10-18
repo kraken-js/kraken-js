@@ -22,6 +22,7 @@
   "devDependencies": {
     "@kraken.js/jest": "0.0.5",
     "@types/serverless": "^1.72.6",
+    "dotenv": "^8.2.0",
     "jest": "^26.4.2"
   },
   "dependencies": {

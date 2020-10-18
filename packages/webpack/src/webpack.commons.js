@@ -1,4 +1,5 @@
 const path = require('path');
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const isProduction = process.env.ENV === 'production';
 
 module.exports = (dirname, entry) => ({

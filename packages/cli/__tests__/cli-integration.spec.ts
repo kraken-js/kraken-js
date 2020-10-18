@@ -27,12 +27,14 @@ describe('kraken.js', () => {
       state.cwd = process.cwd();
       await cli(`new --name ${projectName} --version 1.0.0`).then(() => {
         process.chdir(projectName);
+        filesystem.writeAsync('.env', 'ROOT_DOT_ENV=1');
+        filesystem.writeAsync('.env.offline', 'OFFLINE_DOT_ENV=1');
       });
     }, timeout);
 
     afterAll(() => {
       process.chdir(state.cwd);
-      filesystem.remove(projectName);
+      // filesystem.remove(projectName);
     });
 
     test('serverless print --stage offline', async () => {

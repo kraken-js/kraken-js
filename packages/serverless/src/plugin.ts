@@ -1,9 +1,10 @@
 'use strict';
 import { cosmiconfigSync } from 'cosmiconfig';
+import dotEnv from 'dotenv';
+import moduleResolver from 'ncjsm/resolve/sync';
 import path from 'path';
 import Serverless from 'serverless';
 import Plugin from 'serverless/classes/Plugin';
-import moduleResolver from 'ncjsm/resolve/sync';
 
 const generatedPath = '.kraken';
 
@@ -29,18 +30,40 @@ export default class KrakenJs implements Plugin {
 
   loadServerlessModules() {
     const selfCustomEnvironment = this.serverless.service.custom?.environment;
-
     this.loadModules(this.getKrakenConfig());
     (this.serverless.service as any).plugins.push(...this.plugins.values());
+    this.resolveEnvironmentVariables(selfCustomEnvironment);
+  }
 
+  private resolveEnvironmentVariables(selfCustomEnvironment) {
     const stage = (this.config as any).stage || (this.config as any).s || 'dev';
+    const verbose = (this.config as any).verbose;
+
+    const rootDotEnv = path.join(this.serverless.config.servicePath, '.env');
+    const stageDotEnv = path.join(this.serverless.config.servicePath, '.env.' + stage);
+    const { parsed: parsedRootDotEnv } = dotEnv.config({ path: rootDotEnv });
+    const { parsed: parsedStageDotEnv } = dotEnv.config({ path: stageDotEnv });
+
+
     const environment = {
+      // provider fixed values
       ...(this.serverless.service.provider as any).environment,
+
+      // default environment
       ...selfCustomEnvironment?.default,
-      ...selfCustomEnvironment?.[stage],
       ...this.serverless.service.custom.environment?.default,
-      ...this.serverless.service.custom.environment?.[stage]
+      ...parsedRootDotEnv,
+
+      // stage environment
+      ...selfCustomEnvironment?.[stage],
+      ...this.serverless.service.custom.environment?.[stage],
+      ...parsedStageDotEnv
     };
+
+    if (verbose) {
+      this.serverless.cli.log('Setting environment variables:');
+      this.serverless.cli.log(Object.entries(environment).map(e => [e[0], e[1]].join('=')).join('\n'));
+    }
 
     delete this.serverless.service.custom.environment;
     this.serverless.service.update({ provider: { environment } });
