@@ -12,8 +12,7 @@
     "prepackage": "npx rimraf dist",
     "package": "webpack-cli",
     "emit-declarations-only": "tsc --emitDeclarationOnly",
-    "prepublishOnly": "yarn package && yarn emit-declarations-only && yarn check-size-limit",
-    "check-size-limit": "size-limit"
+    "prepublishOnly": "yarn package && yarn emit-declarations-only"
   },
   "files": [
     "dist",
@@ -26,9 +25,7 @@
   "devDependencies": {
     "@kraken.js/jest": "0.0.5",
     "@kraken.js/webpack": "0.0.5",
-    "@size-limit/preset-small-lib": "^4.6.0",
-    "jest": "^26.4.2",
-    "size-limit": "^4.6.0"
+    "jest": "^26.4.2"
   },
   "peerDependencies": {
     "graphql": "^15.0.0"
@@ -38,6 +35,7 @@
       "gzip": false,
       "limit": "350 KB",
       "ignore": [
+        "@kraken.js/core",
         "aws-sdk"
       ]
     }
