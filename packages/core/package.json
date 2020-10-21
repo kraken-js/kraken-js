@@ -21,7 +21,7 @@
     "package.json",
     "README.md",
     "LICENSE",
-    "src/schema.graphql"
+    "*.graphql"
   ],
   "dependencies": {
     "@graphql-tools/merge": "^6.2.3",
@@ -40,10 +40,7 @@
   "size-limit": [
     {
       "gzip": false,
-      "limit": "350 KB",
-      "ignore": [
-        "graphql"
-      ]
+      "limit": "256 KB"
     }
   ]
 }

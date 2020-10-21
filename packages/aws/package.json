@@ -47,6 +47,7 @@
       "gzip": false,
       "limit": "350 KB",
       "ignore": [
+        "@kraken.js/core",
         "aws-sdk"
       ]
     }
