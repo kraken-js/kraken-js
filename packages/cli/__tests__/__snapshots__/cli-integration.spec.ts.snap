@@ -6,9 +6,8 @@ configValidationMode: 'off'
 provider:
   name: aws
 plugins:
-  - serverless-pseudo-parameters
   - serverless-webpack
-  - serverless-pseudo-parameters
+  - serverless-webpack
 custom:
   kraken:
     - '@kraken.js/essentials'
