@@ -54,7 +54,7 @@ export interface ExecutionArgs {
   connectionInfo?: Kraken.ConnectionInfo,
   operationId: string,
   rootValue?: any;
-  contextValue?: Kraken.Context;
+  contextValue?: Partial<Kraken.Context>;
   document: DocumentNode | string;
   variableValues?: Maybe<{ [key: string]: any }>;
   operationName?: Maybe<string>;

@@ -9,6 +9,7 @@
   "scripts": {
     "pretest": "npx rimraf dist",
     "test": "jest --passWithNoTests --runInBand",
+    "posttest": "yarn emit-declarations-only",
     "prepackage": "npx rimraf dist",
     "package": "webpack-cli",
     "emit-declarations-only": "tsc --emitDeclarationOnly",

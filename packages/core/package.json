@@ -12,6 +12,7 @@
     "package": "webpack-cli",
     "pretest": "npx rimraf dist",
     "test": "jest",
+    "posttest": "yarn emit-declarations-only",
     "emit-declarations-only": "tsc --emitDeclarationOnly",
     "prepublishOnly": "yarn package && yarn emit-declarations-only"
   },

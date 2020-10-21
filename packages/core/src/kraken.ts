@@ -1,6 +1,7 @@
 import { mergeResolvers, mergeTypeDefs } from '@graphql-tools/merge';
 import { buildDocumentFromTypeDefinitions, makeExecutableSchema } from '@graphql-tools/schema';
 import { execute, OperationDefinitionNode, parse } from 'graphql';
+import { PromiseOrValue } from 'graphql/jsutils/PromiseOrValue';
 import { GQL_COMPLETE, GQL_CONNECTION_ACK, GQL_DATA } from './constants';
 import { PublishDirective } from './directives/publish-directive';
 import { SubscribeDirective } from './directives/subscribe-directive';
@@ -46,7 +47,7 @@ const executionContextBuilder = ($plugins: Kraken.Context) => {
         });
       }
     });
-    (ctx as unknown as Kraken.Context).serialize = () => {
+    (ctx as any).serialize = () => {
       return Object.entries(ctx).reduce((result, [key, value]) => {
         if (typeof value === 'function') return result;
         result[key] = value;
@@ -65,7 +66,7 @@ const getResolvers = (schemaDefinition: KrakenSchema) => {
 };
 
 const buildSchemaAndHooks = (configs: KrakenSchema[], pluginInjector: Injector) => {
-  const onConnect: ((context) => Partial<Kraken.Context>)[] = [];
+  const onConnect: ((context) => PromiseOrValue<Partial<Kraken.Context>>)[] = [];
   const onBeforeExecute: ((context, document) => void)[] = [];
   const onAfterExecute: ((context, response) => void)[] = [];
 
