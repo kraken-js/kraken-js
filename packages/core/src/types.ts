@@ -60,22 +60,6 @@ export interface ExecutionArgs {
   operationName?: Maybe<string>;
 }
 
-export interface KrakenRuntime extends Kraken.Plugins {
-  schema: GraphQLSchema;
-
-  gqlExecute(args: ExecutionArgs): PromiseOrValue<ExecutionResult>;
-
-  onGqlInit(connection: Kraken.ConnectionInfo, operation: Omit<GqlOperation<Kraken.InitParams>, 'id'>): PromiseOrValue<Kraken.Context>;
-
-  onGqlStart(connection: Kraken.ConnectionInfo, operation: GqlOperation): PromiseOrValue<void>
-
-  onGqlStop(connection: Kraken.ConnectionInfo, operation: Omit<GqlOperation, 'payload'>): PromiseOrValue<void>
-
-  onGqlConnectionTerminate(connection: Kraken.ConnectionInfo): PromiseOrValue<void>
-
-  onConnectionInit(operation: Omit<GqlOperation<Kraken.InitParams>, 'id'>): Promise<{ $context: Kraken.Context, contextValue: any }>
-}
-
 export interface GqlOperationPayload {
   query: string
   variables?: Record<string, any>
@@ -98,10 +82,6 @@ declare global {
     type PublishingStrategy = 'AS_IS' | 'GRAPHQL' | 'BROADCASTER';
 
     interface Context {
-      [key: string]: any
-    }
-
-    interface Plugins {
       $connections: ConnectionStore
       $subscriptions: SubscriptionStore
       $pubsub: PubSub
@@ -114,7 +94,7 @@ declare global {
       connectionId: string
     }
 
-    type ExecutionContext = Plugins & Context & {
+    type ExecutionContext = Context & {
       connectionInfo?: ConnectionInfo
       operation?: {
         id: string
@@ -126,6 +106,7 @@ declare global {
       serialize(): Context
       gqlExecute(args: ExecutionArgs): Promise<ExecutionResult>;
     }
+
 
     interface Connection extends ConnectionInfo {
       context: Context
@@ -141,6 +122,22 @@ declare global {
       variableValues?: any
 
       [key: string]: any
+    }
+
+    interface Runtime extends Kraken.Context {
+      schema: GraphQLSchema;
+
+      gqlExecute(args: ExecutionArgs): PromiseOrValue<ExecutionResult>;
+
+      onGqlInit(connection: Kraken.ConnectionInfo, operation: Omit<GqlOperation<Kraken.InitParams>, 'id'>): PromiseOrValue<Kraken.Context>;
+
+      onGqlStart(connection: Kraken.ConnectionInfo, operation: GqlOperation): PromiseOrValue<void>
+
+      onGqlStop(connection: Kraken.ConnectionInfo, operation: Omit<GqlOperation, 'payload'>): PromiseOrValue<void>
+
+      onGqlConnectionTerminate(connection: Kraken.ConnectionInfo): PromiseOrValue<void>
+
+      onConnectionInit(operation: Omit<GqlOperation<Kraken.InitParams>, 'id'>): Promise<{ $context: Kraken.Context, contextValue: any }>
     }
   }
 }

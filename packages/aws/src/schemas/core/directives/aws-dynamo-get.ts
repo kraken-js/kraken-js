@@ -20,9 +20,14 @@ export class AwsDynamoGetDirective extends SchemaDirectiveVisitor {
     const { tableName } = getTargetModelInfo(field);
     const sourceMapping = this.args.sourceMapping;
 
-    field.resolve = async (source, args, $context: Kraken.Plugins) => {
+    field.resolve = async (source, args, $context: Kraken.Context) => {
       const { input, ...spread } = args;
-      const key = Object.assign({}, input, spread, getMapping(source, sourceMapping));
+      const mapping = getMapping(source, sourceMapping);
+      const key = {
+        ...input,
+        ...spread,
+        ...mapping
+      };
 
       return await $context.$dynamoDbDataLoader.load({
         TableName: tableName,

@@ -9,7 +9,7 @@ export class EventBridgeEventDirective extends SchemaDirectiveVisitor {
       type: eventType = field.name
     } = this.args;
 
-    field.resolve = async (source, args, $context: Kraken.Plugins, info) => {
+    field.resolve = async (source, args, $context: Kraken.Context, info) => {
       const response = await resolve.apply(this, [source, args, $context, info]);
       await $context.$events.source(eventSource).type(eventType).event(response).send().then(res => {
         if (res.FailedEntryCount) console.error('Error sending event:', res);

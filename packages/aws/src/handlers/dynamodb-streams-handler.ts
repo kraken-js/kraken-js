@@ -1,4 +1,3 @@
-import { KrakenRuntime } from '@kraken.js/core';
 import { DynamoDBRecord, DynamoDBStreamEvent } from 'aws-lambda';
 import { DynamoDB } from 'aws-sdk';
 
@@ -13,7 +12,7 @@ interface DynamodbStreamsOptions {
   typeName?: string;
 }
 
-export const dynamodbStreamsHandler = (kraken: KrakenRuntime, options: DynamodbStreamsOptions) => {
+export const dynamodbStreamsHandler = (kraken: Kraken.Runtime, options: DynamodbStreamsOptions) => {
   return async (event: DynamoDBStreamEvent) => {
     for (const record of event.Records) {
       const item = getItem(record);

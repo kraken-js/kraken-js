@@ -33,6 +33,28 @@ module.exports = {
     },
 
     {
+      TableName: 'Message-test-stage',
+      BillingMode: 'PAY_PER_REQUEST',
+      AttributeDefinitions: [
+        { AttributeName: 'channel', AttributeType: 'S' },
+        { AttributeName: 'sentBy', AttributeType: 'S' },
+        { AttributeName: 'timestamp', AttributeType: 'S' }
+      ],
+      KeySchema: [
+        { AttributeName: 'channel', KeyType: 'HASH' },
+        { AttributeName: 'timestamp', KeyType: 'RANGE' }
+      ],
+      GlobalSecondaryIndexes: [{
+        IndexName: 'bySentBy',
+        KeySchema: [
+          { AttributeName: 'sentBy', KeyType: 'HASH' },
+          { AttributeName: 'timestamp', KeyType: 'RANGE' }
+        ],
+        Projection: { ProjectionType: 'ALL' }
+      }]
+    },
+
+    {
       TableName: 'ExistingTable',
       BillingMode: 'PAY_PER_REQUEST',
       AttributeDefinitions: [

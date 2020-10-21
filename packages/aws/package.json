@@ -18,15 +18,14 @@
   "files": [
     "dist",
     "package.json",
-    "tsconfig.json",
     "README.md",
     "LICENSE",
-    "src/schemas/core/schema.graphql",
-    "src/schemas/events/schema.graphql"
+    "*.graphql"
   ],
   "dependencies": {
     "@kraken.js/core": "0.0.5",
     "dataloader": "^2.0.0",
+    "dynongo": "^0.16.1",
     "graphql-playground-middleware-lambda": "^1.7.22",
     "yn": "^4.0.0"
   },

@@ -3,8 +3,7 @@ import {
   GQL_CONNECTION_INIT,
   GQL_CONNECTION_TERMINATE,
   GQL_START,
-  GQL_STOP,
-  KrakenRuntime
+  GQL_STOP
 } from '@kraken.js/core';
 import { APIGatewayProxyEvent, APIGatewayProxyHandler } from 'aws-lambda';
 
@@ -29,7 +28,7 @@ const onWsConnect = <C>(event: APIGatewayProxyEvent) => {
     : { ...okResponse };
 };
 
-const safeParseEvent = async (event: APIGatewayProxyEvent, kraken: KrakenRuntime, connectionInfo) => {
+const safeParseEvent = async (event: APIGatewayProxyEvent, kraken: Kraken.Runtime, connectionInfo) => {
   try {
     return JSON.parse(event.body as string);
   } catch (e) {
@@ -42,7 +41,7 @@ const safeParseEvent = async (event: APIGatewayProxyEvent, kraken: KrakenRuntime
   }
 };
 
-export const wsHandler = <T = any>(kraken: KrakenRuntime): APIGatewayProxyHandler => {
+export const wsHandler = <T = any>(kraken: Kraken.Runtime): APIGatewayProxyHandler => {
   return async (event: APIGatewayProxyEvent) => {
     if (!event.requestContext) return okResponse; // warm up or something else
 

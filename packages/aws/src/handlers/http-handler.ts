@@ -1,9 +1,9 @@
-import { GQL_CONNECTION_INIT, KrakenRuntime } from '@kraken.js/core';
+import { GQL_CONNECTION_INIT } from '@kraken.js/core';
 import { APIGatewayProxyEvent, APIGatewayProxyHandler } from 'aws-lambda';
 import { parse } from 'graphql';
 import lambdaPlayground from 'graphql-playground-middleware-lambda';
 
-export const httpHandler = <T = any>(kraken: KrakenRuntime): APIGatewayProxyHandler => {
+export const httpHandler = <T = any>(kraken: Kraken.Runtime): APIGatewayProxyHandler => {
   return async (event: APIGatewayProxyEvent, context?, callback?) => {
     if (event.httpMethod === 'OPTIONS') {
       return { statusCode: 200, body: '', headers: { 'Cache-Control': 'max-age=31536000' } };
