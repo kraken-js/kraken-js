@@ -3,11 +3,16 @@ const stage = process.env.STAGE;
 
 export const getStageConfig = <T>(config?: T | Record<string, T>): T => {
   if (config) {
-    if (config[stage]) {
-      return config[stage] as T;
+    const defaultConfig = config[defaultKey];
+    const stageConfig = config[stage];
+    if (stageConfig) {
+      return {
+        ...defaultConfig,
+        ...stageConfig
+      };
     }
-    if (config[defaultKey]) {
-      return config[defaultKey] as T;
+    if (defaultConfig) {
+      return defaultConfig;
     }
     return config as T;
   }

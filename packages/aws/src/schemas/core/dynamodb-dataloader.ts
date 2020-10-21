@@ -25,7 +25,7 @@ const groupBy = <T>(array: ReadonlyArray<T>, property: keyof T): Record<keyof T,
   }, {} as Record<keyof T, T[]>);
 };
 
-const batchLoadFn = (plugins: Kraken.Plugins): DataLoader.BatchLoadFn<GetRequest, DocumentClient.AttributeMap> =>
+const batchLoadFn = (plugins: Kraken.Context): DataLoader.BatchLoadFn<GetRequest, DocumentClient.AttributeMap> =>
   async (getRequests) => {
     const byTableName = groupBy(getRequests, 'TableName');
     const requestItems = Object.keys(byTableName).reduce((req, tableName) => {
@@ -63,6 +63,6 @@ const batchLoadFn = (plugins: Kraken.Plugins): DataLoader.BatchLoadFn<GetRequest
     });
   };
 
-export const dynamoDbDataLoader = (plugins: Kraken.Plugins) => {
+export const dynamoDbDataLoader = (plugins: Kraken.Context) => {
   return new DataLoader<GetRequest, any>(batchLoadFn(plugins), { maxBatchSize });
 };

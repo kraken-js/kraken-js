@@ -1,12 +1,5 @@
-import {
-  ApiGatewayManagementApi,
-  CognitoIdentityServiceProvider,
-  DynamoDB,
-  EventBridge,
-  Lambda,
-  SNS,
-  SQS
-} from 'aws-sdk';
+import AWS from 'aws-sdk';
+import { DynamoDB } from 'dynongo';
 import { DynamodbDataloader } from './src/schemas/core/dynamodb-dataloader';
 import { EventBridgeEmitter } from './src/schemas/events/event-bridge-emitter';
 
@@ -27,15 +20,16 @@ export * from './src/schemas/events';
 
 declare global {
   namespace Kraken {
-    interface Plugins {
-      $lambda: Lambda
-      $dynamoDb: DynamoDB.DocumentClient
-      $apiGateway: { get: (endpoint: string) => ApiGatewayManagementApi }
-      $sqs: SQS
-      $sns: SNS
+    interface Context {
+      $lambda: AWS.Lambda
+      $dynamoDb: AWS.DynamoDB.DocumentClient
+      $dynongo: DynamoDB
+      $apiGateway: { get: (endpoint: string) => AWS.ApiGatewayManagementApi }
+      $sqs: AWS.SQS
+      $sns: AWS.SNS
       $dynamoDbDataLoader: DynamodbDataloader
-      $cognito: CognitoIdentityServiceProvider
-      $eventBridge: EventBridge,
+      $cognito: AWS.CognitoIdentityServiceProvider
+      $eventBridge: AWS.EventBridge,
       $events: EventBridgeEmitter
     }
 

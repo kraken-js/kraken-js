@@ -7,7 +7,7 @@ import { SubscribeDirective } from './directives/subscribe-directive';
 import { krakenPubSub } from './pubsub';
 // @ts-ignore
 import * as krakenTypesDefs from './schema.graphql';
-import { ExecutionArgs, GqlOperation, Injector, KrakenRuntime, KrakenSchema } from './types';
+import { ExecutionArgs, GqlOperation, Injector, KrakenSchema } from './types';
 
 type Config = KrakenSchema | KrakenSchema[]
 
@@ -31,7 +31,7 @@ const rootSchema: KrakenSchema = {
   }
 };
 
-const executionContextBuilder = ($plugins: Kraken.Plugins) => {
+const executionContextBuilder = ($plugins: Kraken.Context) => {
   return <T>(ctx: T): T & Kraken.ExecutionContext => {
     Object.getOwnPropertyNames($plugins).forEach(plugin => {
       const $ = { [plugin]: $plugins[plugin] };
@@ -46,7 +46,7 @@ const executionContextBuilder = ($plugins: Kraken.Plugins) => {
         });
       }
     });
-    (ctx as unknown as Kraken.ExecutionContext).serialize = () => {
+    (ctx as unknown as Kraken.Context).serialize = () => {
       return Object.entries(ctx).reduce((result, [key, value]) => {
         if (typeof value === 'function') return result;
         result[key] = value;
@@ -65,7 +65,7 @@ const getResolvers = (schemaDefinition: KrakenSchema) => {
 };
 
 const buildSchemaAndHooks = (configs: KrakenSchema[], pluginInjector: Injector) => {
-  const onConnect: ((context) => Kraken.Context)[] = [];
+  const onConnect: ((context) => Partial<Kraken.Context>)[] = [];
   const onBeforeExecute: ((context, document) => void)[] = [];
   const onAfterExecute: ((context, response) => void)[] = [];
 
@@ -107,10 +107,10 @@ const buildSchemaAndHooks = (configs: KrakenSchema[], pluginInjector: Injector) 
   return { onConnect, onBeforeExecute, onAfterExecute, executableSchema };
 };
 
-export const krakenJs = <T>(config: Config): KrakenRuntime => {
+export const krakenJs = <T>(config: Config): Kraken.Runtime => {
   const configs = Array.isArray(config) ? config : [config];
 
-  const $plugins = {} as Kraken.Plugins;
+  const $plugins = {} as Kraken.Context;
   const pluginInjector = (name, value) => $plugins['$' + name] = value;
 
   const { onConnect, onBeforeExecute, onAfterExecute, executableSchema } = buildSchemaAndHooks(configs, pluginInjector);
@@ -119,7 +119,7 @@ export const krakenJs = <T>(config: Config): KrakenRuntime => {
 
   const onConnectionInit = async (operation: Pick<GqlOperation<Kraken.InitParams>, 'payload'>) => {
     const $context = makeExecutionContext({ connectionParams: operation.payload });
-    const contextValue = {};
+    const contextValue = {} as Kraken.Context;
     for (const fn of onConnect) {
       if (fn) {
         const out = await fn($context);
@@ -236,5 +236,5 @@ export const krakenJs = <T>(config: Config): KrakenRuntime => {
     onGqlStop,
     onGqlConnectionTerminate,
     onConnectionInit
-  }) as KrakenRuntime;
+  }) as Kraken.Runtime;
 };

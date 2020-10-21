@@ -12,33 +12,31 @@
     "prepackage": "npx rimraf dist",
     "package": "webpack-cli",
     "emit-declarations-only": "tsc --emitDeclarationOnly",
-    "prepublishOnly": "yarn package && yarn emit-declarations-only && yarn check-size-limit",
-    "check-size-limit": "size-limit"
+    "prepublishOnly": "yarn package && yarn emit-declarations-only"
   },
   "files": [
     "dist",
     "package.json",
-    "tsconfig.json",
     "README.md",
     "LICENSE",
-    "src/schemas/core/schema.graphql",
-    "src/schemas/events/schema.graphql"
+    "*.graphql"
   ],
   "dependencies": {
     "@kraken.js/core": "0.0.5",
+    "aws-lambda": "^1.0.6",
     "dataloader": "^2.0.0",
+    "dynongo": "^0.16.1",
     "graphql-playground-middleware-lambda": "^1.7.22",
+    "nanoid": "^3.1.12",
     "yn": "^4.0.0"
   },
   "devDependencies": {
     "@kraken.js/jest": "0.0.5",
     "@kraken.js/webpack": "0.0.5",
-    "@size-limit/preset-small-lib": "^4.6.0",
     "@types/aws-lambda": "^8.10.62",
     "aws-sdk": "^2.758.0",
     "jest": "^26.4.2",
-    "jest-dynalite": "^3.0.0",
-    "size-limit": "^4.6.0"
+    "jest-dynalite": "^3.0.0"
   },
   "peerDependencies": {
     "graphql": "^15.0.0"
@@ -48,6 +46,7 @@
       "gzip": false,
       "limit": "350 KB",
       "ignore": [
+        "@kraken.js/core",
         "aws-sdk"
       ]
     }

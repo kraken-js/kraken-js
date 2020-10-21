@@ -7,8 +7,31 @@ import {
   valueFromASTUntyped
 } from 'graphql';
 
-const stage = process.env.STAGE as string;
 type GetDirectiveFrom = GraphQLObjectType | GraphQLField<any, any>;
+
+const stage = process.env.STAGE as string;
+const operators = [
+  'or',
+  'and',
+  'eq',
+  'lt',
+  'lte',
+  'gt',
+  'gte',
+  'not',
+  'in',
+  'nin',
+  'contains',
+  'exists',
+  'beginsWith',
+  'between',
+  'set',
+  'unset',
+  'inc',
+  'push',
+  'unshift',
+  'each'
+];
 
 export const isChainedDirective = (field, directive) => {
   return field.astNode.directives.findIndex(d => d.name.value === directive.name) > 0;
@@ -21,18 +44,28 @@ export const getTargetModelInfo = field => {
   // not a model, maybe it's a connection type => { nodes: [Model] }
   if (!model) {
     const nodes = type.getFields().nodes;
-    if (nodes) return getTargetModelInfo(nodes);
+    if (nodes) {
+      const response = getTargetModelInfo(nodes);
+      return { ...response, hasNodes: true };
+    }
   }
 
   const defaultTableName = [type.name, stage].join('-');
   const {
     table = defaultTableName,
-    timestamps = true
+    timestamp = true,
+    versioned = false,
+    partitionKey = 'id',
+    sortKey
   } = getDirectiveArguments(model);
 
   return {
     tableName: table.replace('{stage}', stage),
-    timestamps
+    hasNodes: false,
+    timestamp,
+    versioned,
+    partitionKey,
+    sortKey
   };
 };
 
@@ -60,3 +93,44 @@ export const getMapping = (source: any, fields?: string[], mapper = (source, fro
     return values;
   }, {});
 };
+
+export const prefixOperatorsWith$ = (object = {}): any => {
+  if (object === null || object === undefined) {
+    return object;
+  }
+  if (Array.isArray(object)) {
+    const result: any[] = [];
+    for (const each of object) {
+      result.push(typeof each === 'object' ? prefixOperatorsWith$(each) : each);
+    }
+    return result;
+  }
+
+  const result = {};
+  for (const key in object) {
+    if (Object.prototype.hasOwnProperty.call(object, key)) {
+      const value = object[key];
+      if (operators.includes(key)) {
+        result['$' + key] = typeof value === 'object' ? prefixOperatorsWith$(value) : value;
+      } else if (typeof value === 'object') {
+        result[key] = prefixOperatorsWith$(value);
+      } else {
+        result[key] = value;
+      }
+    }
+  }
+  return result;
+};
+
+export const toBase64 = object => {
+  if (!object) return undefined;
+  const b = new Buffer(JSON.stringify(object));
+  return b.toString('base64');
+};
+
+export const fromBase64 = (string, parse = true) => {
+  if (!string) return undefined;
+  const s = new Buffer(string, 'base64').toString();
+  return parse ? JSON.parse(s) : s;
+};
+

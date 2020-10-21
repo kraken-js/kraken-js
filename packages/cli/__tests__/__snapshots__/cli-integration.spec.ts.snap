@@ -7,12 +7,8 @@ provider:
   name: aws
 plugins:
   - serverless-pseudo-parameters
-  - serverless-dynamodb-local
-  - serverless-offline
   - serverless-webpack
   - serverless-pseudo-parameters
-  - serverless-dynamodb-local
-  - serverless-offline
 custom:
   kraken:
     - '@kraken.js/essentials'
@@ -40,20 +36,6 @@ custom:
       - Content-Type
       - Authorization
       - Range
-  serverless-offline:
-    noPrependStageInUrl: true
-    httpPort: 4000
-    websocketPort: 4001
-    lambdaPort: 4002
-    useChildProcesses: true
-  dynamodb:
-    stages:
-      - offline
-    start:
-      port: 5002
-      inMemory: false
-      migrate: true
-      seed: true
   tables:
     subscriptions: WsSubscriptions-offline
 functions:

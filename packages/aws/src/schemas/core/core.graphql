@@ -8,30 +8,28 @@ directive @lambda(
 
 directive @model(
     table: String
-    timestamps: Boolean
+    partitionKey: String = "id"
+    sortKey: String
+    timestamp: Boolean
+    versioned: Boolean
 ) on OBJECT
 
 directive @get(
     sourceMapping: [String]
 ) on FIELD_DEFINITION
 
-## to be implemented
-
-directive @aws_dynamo_query(
+directive @query(
     index: String
     sourceMapping: [String]
     scanIndexForward: Boolean
 ) on FIELD_DEFINITION
 
-directive @aws_dynamo_scan(
-    index: String
-    sourceMapping: [String]
-) on FIELD_DEFINITION
-
-directive @aws_dynamo_put(
+directive @put(
     sourceMapping: [String]
     conditional: [String]
 ) on FIELD_DEFINITION
+
+## to be implemented
 
 directive @aws_dynamo_update(
     keys: [String]
@@ -43,86 +41,51 @@ directive @aws_dynamo_delete(
 ) on FIELD_DEFINITION
 
 input StringFilterInput {
-    ne: String
     eq: String
-    le: String
     lt: String
-    ge: String
+    lte: String
     gt: String
+    gte: String
     in: [String]
+    nin: [String]
     contains: String
-    notContains: String
     between: [String]
     beginsWith: String
-}
-
-input IDFilterInput {
-    ne: ID
-    eq: ID
-    le: ID
-    lt: ID
-    ge: ID
-    gt: ID
-    in: [ID]
-    contains: ID
-    notContains: ID
-    between: [ID]
-    beginsWith: ID
+    exists: Boolean
+    not: StringFilterInput
 }
 
 input IntFilterInput {
-    ne: Int
     eq: Int
-    le: Int
     lt: Int
-    ge: Int
+    lte: Int
     gt: Int
+    gte: Int
     in: [Int]
+    nin: [Int]
     contains: Int
-    notContains: Int
     between: [Int]
+    exists: Boolean
+    not: IntFilterInput
 }
 
 input FloatFilterInput {
-    ne: Float
     eq: Float
-    le: Float
     lt: Float
-    ge: Float
+    lte: Float
     gt: Float
+    gte: Float
     in: [Float]
+    nin: [Float]
     contains: Float
-    notContains: Float
     between: [Float]
+    exists: Boolean
+    not: FloatFilterInput
 }
 
 input BooleanFilterInput {
-    ne: Boolean
     eq: Boolean
+    not: BooleanFilterInput
 }
 
-input UpdateStringInput {
-    set: String
-    remove: Boolean
-    add: String
-    delete: String
-}
-
-input UpdateIntInput {
-    set: Int
-    remove: Boolean
-    add: Int
-    delete: Int
-}
-
-input UpdateFloatInput {
-    set: Float
-    remove: Boolean
-    add: Float
-    delete: Float
-}
-
-input UpdateBooleanInput {
-    set: Boolean
-    remove: Boolean
-}
+enum Sort { ASC DESC }
