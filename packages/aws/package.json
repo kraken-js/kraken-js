@@ -13,29 +13,31 @@
     "prepackage": "npx rimraf dist",
     "package": "webpack-cli",
     "emit-declarations-only": "tsc --emitDeclarationOnly",
-    "prepublishOnly": "yarn package && yarn emit-declarations-only"
+    "copy-schemas": "npx copyfiles -f src/**/*.graphql dist",
+    "prepublishOnly": "yarn package && yarn emit-declarations-only && yarn copy-schemas"
   },
   "files": [
     "dist",
     "package.json",
     "README.md",
     "LICENSE",
-    "*.graphql"
+    "*.graphql",
+    "*.yml"
   ],
   "dependencies": {
     "@kraken.js/core": "0.0.5",
     "aws-lambda": "^1.0.6",
+    "aws-sdk": "^2.777.0",
     "dataloader": "^2.0.0",
     "dynongo": "^0.16.1",
     "graphql-playground-middleware-lambda": "^1.7.22",
-    "nanoid": "^3.1.12",
+    "nanoid": "^3.1.13",
     "yn": "^4.0.0"
   },
   "devDependencies": {
     "@kraken.js/jest": "0.0.5",
     "@kraken.js/webpack": "0.0.5",
     "@types/aws-lambda": "^8.10.62",
-    "aws-sdk": "^2.758.0",
     "jest": "^26.4.2",
     "jest-dynalite": "^3.0.0"
   },
