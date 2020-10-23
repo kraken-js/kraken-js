@@ -42,7 +42,7 @@ const getResolvers = (schemaDefinition: KrakenSchema) => {
 
 const buildSchemaAndHooks = (configs: KrakenSchema[], pluginInjector: Injector) => {
   const onConnect: ((context) => PromiseOrValue<Partial<Kraken.Context>>)[] = [];
-  const onDisconnect: ((connection: Kraken.ConnectionInfo) => PromiseOrValue<any>)[] = [];
+  const onDisconnect: ((context, connection: Kraken.ConnectionInfo) => PromiseOrValue<any>)[] = [];
   const onBeforeExecute: ((context, document) => void)[] = [];
   const onAfterExecute: ((context, response) => void)[] = [];
 
@@ -201,7 +201,7 @@ export const krakenJs = <T>(config: Config): Kraken.Runtime => {
 
   const onGqlConnectionTerminate = async (connection: Kraken.ConnectionInfo) => {
     for (const fn of onDisconnect) {
-      if (fn) await fn(connection);
+      if (fn) await fn($root, connection);
     }
     await Promise.all([
       $root.$connections.delete(connection),

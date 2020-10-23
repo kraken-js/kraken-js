@@ -45,7 +45,7 @@ export interface KrakenSchema extends Partial<IExecutableSchemaDefinition<Kraken
 
   onConnect?(context: Partial<Kraken.Context>): PromiseOrValue<Partial<Kraken.Context>>;
 
-  onDisconnect?(connection: Kraken.ConnectionInfo): PromiseOrValue<any>;
+  onDisconnect?(context: Kraken.Context, connection: Kraken.ConnectionInfo): PromiseOrValue<any>;
 
   onBeforeExecute?(context: Kraken.Context, document: DocumentNode): PromiseOrValue<Partial<Kraken.Context>>;
 
