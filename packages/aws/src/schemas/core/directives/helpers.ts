@@ -10,7 +10,7 @@ import {
 type GetDirectiveFrom = GraphQLObjectType | GraphQLField<any, any>;
 
 const stage = process.env.STAGE as string;
-const operators = [
+const operators = new Set([
   'or',
   'and',
   'eq',
@@ -29,9 +29,10 @@ const operators = [
   'unset',
   'inc',
   'push',
+  'addToSet',
   'unshift',
   'each'
-];
+]);
 
 export const isChainedDirective = (field, directive) => {
   return field.astNode.directives.findIndex(d => d.name.value === directive.name) > 0;
@@ -110,7 +111,7 @@ export const prefixOperatorsWith$ = (object = {}): any => {
   for (const key in object) {
     if (Object.prototype.hasOwnProperty.call(object, key)) {
       const value = object[key];
-      if (operators.includes(key)) {
+      if (operators.has(key)) {
         result['$' + key] = typeof value === 'object' ? prefixOperatorsWith$(value) : value;
       } else if (typeof value === 'object') {
         result[key] = prefixOperatorsWith$(value);

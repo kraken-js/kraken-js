@@ -13,20 +13,23 @@ const mockSchema = {
 describe('DynamoDB Streams Handler', () => {
   it('should ', async () => {
     const kraken = krakenJs([mockSchema]);
-    await dynamodbStreamsHandler(kraken, { triggerName: 'onMessages#{channel}', typeName: 'Message' })({
+    await dynamodbStreamsHandler(kraken, {
+      triggerNames: ['onMessages#{channel}', 'onMessages#{sentBy}'],
+      typeName: 'Message'
+    })({
       Records: [
         {
           eventName: 'INSERT',
           dynamodb: {
             ApproximateCreationDateTime: 1000,
-            Keys: { channel: { S: 'general' }, message: { S: 'hello world' } }
+            Keys: { channel: { S: 'general' }, sentBy: { S: 'me' }, message: { S: 'hello world' } }
           }
         },
         {
           eventName: 'MODIFY',
           dynamodb: {
             ApproximateCreationDateTime: 1001,
-            NewImage: { channel: { S: 'general' }, message: { S: 'hello world (edited)' } }
+            NewImage: { channel: { S: 'general' }, sentBy: { S: 'me' }, message: { S: 'hello world (edited)' } }
           }
         },
         {
@@ -44,6 +47,15 @@ describe('DynamoDB Streams Handler', () => {
       __timestamp: 1000,
       __typename: 'Message',
       channel: 'general',
+      sentBy: 'me',
+      message: 'hello world'
+    });
+    expect(publishMock).toHaveBeenCalledWith('onMessages#{sentBy}', {
+      __created: true,
+      __timestamp: 1000,
+      __typename: 'Message',
+      channel: 'general',
+      sentBy: 'me',
       message: 'hello world'
     });
     expect(publishMock).toHaveBeenCalledWith('onMessages#{channel}', {
@@ -51,9 +63,24 @@ describe('DynamoDB Streams Handler', () => {
       __timestamp: 1001,
       __typename: 'Message',
       channel: 'general',
+      sentBy: 'me',
+      message: 'hello world (edited)'
+    });
+    expect(publishMock).toHaveBeenCalledWith('onMessages#{sentBy}', {
+      __updated: true,
+      __timestamp: 1001,
+      __typename: 'Message',
+      channel: 'general',
+      sentBy: 'me',
       message: 'hello world (edited)'
     });
     expect(publishMock).toHaveBeenCalledWith('onMessages#{channel}', {
+      __deleted: true,
+      __timestamp: 1002,
+      __typename: 'Message',
+      channel: 'random'
+    });
+    expect(publishMock).toHaveBeenCalledWith('onMessages#{sentBy}', {
       __deleted: true,
       __timestamp: 1002,
       __typename: 'Message',

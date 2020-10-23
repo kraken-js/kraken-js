@@ -8,7 +8,7 @@ const getItem = (record: DynamoDBRecord) => {
 };
 
 interface DynamodbStreamsOptions {
-  triggerName: string;
+  triggerNames: string[];
   typeName?: string;
 }
 
@@ -17,17 +17,19 @@ export const dynamodbStreamsHandler = (kraken: Kraken.Runtime, options: Dynamodb
     for (const record of event.Records) {
       const item = getItem(record);
 
-      await kraken.$pubsub.publish(options.triggerName, {
-        __typename: options.typeName,
-        __created: record.eventName === 'INSERT' ? true : undefined,
-        __updated: record.eventName === 'MODIFY' ? true : undefined,
-        __deleted: record.eventName === 'REMOVE' ? true : undefined,
-        __timestamp: record.dynamodb?.ApproximateCreationDateTime,
-        ...item
-      }).catch(error => {
-        // silent failure to avoid re-processing
-        console.error(error);
-      });
+      for (const triggerName of options.triggerNames) {
+        await kraken.$pubsub.publish(triggerName, {
+          __typename: options.typeName,
+          __created: record.eventName === 'INSERT' ? true : undefined,
+          __updated: record.eventName === 'MODIFY' ? true : undefined,
+          __deleted: record.eventName === 'REMOVE' ? true : undefined,
+          __timestamp: record.dynamodb?.ApproximateCreationDateTime,
+          ...item
+        }).catch(error => {
+          // silent failure to avoid re-processing
+          console.error(error);
+        });
+      }
     }
   };
 };
