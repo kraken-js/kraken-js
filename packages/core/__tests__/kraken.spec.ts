@@ -70,7 +70,7 @@ describe('Kraken', () => {
     const { gqlExecute, onGqlInit } = krakenJs({
       plugins: mockRootPlugins,
       typeDefs: gql('type Query { hello: String }'),
-      resolvers: { Query: { hello: (_, __, ctx) => 'hello world ' + ctx.operation.id } },
+      resolvers: { Query: { hello: (_, __, ctx: any) => 'hello world ' + ctx.operation.id } },
       onAfterExecute
     });
 
@@ -84,13 +84,26 @@ describe('Kraken', () => {
     expect(onAfterExecute).toHaveBeenCalledWith(expect.anything(), { 'data': { 'hello': 'hello world 3' } });
   });
 
+  it('should call onDisconnect on disconnect', async () => {
+    const onDisconnect = jest.fn();
+    const { onGqlInit, onGqlConnectionTerminate } = krakenJs({
+      plugins: mockRootPlugins,
+      typeDefs: gql('type Query { _: String }'),
+      onDisconnect
+    });
+
+    await onGqlInit({ connectionId }, gqlInitOperation);
+    await onGqlConnectionTerminate({ connectionId });
+    expect(onDisconnect).toHaveBeenCalledWith({ connectionId });
+  });
+
   it('should inject value to context and make it available during execution', async () => {
     const { gqlExecute, onGqlInit } = krakenJs({
       typeDefs: gql('type Query { hello: String }'),
-      resolvers: { Query: { hello: (_, __, context) => context.value } },
+      resolvers: { Query: { hello: (_, __, context: any) => context.value } },
       plugins: mockRootPlugins,
-      onConnect: () => {
-        return { value: 'hello from context' };
+      async onConnect() {
+        return { value: 'hello from context' } as any;
       }
     });
 
@@ -102,7 +115,7 @@ describe('Kraken', () => {
   it('should inject value to context as plugin and make it available during execution', async () => {
     const { gqlExecute, onGqlInit } = krakenJs([{
       typeDefs: gql('type Query { hello: String }'),
-      resolvers: { Query: { hello: (_, __, context) => context.$value } },
+      resolvers: { Query: { hello: (_, __, context: any) => context.$value } },
       plugins: inject => {
         mockRootPlugins(inject);
         inject('value', 'hello from plugins');
