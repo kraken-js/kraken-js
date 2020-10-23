@@ -2,7 +2,8 @@
 
 Real Serverless Graphql Experience with Realtime Powers! 
 
-![Continuous Integration](https://github.com/kraken-js/kraken-js/workflows/Continuous%20Integration/badge.svg)
+![continuous integration](https://github.com/kraken-js/kraken-js/workflows/Continuous%20Integration/badge.svg)
+![codecov](https://codecov.io/gh/kraken-js/kraken-js/branch/master/graph/badge.svg?token=LBLAGACODU)
 
 ## Instalation
 
