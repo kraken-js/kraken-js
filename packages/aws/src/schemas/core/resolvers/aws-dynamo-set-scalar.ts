@@ -1,5 +1,5 @@
+import DynamoDBSet from 'aws-sdk/lib/dynamodb/set';
 import { GraphQLScalarType } from 'graphql';
-import { DynamoDB } from 'aws-sdk';
 
 export const DynamoDbSet = new GraphQLScalarType({
   name: 'DynamoDbSet',
@@ -12,8 +12,7 @@ export const DynamoDbSet = new GraphQLScalarType({
     return null;
   },
   parseValue(value) {
-    if (!this.documentClient) this.documentClient = new DynamoDB.DocumentClient();
-    if (Array.isArray(value)) return this.documentClient.createSet(value);
+    if (Array.isArray(value)) return new DynamoDBSet(value);
     return value;
   }
 });

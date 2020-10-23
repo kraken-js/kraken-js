@@ -94,7 +94,7 @@ describe('Kraken', () => {
 
     await onGqlInit({ connectionId }, gqlInitOperation);
     await onGqlConnectionTerminate({ connectionId });
-    expect(onDisconnect).toHaveBeenCalledWith({ connectionId });
+    expect(onDisconnect).toHaveBeenCalledWith(expect.anything(), { connectionId });
   });
 
   it('should inject value to context and make it available during execution', async () => {
