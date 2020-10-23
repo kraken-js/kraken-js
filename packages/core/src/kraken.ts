@@ -3,11 +3,12 @@ import { buildDocumentFromTypeDefinitions, makeExecutableSchema } from '@graphql
 import { execute, OperationDefinitionNode, parse } from 'graphql';
 import { PromiseOrValue } from 'graphql/jsutils/PromiseOrValue';
 import { GQL_COMPLETE, GQL_CONNECTION_ACK, GQL_DATA } from './constants';
+import { executionContextBuilder } from './context';
+// @ts-ignore
+import * as krakenTypesDefs from './core.graphql';
 import { PublishDirective } from './directives/publish-directive';
 import { SubscribeDirective } from './directives/subscribe-directive';
 import { krakenPubSub } from './pubsub';
-// @ts-ignore
-import * as krakenTypesDefs from './schema.graphql';
 import { ExecutionArgs, GqlOperation, Injector, KrakenSchema } from './types';
 
 type Config = KrakenSchema | KrakenSchema[]
@@ -30,32 +31,6 @@ const rootSchema: KrakenSchema = {
   logger: {
     log: error => console.error(error)
   }
-};
-
-const executionContextBuilder = ($plugins: Kraken.Context) => {
-  return <T>(ctx: T): T & Kraken.ExecutionContext => {
-    Object.getOwnPropertyNames($plugins).forEach(plugin => {
-      const $ = { [plugin]: $plugins[plugin] };
-      if (ctx[plugin] === undefined) {
-        Object.defineProperty(ctx, plugin, {
-          get() {
-            if (typeof $[plugin] === 'function') {
-              $[plugin] = $[plugin](ctx);
-            }
-            return $[plugin];
-          }
-        });
-      }
-    });
-    (ctx as any).serialize = () => {
-      return Object.entries(ctx).reduce((result, [key, value]) => {
-        if (typeof value === 'function') return result;
-        result[key] = value;
-        return result;
-      }, {});
-    };
-    return ctx as T & Kraken.ExecutionContext;
-  };
 };
 
 const getResolvers = (schemaDefinition: KrakenSchema) => {

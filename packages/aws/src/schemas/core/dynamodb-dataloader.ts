@@ -63,6 +63,6 @@ const batchLoadFn = (plugins: Kraken.Context): DataLoader.BatchLoadFn<GetRequest
     });
   };
 
-export const dynamoDbDataLoader = (plugins: Kraken.Context) => {
+export const dynamoDbDataLoader = (plugins: Kraken.Context): DynamodbDataloader => {
   return new DataLoader<GetRequest, any>(batchLoadFn(plugins), { maxBatchSize });
 };
