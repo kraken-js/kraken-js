@@ -36,9 +36,11 @@ describe('Kraken Operations', () => {
         }
         type Mutation {
           sendMessage(channel: String, message: String): Message @pub(triggerNames: ["onMessage#{channel}"])
+          sendText(text: String): String @pub(triggerNames: ["onText"])
         }
         type Subscription {
           onMessage(channel: String): Message @sub(triggerName: "onMessage#{channel}")
+          onText: String @sub(triggerName: "onText")
         }
         type Message {
           channel: String
@@ -47,7 +49,8 @@ describe('Kraken Operations', () => {
         ],
         resolvers: {
           Mutation: {
-            sendMessage: (source, args) => args
+            sendMessage: (source, args) => args,
+            sendText: (source, args) => args.text
           }
         }
       },
@@ -92,6 +95,32 @@ describe('Kraken Operations', () => {
       id: '1',
       type: GQL_DATA,
       payload: { data: { onMessage } }
+    });
+  });
+
+  it('should not add __typename to raw fields', async () => {
+    const kraken = setup(asIsPubStrategy);
+    const connection = connectionInfo();
+
+    await kraken.onGqlInit(connection, {
+      type: 'connection_init',
+      payload: {}
+    });
+    await kraken.onGqlStart(connection, {
+      id: '1',
+      type: 'start',
+      payload: { query: 'subscription { onText }' }
+    });
+    await kraken.onGqlStart(connection, {
+      id: '2',
+      type: 'start',
+      payload: { query: 'mutation { sendText(text: "hello world") }' }
+    });
+
+    expect(kraken.$connections.send).toHaveBeenCalledWith(expect.objectContaining(connection), {
+      id: '1',
+      type: GQL_DATA,
+      payload: { data: { onText: 'hello world' } }
     });
   });
 

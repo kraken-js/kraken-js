@@ -48,3 +48,9 @@ jobs:
       - name: Unit Tests
         working-directory: ${{ matrix.package }}
         run: yarn test --colors --coverage
+
+      - name: Codecov
+        working-directory: ${{ matrix.package }}
+        run: bash <(curl -s https://codecov.io/bash) -cF ${{ matrix.package }}
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
