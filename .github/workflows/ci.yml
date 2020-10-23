@@ -49,6 +49,7 @@ jobs:
         working-directory: ${{ matrix.package }}
         run: yarn test --colors --coverage
 
-      - name: Codecov
-        working-directory: ${{ matrix.package }}
-        run: bash <(curl -s https://codecov.io/bash) -vcF ${{ matrix.package }}
+      - uses: codecov/codecov-action@v1
+        with:
+          flags: ${{ matrix.package }}
+          directory: ${{ matrix.package }}
