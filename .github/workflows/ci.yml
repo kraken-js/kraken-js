@@ -50,7 +50,7 @@ jobs:
         run: yarn test --colors --coverage
 
       - name: Codecov Flags
-        run: echo "##[set-output name=flags;]$($(echo ${PACKAGE} | sed 's/\//-/g'))"
+        run: echo "##[set-output name=flags;]$(echo ${PACKAGE} | sed 's/\//-/g')"
         id: flags
         env:
           PACKAGE: ${{ matrix.package }}
