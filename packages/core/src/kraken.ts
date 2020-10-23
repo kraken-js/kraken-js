@@ -42,6 +42,7 @@ const getResolvers = (schemaDefinition: KrakenSchema) => {
 
 const buildSchemaAndHooks = (configs: KrakenSchema[], pluginInjector: Injector) => {
   const onConnect: ((context) => PromiseOrValue<Partial<Kraken.Context>>)[] = [];
+  const onDisconnect: ((connection: Kraken.ConnectionInfo) => PromiseOrValue<any>)[] = [];
   const onBeforeExecute: ((context, document) => void)[] = [];
   const onAfterExecute: ((context, response) => void)[] = [];
 
@@ -49,6 +50,7 @@ const buildSchemaAndHooks = (configs: KrakenSchema[], pluginInjector: Injector) 
   const schemaDefinition = configs.reduce((result, each) => {
     if ('plugins' in each) each.plugins(pluginInjector);
     if ('onConnect' in each) onConnect.push(each.onConnect);
+    if ('onDisconnect' in each) onDisconnect.push(each.onDisconnect);
     if ('onBeforeExecute' in each) onBeforeExecute.push(each.onBeforeExecute);
     if ('onAfterExecute' in each) onAfterExecute.push(each.onAfterExecute);
 
@@ -80,7 +82,7 @@ const buildSchemaAndHooks = (configs: KrakenSchema[], pluginInjector: Injector) 
   }, { ...rootSchema });
 
   const executableSchema = makeExecutableSchema(schemaDefinition as any);
-  return { onConnect, onBeforeExecute, onAfterExecute, executableSchema };
+  return { onConnect, onDisconnect, onBeforeExecute, onAfterExecute, executableSchema };
 };
 
 export const krakenJs = <T>(config: Config): Kraken.Runtime => {
@@ -89,7 +91,7 @@ export const krakenJs = <T>(config: Config): Kraken.Runtime => {
   const $plugins = {} as Kraken.Context;
   const pluginInjector = (name, value) => $plugins['$' + name] = value;
 
-  const { onConnect, onBeforeExecute, onAfterExecute, executableSchema } = buildSchemaAndHooks(configs, pluginInjector);
+  const { onConnect, onDisconnect, onBeforeExecute, onAfterExecute, executableSchema } = buildSchemaAndHooks(configs, pluginInjector);
   const makeExecutionContext = executionContextBuilder($plugins);
   const $root = makeExecutionContext({});
 
@@ -198,6 +200,9 @@ export const krakenJs = <T>(config: Config): Kraken.Runtime => {
   };
 
   const onGqlConnectionTerminate = async (connection: Kraken.ConnectionInfo) => {
+    for (const fn of onDisconnect) {
+      if (fn) await fn(connection);
+    }
     await Promise.all([
       $root.$connections.delete(connection),
       $root.$subscriptions.deleteAll(connection.connectionId)
