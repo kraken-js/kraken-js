@@ -19,7 +19,7 @@ provider:
     version: ${self:custom.version}
 
 custom:
-  account: '#{AWS::AccountId}'
+  account: ${AWS::AccountId}
   region: ${self:provider.region}
   stage: ${self:provider.stage}
   version: ${file(package.json):version}
