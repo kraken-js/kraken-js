@@ -24,6 +24,9 @@ export type AwsSchemaConfig = {
   sqs?: AWS.SQS
   sqsConfig?: AWS.SQS.Types.ClientConfiguration
 
+  s3?: AWS.S3
+  s3Config?: AWS.S3.Types.ClientConfiguration
+
   cognito?: AWS.CognitoIdentityServiceProvider
   cognitoConfig?: AWS.CognitoIdentityServiceProvider.Types.ClientConfiguration
 }

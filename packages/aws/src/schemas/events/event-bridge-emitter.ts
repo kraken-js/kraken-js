@@ -8,7 +8,7 @@ export type EventBridgeEmitter = {
   send(): Promise<PutEventsResponse>
 }
 
-export const eventBridgeEmitter = ($context: Kraken.Context): EventBridgeEmitter => {
+export const eventBridgeEmitter = ({ $eventBridge }: Kraken.Context): EventBridgeEmitter => {
   const entries: PutEventsRequestEntryList = [];
   const metadata = {
     eventBus: process.env.EVENT_BUS_NAME as string,
@@ -39,7 +39,7 @@ export const eventBridgeEmitter = ($context: Kraken.Context): EventBridgeEmitter
       return this;
     },
     async send() {
-      return await $context.$eventBridge.putEvents({
+      return await $eventBridge.putEvents({
         Entries: entries
       }).promise();
     }
