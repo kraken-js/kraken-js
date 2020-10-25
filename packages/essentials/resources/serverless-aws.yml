@@ -19,13 +19,10 @@ provider:
     version: ${self:custom.version}
 
 custom:
-  account: ${AWS::AccountId}
   region: ${self:provider.region}
   stage: ${self:provider.stage}
   version: ${file(package.json):version}
   prefix: ${self:service.name}-${self:custom.stage}
-  lambda:
-    arnPrefix: arn:aws:lambda:${self:custom.region}:${self:custom.account}:function:${self:service.name}-${self:custom.stage}
   cors:
     origin: '*'
     maxAge: 86400

@@ -1,6 +1,7 @@
 custom:
   eventBus: EventBus-${self:custom.stage}
-  eventBusArn: arn:aws:events:${self:custom.region}:${self:custom.account}:event-bus/${self:custom.eventBus}
+  eventBusArn:
+    Fn::GetAtt: [ EventBus, Arn ]
   environment:
     default:
       EVENT_BUS_NAME: ${self:custom.eventBus}
