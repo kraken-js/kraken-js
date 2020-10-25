@@ -45,8 +45,14 @@ custom:
 functions:
   hello:
     handler: src/handlers.hello
-  message:
-    handler: src/handlers.message
+  onPing:
+    handler: src/on-ping.handler
+    events:
+      - eventBridge:
+          eventBus: ${self:custom.eventBusArn}
+          pattern:
+            source:
+              - Ping:Invoked
   wsGraphqlHandler:
     handler: src/demo-ws-handler.handler
     events:
