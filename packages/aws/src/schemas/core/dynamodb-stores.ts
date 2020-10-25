@@ -90,7 +90,12 @@ class DynamoDbSubscriptionStore implements SubscriptionStore {
   }
 
   async save(subscription) {
-    const item = { ...subscription, ttl: ttl() };
+    const { operationId, triggerName } = subscription;
+    const item = {
+      ...subscription,
+      operationId: operationId + '#' + triggerName, // make operation id unique so many subscriptions to same operation is allowed
+      ttl: ttl()
+    };
     await this.context.$dynamoDb.put({
       TableName: this.tableName,
       Item: item
@@ -100,17 +105,19 @@ class DynamoDbSubscriptionStore implements SubscriptionStore {
   }
 
   async delete(connectionId: string, operationId: string) {
-    await this.context.$dynamoDb.delete({
-      TableName: this.tableName,
-      Key: { connectionId, operationId }
-    }).promise();
+    await this.batchDelete(connectionId, operationId);
   }
 
   async deleteAll(connectionId: string) {
-    await this.batchDeleteAll(connectionId);
+    await this.batchDelete(connectionId);
   }
 
   async findByTriggerName(triggerName: string, lastEvaluatedKey?) {
+    const rebuildOperationId = (item) => {
+      const [operationId] = item.operationId.split('#');
+      item.operationId = operationId;
+    };
+
     const { Items = [], LastEvaluatedKey } = await this.context.$dynamoDb.query({
       TableName: this.tableName,
       IndexName: 'byTriggerName',
@@ -120,17 +127,25 @@ class DynamoDbSubscriptionStore implements SubscriptionStore {
       Limit: subscriptionsBatchLoadLimit
     }).promise();
     if (LastEvaluatedKey) {
-      return Items.concat(await this.findByTriggerName(triggerName, LastEvaluatedKey));
+      const items = await this.findByTriggerName(triggerName, LastEvaluatedKey);
+      return Items.concat(items).forEach(rebuildOperationId);
     }
-    return Items;
+    return Items.forEach(rebuildOperationId);
   }
 
-  private async batchDeleteAll(connectionId: string, lastEvaluatedKey?) {
+  private async batchDelete(connectionId: string, operationId?: string, lastEvaluatedKey?) {
+    const keyConditionExpression = operationId
+      ? 'connectionId = :connectionId AND begins_with(operationId, :operationId)'
+      : 'connectionId = :connectionId';
+    const expressionAttributeValues = operationId
+      ? { ':connectionId': connectionId, ':operationId': operationId }
+      : { ':connectionId': connectionId };
+
     const { Items = [], LastEvaluatedKey } = await this.context.$dynamoDb.query({
       TableName: this.tableName,
-      KeyConditionExpression: 'connectionId = :connectionId', // AND operationId <> :rootConnectionId (<> not allows in KeyConditionExpression)
+      KeyConditionExpression: keyConditionExpression,
       FilterExpression: 'attribute_exists(triggerName)', // only subscriptions have triggerName, root connection does not
-      ExpressionAttributeValues: { ':connectionId': connectionId },
+      ExpressionAttributeValues: expressionAttributeValues,
       ProjectionExpression: 'connectionId, operationId',
       ExclusiveStartKey: lastEvaluatedKey,
       Limit: 25 // max batch write request size
@@ -146,7 +161,7 @@ class DynamoDbSubscriptionStore implements SubscriptionStore {
       }).promise();
     }
     if (LastEvaluatedKey) {
-      await this.batchDeleteAll(connectionId, LastEvaluatedKey);
+      await this.batchDelete(connectionId, operationId, LastEvaluatedKey);
     }
   }
 }

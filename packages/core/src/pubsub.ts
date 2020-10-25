@@ -2,19 +2,9 @@ import { ExecutionResult, parse, print } from 'graphql';
 import { GQL_DATA } from './constants';
 import { PubSub } from './types';
 
-const variablesPrefix = '$';
-
 const interpolate = (string: string, vars: any = {}) => {
   return string.replace(/{(.*?)}/g, (match, offset) => vars[offset] || '');
 };
-
-const variables = (value: any = {}) => Object.entries(value)
-  .reduce((vars, [key, value]) => {
-    if (value !== undefined) {
-      vars[variablesPrefix + key] = value;
-    }
-    return vars;
-  }, {});
 
 const submitJobs = (jobs: (() => Promise<any>)[], concurrency = 100) => {
   let workers = 0;
@@ -62,8 +52,7 @@ export class KrakenPubSub implements PubSub {
       operationName: this.context.operation.operationName,
       variableValues: this.context.operation.variableValues,
 
-      triggerName: interpolatedTriggerName,
-      ...variables(vars)
+      triggerName: interpolatedTriggerName
     });
   }
 
