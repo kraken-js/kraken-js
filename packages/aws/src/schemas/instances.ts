@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 import AWS, { config as awsConfig, EventBridge } from 'aws-sdk';
 import yn from 'yn';
 
@@ -47,6 +48,13 @@ export const getEventBridge = (config: AWS.EventBridge.Types.ClientConfiguration
     instances.eventBridge = new EventBridge(config);
   }
   return instances.eventBridge;
+};
+
+export const getS3 = (config?: AWS.S3.Types.ClientConfiguration): AWS.S3 => {
+  if (!instances.s3) {
+    instances.s3 = new AWS.S3(config);
+  }
+  return instances.s3;
 };
 
 export const getCognito = (config?: AWS.CognitoIdentityServiceProvider.Types.ClientConfiguration): AWS.CognitoIdentityServiceProvider => {
