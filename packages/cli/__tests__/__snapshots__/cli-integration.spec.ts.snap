@@ -24,9 +24,6 @@ custom:
   stage: offline
   version: 1.0.0
   prefix: electric-wolf-kraken-offline
-  lambda:
-    arnPrefix: >-
-      arn:aws:lambda:us-east-1:#{AWS::AccountId}:function:electric-wolf-kraken-offline
   cors:
     origin: '*'
     maxAge: 86400
