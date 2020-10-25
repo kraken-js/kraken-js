@@ -18,7 +18,7 @@ const camelize = str => {
 export default class KrakenJs implements Plugin {
   public static pluginName = '@kraken.js/serverless';
   public hooks: Plugin.Hooks = {};
-  protected plugins = new Set<string>();
+  protected plugins = [];
 
   constructor(protected serverless: Serverless, protected config: Serverless.Config) {
     this.loadServerlessModules();
@@ -31,7 +31,12 @@ export default class KrakenJs implements Plugin {
   loadServerlessModules() {
     const selfCustomEnvironment = this.serverless.service.custom?.environment;
     this.loadModules(this.getKrakenConfig());
-    (this.serverless.service as any).plugins.push(...this.plugins.values());
+    this.plugins.forEach(plugin => {
+      const plugins = (this.serverless.service as any).plugins;
+      if (!plugins.includes(plugin)) {
+        plugins.push(plugin);
+      }
+    });
     this.resolveEnvironmentVariables(selfCustomEnvironment);
   }
 
@@ -72,9 +77,11 @@ export default class KrakenJs implements Plugin {
         this.serverless.service.update(serverless);
 
         if (serverless.plugins) {
-          serverless.plugins.forEach(plugin =>
-            this.plugins.add(plugin)
-          );
+          serverless.plugins.forEach(plugin => {
+            if (!this.plugins.includes(plugin)) {
+              this.plugins.push(plugin);
+            }
+          });
         }
       }
     }
