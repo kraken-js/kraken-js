@@ -29,7 +29,7 @@ export class AwsDynamoQueryDirective extends SchemaDirectiveVisitor {
       if (filter) find.where(prefixOperatorsWith$(filter));
 
       const raw = find
-        .limit(limit)
+        .limit(isList ? limit : 1)
         .startFrom(fromBase64(nextToken))
         .sort(sort === 'ASC' ? 1 : -1)
         .raw();
