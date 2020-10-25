@@ -27,6 +27,7 @@ declare global {
       $apiGateway: { get: (endpoint: string) => AWS.ApiGatewayManagementApi }
       $sqs: AWS.SQS
       $sns: AWS.SNS
+      $s3: AWS.S3
       $dynamoDbDataLoader: DynamodbDataloader
       $cognito: AWS.CognitoIdentityServiceProvider
       $eventBridge: AWS.EventBridge,
