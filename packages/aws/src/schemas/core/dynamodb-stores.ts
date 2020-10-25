@@ -91,11 +91,14 @@ class DynamoDbSubscriptionStore implements SubscriptionStore {
 
   async save(subscription) {
     const { operationId, triggerName } = subscription;
+
+    // make operation unique tp allow many subscriptions one same operation
     const item = {
       ...subscription,
-      operationId: operationId + '#' + triggerName, // make operation id unique so many subscriptions to same operation is allowed
+      operationId: operationId + '#' + triggerName,
       ttl: ttl()
     };
+
     await this.context.$dynamoDb.put({
       TableName: this.tableName,
       Item: item
@@ -116,6 +119,7 @@ class DynamoDbSubscriptionStore implements SubscriptionStore {
     const rebuildOperationId = (item) => {
       const [operationId] = item.operationId.split('#');
       item.operationId = operationId;
+      return item;
     };
 
     const { Items = [], LastEvaluatedKey } = await this.context.$dynamoDb.query({
@@ -128,9 +132,9 @@ class DynamoDbSubscriptionStore implements SubscriptionStore {
     }).promise();
     if (LastEvaluatedKey) {
       const items = await this.findByTriggerName(triggerName, LastEvaluatedKey);
-      return Items.concat(items).forEach(rebuildOperationId);
+      return Items.map(rebuildOperationId).concat(items);
     }
-    return Items.forEach(rebuildOperationId);
+    return Items.map(rebuildOperationId);
   }
 
   private async batchDelete(connectionId: string, operationId?: string, lastEvaluatedKey?) {
