@@ -39,15 +39,17 @@ export const isChainedDirective = (field, directive) => {
 };
 
 export const getTargetModelInfo = field => {
+  const isList = isListType(field.type);
   const type = resolveVariableType(field.type);
   const model = getDirectiveByName(type, 'model');
 
-  // not a model, maybe it's a connection type => { nodes: [Model] }
+  // not a model, maybe it's a connection type => { nodes: [Model] } || { items: [Model] }
   if (!model) {
-    const nodes = type.getFields().nodes;
-    if (nodes) {
-      const response = getTargetModelInfo(nodes);
-      return { ...response, hasNodes: true };
+    const fields = type.getFields();
+    const connection = (fields.nodes || fields.items);
+    if (connection) {
+      const response = getTargetModelInfo(connection);
+      return { ...response, connection };
     }
   }
 
@@ -62,11 +64,11 @@ export const getTargetModelInfo = field => {
 
   return {
     tableName: table.replace('{stage}', stage),
-    hasNodes: false,
     timestamp,
     versioned,
     partitionKey,
-    sortKey
+    sortKey,
+    isList
   };
 };
 

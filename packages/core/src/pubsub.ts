@@ -80,13 +80,14 @@ export class KrakenPubSub implements PubSub {
     await submitJobs(jobs);
   }
 
-  private getPubStrategy(triggerName: string) {
+  private getPubStrategy(triggerName: string): Kraken.PublishingStrategy {
     if (typeof this.context.$pubStrategy === 'string') {
       return this.context.$pubStrategy;
     }
 
     const [subscriptionName] = triggerName.split('#');
-    return this.context.$pubStrategy[subscriptionName];
+    const fieldPublishingStrategy = this.context.$pubStrategy[subscriptionName];
+    return fieldPublishingStrategy || 'GRAPHQL';
   }
 
   private sendJob(subscription: Kraken.Subscription, payload: any) {

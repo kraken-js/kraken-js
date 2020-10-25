@@ -14,7 +14,8 @@
     "package": "webpack-cli",
     "emit-declarations-only": "tsc --emitDeclarationOnly",
     "copy-schemas": "npx copyfiles -f src/**/*.graphql dist",
-    "prepublishOnly": "yarn package && yarn emit-declarations-only && yarn copy-schemas"
+    "copy-serverless": "npx copyfiles resources/**/*.yml dist",
+    "prepublishOnly": "yarn package && yarn emit-declarations-only && yarn copy-schemas && yarn copy-serverless"
   },
   "files": [
     "dist",
