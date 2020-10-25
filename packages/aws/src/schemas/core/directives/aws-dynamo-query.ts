@@ -12,7 +12,7 @@ import { fromBase64, getMapping, getTargetModelInfo, prefixOperatorsWith$, toBas
  */
 export class AwsDynamoQueryDirective extends SchemaDirectiveVisitor {
   visitFieldDefinition(field) {
-    const { tableName, hasNodes } = getTargetModelInfo(field);
+    const { tableName, connection, isList } = getTargetModelInfo(field);
     const { index, sourceMapping } = this.args;
 
     field.resolve = async (source, args, { $dynongo }: Kraken.Context) => {
@@ -29,7 +29,7 @@ export class AwsDynamoQueryDirective extends SchemaDirectiveVisitor {
       if (filter) find.where(prefixOperatorsWith$(filter));
 
       const raw = find
-        .limit(hasNodes ? limit : 1)
+        .limit(limit)
         .startFrom(fromBase64(nextToken))
         .sort(sort === 'ASC' ? 1 : -1)
         .raw();
@@ -39,12 +39,10 @@ export class AwsDynamoQueryDirective extends SchemaDirectiveVisitor {
       }
 
       const { Items = [], LastEvaluatedKey } = await raw.exec();
-      return hasNodes
-        ? {
-          nodes: Items,
-          nextToken: toBase64(LastEvaluatedKey)
-        }
-        : Items?.[0];
+      if (isList) {
+        return connection ? { [connection.name]: Items, nextToken: toBase64(LastEvaluatedKey) } : Items;
+      }
+      return Items[0];
     };
   }
 }

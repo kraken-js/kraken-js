@@ -13,7 +13,8 @@
     "prepackage": "npx rimraf dist",
     "package": "webpack-cli",
     "emit-declarations-only": "tsc --emitDeclarationOnly",
-    "prepublishOnly": "yarn package && yarn emit-declarations-only"
+    "copy-schemas": "npx copyfiles -f src/**/*.graphql dist",
+    "prepublishOnly": "yarn package && yarn emit-declarations-only && yarn copy-schemas"
   },
   "files": [
     "dist",
