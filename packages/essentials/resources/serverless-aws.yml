@@ -1,6 +1,3 @@
-plugins:
-  - serverless-pseudo-parameters
-
 provider:
   name: aws
   runtime: nodejs12.x
@@ -18,12 +15,11 @@ provider:
   stackTags:
     service: ${self:service}
     stage: ${self:custom.stage}
-    region: ${self:custom.region}
     version: ${self:custom.version}
 
 custom:
   account: '#{AWS::AccountId}'
-  region: ${self:provider.region}
+  region: '#{AWS::Region}'
   stage: ${self:provider.stage}
   version: ${file(package.json):version}
   prefix: ${self:service.name}-${self:custom.stage}

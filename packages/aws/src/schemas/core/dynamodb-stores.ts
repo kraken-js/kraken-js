@@ -3,7 +3,7 @@ import { ApiGatewayManagementApi } from 'aws-sdk';
 import { AwsSchemaConfig } from './config';
 
 const subscriptionsBatchLoadLimit = 75;
-const waitForConnectionTimeout = 50;
+const defaultWaitForConnectionTimeout = 50;
 const rootOperationId = '$connection';
 
 const getTableName = () => {
@@ -21,159 +21,166 @@ const postToConnection = async (apiGateway: ApiGatewayManagementApi, connectionI
 
 export const ttl = (seconds = 7200) => Math.floor(Date.now() / 1000) + seconds; // 2 hours
 
-class DynamoDbConnectionStore<T> implements ConnectionStore {
-  protected tableName: string;
-  protected waitForConnectionTimeout: number;
+export const dynamoDbConnectionStore = (config: AwsSchemaConfig) => {
+  const tableName = config?.connections?.tableName || getTableName();
+  const waitForConnectionTimeout = config?.connections?.waitForConnectionTimeout || defaultWaitForConnectionTimeout;
 
-  constructor(protected config: AwsSchemaConfig, protected context: Kraken.ExecutionContext) {
-    this.tableName = config?.connections?.tableName || getTableName();
-    this.waitForConnectionTimeout = config?.connections?.waitForConnectionTimeout || waitForConnectionTimeout;
-  }
+  return ({ $dynamoDb, $dynamoDbDataLoader, $apiGateway, $subscriptions }: Kraken.Context): ConnectionStore => {
 
-  async save(connection) {
-    const item = { ...connection, operationId: rootOperationId, ttl: ttl() };
-    await this.context.$dynamoDb.put({
-      TableName: this.tableName,
-      Item: item
-    }).promise();
-    return item;
-  }
+    const save = async connection => {
+      const item = { ...connection, operationId: rootOperationId, ttl: ttl() };
 
-  async get(connectionId: string, retries = 10) {
-    const request = {
-      TableName: this.tableName,
-      Key: { connectionId, operationId: rootOperationId }
-    };
-
-    const connection = await this.context.$dynamoDbDataLoader.load(request);
-    if (!connection) {
-      if (retries > 0) {
-        this.context.$dynamoDbDataLoader.clear(request);
-        await waitFor(this.waitForConnectionTimeout);
-        return await this.get(connectionId, --retries);
-      }
-      throw new Error(`Connection ${connectionId} not found`);
-    }
-    return connection;
-  }
-
-  async delete({ connectionId, apiGatewayUrl }) {
-    const request = {
-      TableName: this.tableName,
-      Key: { connectionId, operationId: rootOperationId }
-    };
-    await Promise.all([
-      this.context.$dynamoDb.delete(request).promise(),
-      this.context.$apiGateway.get(apiGatewayUrl).deleteConnection({
-        ConnectionId: connectionId
-      }).promise().catch(e => void e) // it's ok to fail with 410 here
-    ]);
-    this.context.$dynamoDbDataLoader.clear(request); // cleanup loader
-  }
-
-  async send({ connectionId, apiGatewayUrl }, payload: any) {
-    const apiGateway = this.context.$apiGateway.get(apiGatewayUrl as string);
-    await postToConnection(apiGateway, connectionId, payload).catch(() =>
-      Promise.all([
-        this.context.$connections.delete({ connectionId }),
-        this.context.$subscriptions.deleteAll(connectionId)
-      ])
-    );
-  }
-}
-
-class DynamoDbSubscriptionStore implements SubscriptionStore {
-  protected tableName: string;
-
-  constructor(protected config: AwsSchemaConfig, protected context: Kraken.ExecutionContext) {
-    this.tableName = config?.connections?.tableName || getTableName();
-  }
-
-  async save(subscription) {
-    const { operationId, triggerName } = subscription;
-
-    // make operation unique tp allow many subscriptions one same operation
-    const item = {
-      ...subscription,
-      operationId: operationId + '#' + triggerName,
-      ttl: ttl()
-    };
-
-    await this.context.$dynamoDb.put({
-      TableName: this.tableName,
-      Item: item
-    }).promise();
-
-    return item;
-  }
-
-  async delete(connectionId: string, operationId: string) {
-    await this.batchDelete(connectionId, operationId);
-  }
-
-  async deleteAll(connectionId: string) {
-    await this.batchDelete(connectionId);
-  }
-
-  async findByTriggerName(triggerName: string, lastEvaluatedKey?) {
-    const rebuildOperationId = (item) => {
-      const [operationId] = item.operationId.split('#');
-      item.operationId = operationId;
-      return item;
-    };
-
-    const { Items = [], LastEvaluatedKey } = await this.context.$dynamoDb.query({
-      TableName: this.tableName,
-      IndexName: 'byTriggerName',
-      KeyConditionExpression: 'triggerName = :triggerName',
-      ExpressionAttributeValues: { ':triggerName': triggerName },
-      ExclusiveStartKey: lastEvaluatedKey,
-      Limit: subscriptionsBatchLoadLimit
-    }).promise();
-    if (LastEvaluatedKey) {
-      const items = await this.findByTriggerName(triggerName, LastEvaluatedKey);
-      return Items.map(rebuildOperationId).concat(items);
-    }
-    return Items.map(rebuildOperationId);
-  }
-
-  private async batchDelete(connectionId: string, operationId?: string, lastEvaluatedKey?) {
-    const keyConditionExpression = operationId
-      ? 'connectionId = :connectionId AND begins_with(operationId, :operationId)'
-      : 'connectionId = :connectionId';
-    const expressionAttributeValues = operationId
-      ? { ':connectionId': connectionId, ':operationId': operationId }
-      : { ':connectionId': connectionId };
-
-    const { Items = [], LastEvaluatedKey } = await this.context.$dynamoDb.query({
-      TableName: this.tableName,
-      KeyConditionExpression: keyConditionExpression,
-      FilterExpression: 'attribute_exists(triggerName)', // only subscriptions have triggerName, root connection does not
-      ExpressionAttributeValues: expressionAttributeValues,
-      ProjectionExpression: 'connectionId, operationId',
-      ExclusiveStartKey: lastEvaluatedKey,
-      Limit: 25 // max batch write request size
-    }).promise();
-
-    if (Items.length > 0) {
-      await this.context.$dynamoDb.batchWrite({
-        RequestItems: {
-          [this.tableName]: Items.map(({ connectionId, operationId }) => ({
-            DeleteRequest: { Key: { connectionId, operationId } }
-          }))
-        }
+      await $dynamoDb.put({
+        TableName: tableName,
+        Item: item
       }).promise();
-    }
-    if (LastEvaluatedKey) {
-      await this.batchDelete(connectionId, operationId, LastEvaluatedKey);
-    }
-  }
-}
 
-export const dynamoDbConnectionStore = (config: AwsSchemaConfig) => (context: Kraken.ExecutionContext) => {
-  return new DynamoDbConnectionStore(config, context);
+      return item as Kraken.Connection;
+    };
+
+    const get = async (connectionId: string, retries = 10) => {
+      const request = {
+        TableName: tableName,
+        Key: { connectionId, operationId: rootOperationId }
+      };
+
+      const connection = await $dynamoDbDataLoader.load(request);
+      if (!connection) {
+        if (retries > 0) {
+          $dynamoDbDataLoader.clear(request);
+          await waitFor(waitForConnectionTimeout);
+          return await get(connectionId, --retries);
+        }
+        throw new Error(`Connection ${connectionId} not found`);
+      }
+      return connection;
+    };
+
+    const _delete = async ({ connectionId, apiGatewayUrl = null }) => {
+      const request = {
+        TableName: tableName,
+        Key: { connectionId, operationId: rootOperationId }
+      };
+
+      await $dynamoDb.delete(request).promise();
+      if (apiGatewayUrl) {
+        await $apiGateway.get(apiGatewayUrl).deleteConnection({
+          ConnectionId: connectionId
+        }).promise().catch(e => void e);// it's ok to fail with 410 here
+      }
+
+      $dynamoDbDataLoader.clear(request); // cleanup loader
+    };
+
+    const send = async ({ connectionId, apiGatewayUrl }, payload: any) => {
+      const apiGateway = $apiGateway.get(apiGatewayUrl as string);
+      await postToConnection(apiGateway, connectionId, payload).catch(() =>
+        Promise.all([
+          _delete({ connectionId }),
+          $subscriptions.deleteAll(connectionId)
+        ])
+      );
+    };
+
+    return {
+      save,
+      get,
+      delete: _delete,
+      send
+    };
+  };
 };
 
-export const dynamoDbSubscriptionStore = (config: AwsSchemaConfig) => (context: Kraken.ExecutionContext) => {
-  return new DynamoDbSubscriptionStore(config, context);
+export const dynamoDbSubscriptionStore = (config: AwsSchemaConfig) => {
+  const tableName = config?.connections?.tableName || getTableName();
+
+  return ({ $dynamoDb }: Kraken.Context): SubscriptionStore => {
+
+    const batchDelete = async (connectionId: string, operationId?: string, lastEvaluatedKey?) => {
+      const keyConditionExpression = operationId
+        ? 'connectionId = :connectionId AND begins_with(operationId, :operationId)'
+        : 'connectionId = :connectionId';
+      const expressionAttributeValues = operationId
+        ? { ':connectionId': connectionId, ':operationId': operationId }
+        : { ':connectionId': connectionId };
+
+      const { Items = [], LastEvaluatedKey } = await $dynamoDb.query({
+        TableName: tableName,
+        KeyConditionExpression: keyConditionExpression,
+        FilterExpression: 'attribute_exists(triggerName)', // only subscriptions have triggerName, root connection does not
+        ExpressionAttributeValues: expressionAttributeValues,
+        ProjectionExpression: 'connectionId, operationId',
+        ExclusiveStartKey: lastEvaluatedKey,
+        Limit: 25 // max batch write request size
+      }).promise();
+
+      if (Items.length > 0) {
+        await $dynamoDb.batchWrite({
+          RequestItems: {
+            [tableName]: Items.map(({ connectionId, operationId }) => ({
+              DeleteRequest: { Key: { connectionId, operationId } }
+            }))
+          }
+        }).promise();
+      }
+      if (LastEvaluatedKey) {
+        await batchDelete(connectionId, operationId, LastEvaluatedKey);
+      }
+    };
+
+    const save = async subscription => {
+      const { operationId, triggerName } = subscription;
+
+      // make operation unique tp allow many subscriptions one same operation
+      const item = {
+        ...subscription,
+        operationId: operationId + '#' + triggerName,
+        ttl: ttl()
+      };
+
+      await $dynamoDb.put({
+        TableName: tableName,
+        Item: item
+      }).promise();
+
+      return item as Kraken.Subscription;
+    };
+
+    const _delete = async (connectionId: string, operationId: string) => {
+      await batchDelete(connectionId, operationId);
+    };
+
+    const deleteAll = async (connectionId: string) => {
+      await batchDelete(connectionId);
+    };
+
+    const findByTriggerName = async (triggerName: string, lastEvaluatedKey?) => {
+      const rebuildOperationId = (item) => {
+        const [operationId] = item.operationId.split('#');
+        item.operationId = operationId;
+        return item;
+      };
+
+      const { Items = [], LastEvaluatedKey } = await $dynamoDb.query({
+        TableName: tableName,
+        IndexName: 'byTriggerName',
+        KeyConditionExpression: 'triggerName = :triggerName',
+        ExpressionAttributeValues: { ':triggerName': triggerName },
+        ExclusiveStartKey: lastEvaluatedKey,
+        Limit: subscriptionsBatchLoadLimit
+      }).promise();
+      if (LastEvaluatedKey) {
+        const items = await findByTriggerName(triggerName, LastEvaluatedKey);
+        return Items.map(rebuildOperationId).concat(items);
+      }
+      return Items.map(rebuildOperationId);
+    };
+
+    return {
+      save,
+      delete: _delete,
+      deleteAll,
+      findByTriggerName
+    };
+  };
 };

@@ -7,7 +7,6 @@ provider:
   name: aws
 plugins:
   - serverless-webpack
-  - serverless-pseudo-parameters
 custom:
   kraken:
     - '@kraken.js/essentials'
