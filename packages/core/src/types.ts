@@ -17,6 +17,10 @@ export interface ConnectionStore {
   send(connection: Kraken.ConnectionInfo, payload: Payload): Promise<void>
 }
 
+export interface PubSubOptions {
+  noSelfSubscriptionUpdate?: boolean
+}
+
 export interface SubscriptionStore {
   save(subscription: Partial<Kraken.Subscription>): Promise<Kraken.Subscription>
 
@@ -24,13 +28,13 @@ export interface SubscriptionStore {
 
   deleteAll(connectionId: string): Promise<void>;
 
-  findByTriggerName(triggerName: string): Promise<Kraken.Subscription[]>
+  findByTriggerName(triggerName: string, opts?: PubSubOptions): Promise<Kraken.Subscription[]>
 }
 
 export interface PubSub {
-  subscribe(triggerName: string, vars?: Record<string, any>): Promise<Kraken.Subscription>
+  subscribe(triggerName: string, vars?: Record<string, any>, opts?: PubSubOptions): Promise<Kraken.Subscription>
 
-  publish(triggerName: string, payload: any): Promise<void>
+  publish(triggerName: string, payload: any, opts?: PubSubOptions): Promise<void>
 }
 
 export interface Broadcaster {

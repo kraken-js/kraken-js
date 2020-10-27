@@ -1,4 +1,4 @@
-import { ConnectionStore, SubscriptionStore } from '@kraken.js/core';
+import { ConnectionStore, PubSubOptions, SubscriptionStore } from '@kraken.js/core';
 import { ApiGatewayManagementApi } from 'aws-sdk';
 import { AwsSchemaConfig } from './config';
 
@@ -94,7 +94,7 @@ export const dynamoDbConnectionStore = (config: AwsSchemaConfig) => {
 export const dynamoDbSubscriptionStore = (config: AwsSchemaConfig) => {
   const tableName = config?.connections?.tableName || getTableName();
 
-  return ({ $dynamoDb }: Kraken.Context): SubscriptionStore => {
+  return ({ $dynamoDb, connectionInfo }: Kraken.ExecutionContext): SubscriptionStore => {
 
     const batchDelete = async (connectionId: string, operationId?: string, lastEvaluatedKey?) => {
       const keyConditionExpression = operationId
@@ -154,23 +154,35 @@ export const dynamoDbSubscriptionStore = (config: AwsSchemaConfig) => {
       await batchDelete(connectionId);
     };
 
-    const findByTriggerName = async (triggerName: string, lastEvaluatedKey?) => {
+    const findByTriggerName = async (triggerName: string, opts?: PubSubOptions) => {
+      return await findAllByTriggerName(triggerName, opts);
+    };
+
+    const findAllByTriggerName = async (triggerName: string, opts?: PubSubOptions, lastEvaluatedKey?) => {
       const rebuildOperationId = (item) => {
         const [operationId] = item.operationId.split('#');
         item.operationId = operationId;
         return item;
       };
 
+      const filterExpression = opts?.noSelfSubscriptionUpdate
+        ? 'connectionId <> :connectionId'
+        : undefined;
+      const expressionAttributeValues = opts?.noSelfSubscriptionUpdate
+        ? { ':triggerName': triggerName, ':connectionId': connectionInfo?.connectionId }
+        : { ':triggerName': triggerName };
+
       const { Items = [], LastEvaluatedKey } = await $dynamoDb.query({
         TableName: tableName,
         IndexName: 'byTriggerName',
         KeyConditionExpression: 'triggerName = :triggerName',
-        ExpressionAttributeValues: { ':triggerName': triggerName },
+        ExpressionAttributeValues: expressionAttributeValues,
+        FilterExpression: filterExpression,
         ExclusiveStartKey: lastEvaluatedKey,
         Limit: subscriptionsBatchLoadLimit
       }).promise();
       if (LastEvaluatedKey) {
-        const items = await findByTriggerName(triggerName, LastEvaluatedKey);
+        const items = await findAllByTriggerName(triggerName, opts, LastEvaluatedKey);
         return Items.map(rebuildOperationId).concat(items);
       }
       return Items.map(rebuildOperationId);

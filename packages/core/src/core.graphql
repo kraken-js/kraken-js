@@ -1,2 +1,2 @@
-directive @pub(triggerNames: [String!]!) on FIELD_DEFINITION
+directive @pub(triggerNames: [String!]!, noSelfSubscriptionUpdate: Boolean) on FIELD_DEFINITION
 directive @sub(triggerName: String) on FIELD_DEFINITION

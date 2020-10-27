@@ -25,7 +25,10 @@ const apiGatewayMock = {
 const testSchema: KrakenSchema = {
   typeDefs: `
     type Query { hello(name: String): String }
-    type Mutation { sendMessage(channel: String, message: String): Message @pub(triggerNames: ["onMessage#{channel}"]) }
+    type Mutation { 
+      sendMessage(channel: String, message: String): Message @pub(triggerNames: ["onMessage#{channel}"]) 
+      sendMessageButNotToMe(channel: String, message: String): Message
+    }
     type Subscription { onMessage(channel: String): Message @sub(triggerName: "onMessage#{channel}") }
     type Message {
       channel: String
@@ -33,7 +36,13 @@ const testSchema: KrakenSchema = {
     }`,
   resolvers: {
     Query: { hello: (_, { name }) => `hello ${name}` },
-    Mutation: { sendMessage: (_, args) => args }
+    Mutation: {
+      sendMessage: (_, args) => args,
+      sendMessageButNotToMe: async (_, args, { $pubsub }) => {
+        await $pubsub.publish('onMessage#{channel}', args, { noSelfSubscriptionUpdate: true });
+        return args;
+      }
+    }
   }
 };
 
@@ -122,6 +131,26 @@ describe('AWS Websocket Handler', () => {
     const { execute, connectionId } = setupTest();
     const actual = execute({ id: '1', type: GQL_START, payload: { query: 'query { hello }' } });
     await expect(actual).rejects.toThrow(`Connection ${connectionId} not found`);
+  });
+
+  it('should skip self subscription when noSelfSubscriptionUpdate is true', async () => {
+    const { execute, connectionId } = setupTest();
+    await execute({ type: GQL_CONNECTION_INIT });
+    await execute({
+      id: 'subscription',
+      type: GQL_START,
+      payload: { query: 'subscription { onMessage(channel: "general") { __typename channel message } }' }
+    });
+    await execute({
+      id: '2',
+      type: GQL_START,
+      payload: { query: 'mutation { sendMessageButNotToMe(channel: "general", message: "hi") { __typename channel message } }' }
+    });
+
+    expect(apiGatewayMock.postToConnection).not.toHaveBeenCalledWith({
+      ConnectionId: connectionId,
+      Data: expect.stringContaining('"id":"subscription"')
+    });
   });
 
   describe('should successfully execute pub/sub', () => {

@@ -6,6 +6,7 @@ configValidationMode: 'off'
 provider:
   name: aws
 plugins:
+  - serverless-pseudo-parameters
   - serverless-webpack
 custom:
   kraken:
@@ -19,7 +20,7 @@ custom:
       forceExclude:
         - aws-sdk
   account: '#{AWS::AccountId}'
-  region: '#{AWS::Region}'
+  region: us-east-1
   stage: offline
   version: 1.0.0
   prefix: electric-wolf-kraken-offline
