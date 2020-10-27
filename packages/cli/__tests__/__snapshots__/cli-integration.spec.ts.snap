@@ -19,7 +19,7 @@ custom:
       forceExclude:
         - aws-sdk
   account: '#{AWS::AccountId}'
-  region: us-east-1
+  region: '#{AWS::Region}'
   stage: offline
   version: 1.0.0
   prefix: electric-wolf-kraken-offline

@@ -19,7 +19,8 @@ const makeQuestions = async toolbox => {
     message: 'What is the module version?',
     initial: '1.0.0'
   });
-  return { name, version } as any;
+  const { skipInstall } = parameters.options;
+  return { name, version, skipInstall } as any;
 };
 
 module.exports = {
@@ -50,10 +51,12 @@ module.exports = {
     }
 
     // yarn install
-    await system.spawn(`cd ${props.name} && yarn install --silent`, {
-      shell: true,
-      stdio: 'inherit'
-    });
+    if (!props.skipInstall) {
+      await system.spawn(`cd ${props.name} && yarn install --silent`, {
+        shell: true,
+        stdio: 'inherit'
+      });
+    }
     // kraken graphql
     await system.spawn(`cd ${props.name} && kraken graphql`, {
       shell: true,
