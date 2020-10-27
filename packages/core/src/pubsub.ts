@@ -1,6 +1,6 @@
 import { ExecutionResult, parse, print } from 'graphql';
 import { GQL_DATA } from './constants';
-import { PubSub } from './types';
+import { PubSubOptions, PubSub } from './types';
 
 const interpolate = (string: string, vars: any = {}) => {
   return string.replace(/{(.*?)}/g, (match, offset) => vars[offset] || '');
@@ -37,7 +37,7 @@ export class KrakenPubSub implements PubSub {
   constructor(protected context: Kraken.ExecutionContext) {
   }
 
-  async subscribe(triggerName: string, vars?: Record<string, any>) {
+  async subscribe(triggerName: string, vars?: Record<string, any>, opts?: PubSubOptions) {
     if (this.context.$subMode === 'OUT') {
       // skip storing the subscription as it's in OUT mode, sending message
       return;
@@ -56,7 +56,7 @@ export class KrakenPubSub implements PubSub {
     });
   }
 
-  async publish(triggerName: string, payload: any) {
+  async publish(triggerName: string, payload: any, opts?: PubSubOptions) {
     if (this.getPubStrategy(triggerName) === 'BROADCASTER') {
       if (this.context.$broadcaster) {
         return await this.context.$broadcaster.broadcast(triggerName, payload);
@@ -64,7 +64,7 @@ export class KrakenPubSub implements PubSub {
     }
 
     const interpolatedTriggerName = interpolate(triggerName, payload);
-    const subscriptions = await this.context.$subscriptions.findByTriggerName(interpolatedTriggerName);
+    const subscriptions = await this.context.$subscriptions.findByTriggerName(interpolatedTriggerName, opts);
     const jobs = subscriptions.map(subscription => this.sendJob(subscription, payload));
     await submitJobs(jobs);
   }
