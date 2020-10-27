@@ -104,12 +104,25 @@ export class KrakenPubSub implements PubSub {
         return { data: { [subscriptionName]: payload } };
       };
 
+      const enrichWithMetadata = (response) => {
+        if (response.data) {
+          const metadata = Object.entries(payload).reduce((metadata, [key, value]) => {
+            if (key.startsWith('__')) metadata[key] = value;
+            return metadata;
+          }, {});
+          Object.values(response.data).forEach(data => {
+            Object.assign(data, metadata);
+          });
+        }
+        return response;
+      };
+
       const response = await getResponse();
       if (hasValidResponse(response)) {
         await this.context.$connections.send(subscription, {
           id: subscription.operationId,
           type: GQL_DATA,
-          payload: response
+          payload: enrichWithMetadata(response)
         });
       }
     };

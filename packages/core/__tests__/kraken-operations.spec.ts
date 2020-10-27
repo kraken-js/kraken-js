@@ -60,7 +60,7 @@ describe('Kraken Operations', () => {
 
   it.each([
     ['AS_IS', asIsPubStrategy, {
-      __typename: 'Message', channel: 'random', message: 'DOES IT WORKS?'
+      channel: 'random', message: 'DOES IT WORKS?'
     }],
     ['GRAPHQL', graphqlPubStrategy, {
       __typename: 'Message', channel: 'random', message: 'DOES IT WORKS?', resolvedOnly: 'IT WORKS'
@@ -135,12 +135,12 @@ describe('Kraken Operations', () => {
     await kraken.onGqlStart(connection, {
       id: '1',
       type: 'start',
-      payload: { query: 'subscription { onMessage(channel: "general") { __typename channel message } }' }
+      payload: { query: 'subscription { onMessage(channel: "general") { channel message } }' }
     });
     await kraken.onGqlStart(connection, {
       id: '2',
       type: 'start',
-      payload: { query: 'mutation { sendMessage(channel: "general", message: "hi") { __typename channel message } }' }
+      payload: { query: 'mutation { sendMessage(channel: "general", message: "hi") { channel message } }' }
     });
 
     expect(kraken.$connections.send).toHaveBeenCalledTimes(3);
@@ -152,7 +152,7 @@ describe('Kraken Operations', () => {
     expect(kraken.$connections.send).toHaveBeenCalledWith(expect.objectContaining(connection), {
       id: '2',
       type: GQL_DATA,
-      payload: { data: { sendMessage: { __typename: 'Message', channel: 'general', message: 'hi' } } }
+      payload: { data: { sendMessage: { channel: 'general', message: 'hi' } } }
     });
     expect(kraken.$connections.send).toHaveBeenCalledWith(expect.objectContaining(connection), {
       id: '2',
@@ -160,7 +160,6 @@ describe('Kraken Operations', () => {
     });
 
     expect(kraken.$broadcaster.broadcast).toHaveBeenCalledWith('onMessage#{channel}', {
-      __typename: 'Message',
       channel: 'general',
       message: 'hi'
     });
@@ -173,7 +172,7 @@ describe('Kraken Operations', () => {
     async (_: Kraken.PublishingStrategy, pubStrategy: KrakenSchema) => {
       const kraken = setup(pubStrategy);
       const connection = connectionInfo();
-      const numOfSubscriptions = 511;
+      const numOfSubscriptions = 111;
 
       await kraken.onGqlInit(connection, {
         type: 'connection_init',
@@ -183,18 +182,18 @@ describe('Kraken Operations', () => {
         await kraken.onGqlStart(connection, {
           id: 's' + i,
           type: 'start',
-          payload: { query: 'subscription { onMessage(channel: "general") { __typename channel message } }' }
+          payload: { query: 'subscription { onMessage(channel: "general") { channel message } }' }
         });
       }
       await kraken.onGqlStart(connection, {
         id: '2',
         type: 'start',
-        payload: { query: 'subscription { onMessage(channel: "random") { __typename channel message } }' }
+        payload: { query: 'subscription { onMessage(channel: "random") { channel message } }' }
       });
       await kraken.onGqlStart(connection, {
         id: '3',
         type: 'start',
-        payload: { query: 'mutation { sendMessage(channel: "general", message: "hi") { __typename channel message } }' }
+        payload: { query: 'mutation { sendMessage(channel: "general", message: "hi") { channel message } }' }
       });
       await kraken.onGqlStop(connection, {
         type: 'stop', id: '2'
@@ -211,20 +210,20 @@ describe('Kraken Operations', () => {
         expect(kraken.$connections.send).toHaveBeenCalledWith(expect.objectContaining(connection), {
           id: 's' + i,
           type: GQL_DATA,
-          payload: { data: { onMessage: { __typename: 'Message', channel: 'general', message: 'hi' } } }
+          payload: { data: { onMessage: { channel: 'general', message: 'hi' } } }
         });
       }
       // not publish to random channel
       expect(kraken.$connections.send).not.toHaveBeenCalledWith(expect.objectContaining(connection), {
         id: '2',
         type: GQL_DATA,
-        payload: { data: { onMessage: { __typename: 'Message', channel: expect.any(String), message: 'hi' } } }
+        payload: { data: { onMessage: { channel: expect.any(String), message: 'hi' } } }
       });
       // mutation response
       expect(kraken.$connections.send).toHaveBeenCalledWith(expect.objectContaining(connection), {
         id: '3',
         type: GQL_DATA,
-        payload: { data: { sendMessage: { __typename: 'Message', channel: 'general', message: 'hi' } } }
+        payload: { data: { sendMessage: { channel: 'general', message: 'hi' } } }
       });
       expect(kraken.$connections.send).toHaveBeenCalledWith(expect.objectContaining(connection), {
         id: '3',
@@ -301,7 +300,7 @@ describe('Kraken Operations', () => {
       id: '2',
       type: GQL_DATA,
       payload: {
-        data: { pubAsIs: { __typename: 'DifferentResponses', id: '666' } }
+        data: { pubAsIs: { id: '666' } }
       }
     });
   });
@@ -366,6 +365,55 @@ describe('Kraken Operations', () => {
       id: '2.1',
       type: GQL_DATA,
       payload: expect.anything()
+    });
+  });
+
+  it('should publish data including metadata', async () => {
+    const metadata = { __timestamp: Date.now(), __updated: true };
+    const extraSchema = {
+      typeDefs: `
+      extend type Mutation {
+        publish(id: ID!): Item @pub(triggerNames: ["onItem#{id}"])
+      }
+      extend type Subscription {
+        onItem(id: ID!): Item @sub(triggerName: "onItem#{id}")
+      }
+      type Item {
+        id: ID!
+      }`,
+      resolvers: {
+        Mutation: {
+          publish: (_, args) => {
+            return { ...args, ...metadata };
+          }
+        }
+      }
+    };
+
+    const kraken = setup(extraSchema);
+    const connection = connectionInfo();
+
+    await kraken.onGqlInit(connection, {
+      type: 'connection_init',
+      payload: {}
+    });
+    await kraken.onGqlStart(connection, {
+      id: '1',
+      type: 'start',
+      payload: { query: 'subscription { onItem(id: "666") { id } }' }
+    });
+    await kraken.onGqlStart(connection, {
+      id: '3',
+      type: 'start',
+      payload: { query: 'mutation { publish(id: "666") { id } }' }
+    });
+
+    expect(kraken.$connections.send).toHaveBeenCalledWith(expect.objectContaining(connection), {
+      id: '1',
+      type: GQL_DATA,
+      payload: {
+        data: { onItem: { id: '666', ...metadata } }
+      }
     });
   });
 });
