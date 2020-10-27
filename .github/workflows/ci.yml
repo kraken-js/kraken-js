@@ -44,6 +44,7 @@ jobs:
           yarn workspace @kraken.js/serverless run package
           yarn workspace @kraken.js/core run package
           yarn workspace @kraken.js/aws run package
+          yarn workspace @kraken.js/essentials run package
 
       - name: Unit Tests
         working-directory: ${{ matrix.package }}
