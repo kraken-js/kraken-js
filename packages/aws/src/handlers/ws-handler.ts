@@ -59,20 +59,28 @@ export const wsHandler = <T = any>(kraken: Kraken.Runtime): APIGatewayProxyHandl
         return okResponse;
     }
 
-    const operation = await safeParseEvent(event, kraken, connectionInfo);
-    switch (operation.type) {
-      case GQL_CONNECTION_INIT:
-        await kraken.onGqlInit(connectionInfo, operation);
-        return okResponse;
-      case GQL_START:
-        await kraken.onGqlStart(connectionInfo, operation);
-        return okResponse;
-      case GQL_STOP:
-        await kraken.onGqlStop(connectionInfo, operation);
-        return okResponse;
-      case GQL_CONNECTION_TERMINATE:
-        await kraken.onGqlConnectionTerminate(connectionInfo);
-        return okResponse;
+    try {
+      const operation = await safeParseEvent(event, kraken, connectionInfo);
+      switch (operation.type) {
+        case GQL_CONNECTION_INIT:
+          await kraken.onGqlInit(connectionInfo, operation);
+          return okResponse;
+        case GQL_START:
+          await kraken.onGqlStart(connectionInfo, operation);
+          return okResponse;
+        case GQL_STOP:
+          await kraken.onGqlStop(connectionInfo, operation);
+          return okResponse;
+        case GQL_CONNECTION_TERMINATE:
+          await kraken.onGqlConnectionTerminate(connectionInfo);
+          return okResponse;
+      }
+    } catch (error) {
+      await kraken.$connections.send({ connectionId, apiGatewayUrl }, {
+        type: GQL_CONNECTION_ERROR,
+        reason: error.message,
+        request: event.body
+      });
     }
 
     return okResponse;

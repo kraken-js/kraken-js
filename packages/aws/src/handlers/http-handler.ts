@@ -20,21 +20,32 @@ export const httpHandler = <T = any>(kraken: Kraken.Runtime): APIGatewayProxyHan
     const operationName = request.operationName;
     const variableValues = request.variables;
 
-    const { contextValue } = await kraken.onConnectionInit({
-      type: GQL_CONNECTION_INIT,
-      payload: event.headers
-    });
-    const response = await kraken.gqlExecute({
-      operationId: event.requestContext.connectionId,
-      document,
-      operationName,
-      variableValues,
-      contextValue
-    });
+    try {
+      const { contextValue } = await kraken.onConnectionInit({
+        type: GQL_CONNECTION_INIT,
+        payload: event.headers
+      });
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify(response)
-    };
+      const response = await kraken.gqlExecute({
+        operationId: event.requestContext.connectionId,
+        document,
+        operationName,
+        variableValues,
+        contextValue
+      });
+
+      return {
+        statusCode: 200,
+        body: JSON.stringify(response)
+      };
+    } catch (error) {
+      return {
+        statusCode: 500,
+        body: JSON.stringify({
+          request: event.body,
+          reason: error.message
+        })
+      };
+    }
   };
 };

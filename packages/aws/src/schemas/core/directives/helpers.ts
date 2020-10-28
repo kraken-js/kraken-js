@@ -46,7 +46,7 @@ export const getTargetModelInfo = field => {
   // not a model, maybe it's a connection type => { nodes: [Model] } || { items: [Model] }
   if (!model) {
     const fields = type.getFields();
-    const connection = (fields.nodes || fields.items);
+    const connection = (fields.nodes || fields.edges || fields.items);
     if (connection) {
       const response = getTargetModelInfo(connection);
       return { ...response, connection };
