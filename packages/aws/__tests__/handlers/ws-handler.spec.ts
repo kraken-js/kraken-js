@@ -2,6 +2,7 @@ import { graphqlSchema, wsHandler } from '@kraken.js/aws';
 import {
   GQL_COMPLETE,
   GQL_CONNECTION_ACK,
+  GQL_CONNECTION_ERROR,
   GQL_CONNECTION_INIT,
   GQL_CONNECTION_TERMINATE,
   GQL_DATA,
@@ -129,8 +130,16 @@ describe('AWS Websocket Handler', () => {
 
   it('should fail when operation is run and the connection is not initialized', async () => {
     const { execute, connectionId } = setupTest();
-    const actual = execute({ id: '1', type: GQL_START, payload: { query: 'query { hello }' } });
-    await expect(actual).rejects.toThrow(`Connection ${connectionId} not found`);
+    const request = { id: '1', type: GQL_START, payload: { query: 'query { hello }' } };
+    await execute(request);
+    expect(apiGatewayMock.postToConnection).toHaveBeenCalledWith({
+      ConnectionId: connectionId,
+      Data: JSON.stringify({
+        type: GQL_CONNECTION_ERROR,
+        reason: 'Connection ' + connectionId + ' not found',
+        request: JSON.stringify(request)
+      })
+    });
   });
 
   it('should skip self subscription when noSelfSubscriptionUpdate is true', async () => {
