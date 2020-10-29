@@ -1,7 +1,7 @@
 import { SchemaDirectiveVisitor } from '@graphql-tools/utils';
 import { defaultFieldResolver } from 'graphql';
 import { nanoid } from 'nanoid';
-import { getMapping, getTargetModelInfo, isoDate, makeModifier, prefixOperatorsWith$ } from './helpers';
+import { getMapping, getTargetModelInfo, isoDate, prefixOperatorsWith$, spreadKeysAndModifier } from './helpers';
 
 export class AwsDynamoUpsertDirective extends SchemaDirectiveVisitor {
   visitFieldDefinition(field) {
@@ -21,15 +21,6 @@ export class AwsDynamoUpsertDirective extends SchemaDirectiveVisitor {
       return condition;
     };
 
-    const spreadKeysAndModifier = (item) => {
-      if (sortKey) {
-        const { [partitionKey]: pk, [sortKey]: sk, ...modifier } = item;
-        return { [partitionKey]: pk, [sortKey]: sk, modifier: makeModifier(modifier) };
-      }
-      const { [partitionKey]: pk, ...modifier } = item;
-      return { [partitionKey]: pk, modifier: makeModifier(modifier) };
-    };
-
     field.resolve = async (source, args, context: Kraken.Context, info) => {
       const { $dynongo } = context;
       const { input, ...spread } = args;
@@ -46,7 +37,7 @@ export class AwsDynamoUpsertDirective extends SchemaDirectiveVisitor {
 
       const condition = extractCondition(item);
 
-      const { modifier, ...keys } = spreadKeysAndModifier(item);
+      const { modifier, ...keys } = spreadKeysAndModifier(item, partitionKey, sortKey);
       if (versioned) modifier.inc = { ...modifier.inc, version: 1 };
 
       const table = $dynongo.table(tableName);
