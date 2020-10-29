@@ -1,6 +1,6 @@
 {
   "name": "@kraken.js/auth",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "license": "MIT",
   "author": "@kraken.js",
   "repository": "github:kraken-js/kraken.js",
@@ -25,8 +25,8 @@
     "src/schema.graphql"
   ],
   "devDependencies": {
-    "@kraken.js/jest": "0.0.5",
-    "@kraken.js/webpack": "0.0.5",
+    "@kraken.js/jest": "0.0.6",
+    "@kraken.js/webpack": "0.0.6",
     "jest": "^26.4.2"
   },
   "peerDependencies": {
