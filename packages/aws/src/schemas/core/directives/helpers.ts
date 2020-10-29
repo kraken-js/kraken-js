@@ -10,6 +10,14 @@ import {
 type GetDirectiveFrom = GraphQLObjectType | GraphQLField<any, any>;
 
 const stage = process.env.STAGE as string;
+const modifiers = new Set([
+  'set',
+  'unset',
+  'inc',
+  'push',
+  'addToSet',
+  'unshift'
+]);
 const operators = new Set([
   'or',
   'and',
@@ -25,12 +33,6 @@ const operators = new Set([
   'exists',
   'beginsWith',
   'between',
-  'set',
-  'unset',
-  'inc',
-  'push',
-  'addToSet',
-  'unshift',
   'each'
 ]);
 
@@ -97,6 +99,32 @@ export const getMapping = (source: any, fields?: string[], mapper = (source, fro
   }, {});
 };
 
+export const extractKeys = (item, partitionKey, sortKey) => {
+  if (sortKey) {
+    const { [partitionKey]: pk, [sortKey]: sk } = item;
+    return { [partitionKey]: pk, [sortKey]: sk };
+  }
+  const { [partitionKey]: pk } = item;
+  return { [partitionKey]: pk };
+};
+
+export const spreadKeysAndModifier = (item, partitionKey, sortKey) => {
+  if (sortKey) {
+    const { [partitionKey]: pk, [sortKey]: sk, ...modifier } = item;
+    return { [partitionKey]: pk, [sortKey]: sk, modifier: makeModifier(modifier) };
+  }
+  const { [partitionKey]: pk, ...modifier } = item;
+  return { [partitionKey]: pk, modifier: makeModifier(modifier) };
+};
+
+export const makeModifier = (object = {}): any => {
+  return Object.entries(object).reduce((modifier, [key, value]) => {
+    const mod = modifiers.has(key) ? key : 'set';
+    modifier[mod] = { ...modifier[mod], [key]: value };
+    return modifier;
+  }, {});
+};
+
 export const prefixOperatorsWith$ = (object = {}): any => {
   if (object === null || object === undefined) {
     return object;
@@ -113,7 +141,7 @@ export const prefixOperatorsWith$ = (object = {}): any => {
   for (const key in object) {
     if (Object.prototype.hasOwnProperty.call(object, key)) {
       const value = object[key];
-      if (operators.has(key)) {
+      if (operators.has(key) || modifiers.has(key)) {
         result['$' + key] = typeof value === 'object' ? prefixOperatorsWith$(value) : value;
       } else if (typeof value === 'object') {
         result[key] = prefixOperatorsWith$(value);
@@ -137,3 +165,6 @@ export const fromBase64 = (string, parse = true) => {
   return parse ? JSON.parse(s) : s;
 };
 
+export const isoDate = () => {
+  return new Date().toISOString();
+};

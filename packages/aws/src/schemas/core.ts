@@ -3,10 +3,11 @@ import dynongo from 'dynongo';
 import { AwsSchemaConfig } from './core/config';
 // @ts-ignore
 import * as typeDefs from './core/core.graphql';
+import { AwsDynamoDeleteDirective } from './core/directives/aws-dynamo-delete';
 import { AwsDynamoGetDirective } from './core/directives/aws-dynamo-get';
 import { AwsDynamoModelDirective } from './core/directives/aws-dynamo-model';
-import { AwsDynamoPutDirective } from './core/directives/aws-dynamo-put';
 import { AwsDynamoQueryDirective } from './core/directives/aws-dynamo-query';
+import { AwsDynamoUpsertDirective } from './core/directives/aws-dynamo-upsert';
 import { AwsLambdaDirective } from './core/directives/aws-lambda';
 import { dynamoDbDataLoader } from './core/dynamodb-dataloader';
 import { dynamoDbConnectionStore, dynamoDbSubscriptionStore } from './core/dynamodb-stores';
@@ -18,7 +19,9 @@ const schemaDirectives = {
   model: AwsDynamoModelDirective,
   get: AwsDynamoGetDirective,
   query: AwsDynamoQueryDirective,
-  put: AwsDynamoPutDirective
+  put: AwsDynamoUpsertDirective,
+  update: AwsDynamoUpsertDirective,
+  delete: AwsDynamoDeleteDirective
 };
 
 const resolvers = {

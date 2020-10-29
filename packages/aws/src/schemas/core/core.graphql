@@ -29,14 +29,12 @@ directive @put(
     conditional: [String]
 ) on FIELD_DEFINITION
 
-## to be implemented
-
-directive @aws_dynamo_update(
-    keys: [String]
+directive @update(
+    sourceMapping: [String]
     conditional: [String]
 ) on FIELD_DEFINITION
 
-directive @aws_dynamo_delete(
+directive @delete(
     conditional: [String]
 ) on FIELD_DEFINITION
 
