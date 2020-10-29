@@ -3,9 +3,9 @@ import { buildDocumentFromTypeDefinitions, makeExecutableSchema } from '@graphql
 import { execute, OperationDefinitionNode, parse } from 'graphql';
 import { PromiseOrValue } from 'graphql/jsutils/PromiseOrValue';
 import { GQL_COMPLETE, GQL_CONNECTION_ACK, GQL_DATA } from './constants';
-import { executionContextBuilder } from './context';
 // @ts-ignore
 import * as krakenTypesDefs from './core.graphql';
+import { containerFactory } from './di';
 import { PublishDirective } from './directives/publish-directive';
 import { SubscribeDirective } from './directives/subscribe-directive';
 import { krakenPubSub } from './pubsub';
@@ -91,12 +91,19 @@ export const krakenJs = <T>(config: Config): Kraken.Runtime => {
   const $plugins = {} as Kraken.Context;
   const pluginInjector = (name, value) => $plugins['$' + name] = value;
 
-  const { onConnect, onDisconnect, onBeforeExecute, onAfterExecute, executableSchema } = buildSchemaAndHooks(configs, pluginInjector);
-  const makeExecutionContext = executionContextBuilder($plugins);
-  const $root = makeExecutionContext({});
+  const {
+    onConnect,
+    onDisconnect,
+    onBeforeExecute,
+    onAfterExecute,
+    executableSchema
+  } = buildSchemaAndHooks(configs, pluginInjector);
+  const contextFactory = containerFactory($plugins);
+
+  const $root = contextFactory({});
 
   const onConnectionInit = async (operation: Pick<GqlOperation<Kraken.InitParams>, 'payload'>) => {
-    const $context = makeExecutionContext({ connectionParams: operation.payload });
+    const $context = contextFactory({ connectionParams: operation.payload });
     const contextValue = {} as Kraken.Context;
     for (const fn of onConnect) {
       if (fn) {
@@ -123,7 +130,7 @@ export const krakenJs = <T>(config: Config): Kraken.Runtime => {
     };
 
     const executionContext = await buildContext();
-    const $context = makeExecutionContext({
+    const $context = contextFactory({
       ...executionContext,
       operation: {
         id: args.operationId,
@@ -209,7 +216,7 @@ export const krakenJs = <T>(config: Config): Kraken.Runtime => {
     ]);
   };
 
-  return makeExecutionContext({
+  return contextFactory({
     schema: executableSchema,
     gqlExecute,
     onGqlInit,

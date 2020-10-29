@@ -7,7 +7,7 @@ export class PublishDirective extends SchemaDirectiveVisitor {
     const triggerNames = this.args.triggerNames;
     const noSelfSubscriptionUpdate = this.args.noSelfSubscriptionUpdate;
 
-    field.resolve = async function(source, args, context: Kraken.ExecutionContext, info) {
+    field.resolve = async function(source, args, context: Kraken.Context, info) {
       const result = await resolve.apply(this, [source, args, context, info]);
       for (const triggerName of triggerNames) {
         await context.$pubsub.publish(triggerName, result, { noSelfSubscriptionUpdate });

@@ -1,32 +1,10 @@
 import { ExecutionResult, parse, print } from 'graphql';
 import { GQL_DATA } from './constants';
-import { PubSubOptions, PubSub } from './types';
+import { execute } from './executor';
+import { PubSub, PubSubOptions } from './types';
 
 const interpolate = (string: string, vars: any = {}) => {
   return string.replace(/{(.*?)}/g, (match, offset) => vars[offset] || '');
-};
-
-const submitJobs = (jobs: (() => Promise<any>)[], concurrency = 100) => {
-  let workers = 0;
-  let index = 0;
-
-  return new Promise(done => {
-    const finished = index => result => {
-      jobs[index] = result;
-      workers--;
-      tick();
-    };
-    const tick = () => {
-      if (workers < concurrency && index < jobs.length) {
-        jobs[index]().then(finished(index)).catch(finished(index));
-        ++index && ++workers;
-        tick();
-      } else if (workers === 0 && index === jobs.length) {
-        done(jobs);
-      }
-    };
-    tick();
-  });
 };
 
 const hasValidResponse = (result?: ExecutionResult) => {
@@ -66,7 +44,7 @@ export class KrakenPubSub implements PubSub {
     const interpolatedTriggerName = interpolate(triggerName, payload);
     const subscriptions = await this.context.$subscriptions.findByTriggerName(interpolatedTriggerName, opts);
     const jobs = subscriptions.map(subscription => this.sendJob(subscription, payload));
-    await submitJobs(jobs);
+    await execute(jobs);
   }
 
   private getPubStrategy(triggerName: string): Kraken.PublishingStrategy {

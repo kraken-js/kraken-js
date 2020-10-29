@@ -41,7 +41,7 @@ export interface Broadcaster {
   broadcast(triggerName: string, payload: any)
 }
 
-export type Injector = (name: string, value: ((ctx: Kraken.ExecutionContext) => any) | any) => void;
+export type Injector = (name: string, value: ((ctx: Kraken.Context) => any) | any) => void;
 
 export interface KrakenSchema extends Partial<IExecutableSchemaDefinition<Kraken.Context>> {
 
@@ -88,19 +88,6 @@ declare global {
     type PublishingStrategy = 'AS_IS' | 'GRAPHQL' | 'BROADCASTER';
 
     interface Context {
-      $connections: ConnectionStore
-      $subscriptions: SubscriptionStore
-      $pubsub: PubSub
-      $subMode?: 'IN' | 'OUT'
-      $pubStrategy?: PublishingStrategy | Record<string, PublishingStrategy>
-      $broadcaster?: Broadcaster
-    }
-
-    interface ConnectionInfo {
-      connectionId: string
-    }
-
-    type ExecutionContext = Context & {
       connectionInfo?: ConnectionInfo
       operation?: {
         id: string
@@ -109,10 +96,23 @@ declare global {
         variableValues?: any
       }
 
-      serialize(): Context
+      $connections: ConnectionStore
+      $subscriptions: SubscriptionStore
+      $pubsub: PubSub
+      $subMode?: 'IN' | 'OUT'
+      $pubStrategy?: PublishingStrategy | Record<string, PublishingStrategy>
+      $broadcaster?: Broadcaster
+
+      toJSON(): Context
+    }
+
+    type ExecutionContext = Context & {
       gqlExecute(args: ExecutionArgs): Promise<ExecutionResult>;
     }
 
+    interface ConnectionInfo {
+      connectionId: string
+    }
 
     interface Connection extends ConnectionInfo {
       context: Context
