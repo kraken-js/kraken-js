@@ -1,13 +1,13 @@
-import { graphqlSchema } from '@kraken.js/aws';
-import { krakenJs, KrakenSchema } from '@kraken.js/core';
-import { DynamoDB } from 'aws-sdk';
+import { KrakenSchema } from '@kraken.js/core';
 import 'jest-dynalite/withDb';
+import { dynamoDb, setupKrakenRuntime } from './helpers';
 
 const testSchema: KrakenSchema = {
   typeDefs: `
     type Query { _: String }
     type Mutation {
         sendMessage(input: MessageInput!): Message! @put
+        updateMessage(input: MessageInput!): Message! @update
         saveModel(input: ModelInput!): Model! @put
     }
     type Model @model(partitionKey: "id" versioned: false timestamp: false) {
@@ -24,9 +24,9 @@ const testSchema: KrakenSchema = {
     input MessageInput {
         channel: ID!
         timestamp: String
-        version: Int
         message: String!
-        sentBy: ID!
+        version: Int
+        sentBy: ID
     }
     input ModelInput {
       id: ID
@@ -35,21 +35,7 @@ const testSchema: KrakenSchema = {
 `
 };
 
-const dynamoDb = new DynamoDB.DocumentClient({
-  endpoint: process.env.MOCK_DYNAMODB_ENDPOINT,
-  sslEnabled: false,
-  region: 'local'
-});
-
-const setupKrakenRuntime = () => {
-  return krakenJs([
-    graphqlSchema({ dynamoDb }),
-    testSchema
-  ]);
-};
-
-
-describe('@put', () => {
+describe('@put && @update', () => {
   const timestamp = expect.stringMatching(/\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+/);
   const existing = { channel: 'general', timestamp: '10000', message: 'hi', sentBy: 'u1', version: 4 };
 
@@ -88,6 +74,19 @@ describe('@put', () => {
       }
     }],
     [`mutation { 
+        updateMessage(input: { channel: "general" timestamp: "10000" message: "hi (edited)", version: 4 }) { 
+          channel timestamp message sentBy version
+        } 
+      }`, {
+      updateMessage: {
+        channel: 'general',
+        message: 'hi (edited)',
+        sentBy: 'u1',
+        version: 5,
+        timestamp: '10000'
+      }
+    }],
+    [`mutation { 
         saveModel(input: { name: "model X" }) { 
           id name
         } 
@@ -97,8 +96,8 @@ describe('@put', () => {
         name: 'model X'
       }
     }]
-  ])('should upsert item on dynamodb for mutation %s', async (document, data) => {
-    const krakenRuntime = setupKrakenRuntime();
+  ])('should upsert/update item on dynamodb for mutation %s', async (document, data) => {
+    const krakenRuntime = setupKrakenRuntime(testSchema);
     const response = await krakenRuntime.gqlExecute({ operationId: '1', document });
     expect(response).toEqual({ data });
   });
@@ -127,7 +126,7 @@ describe('@put', () => {
       }]
     ]
   ])('should fail to item on dynamodb for mutation %s', async (document, errors) => {
-    const krakenRuntime = setupKrakenRuntime();
+    const krakenRuntime = setupKrakenRuntime(testSchema);
     const response = await krakenRuntime.gqlExecute({ operationId: '1', document });
     expect(response).toEqual({ data: null, errors });
   });

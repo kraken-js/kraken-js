@@ -1,7 +1,6 @@
-import { graphqlSchema } from '@kraken.js/aws';
-import { krakenJs, KrakenSchema } from '@kraken.js/core';
-import { DynamoDB } from 'aws-sdk';
+import { KrakenSchema } from '@kraken.js/core';
 import 'jest-dynalite/withDb';
+import { dynamoDb, setupKrakenRuntime } from './helpers';
 
 const testSchema: KrakenSchema = {
   typeDefs: `
@@ -24,20 +23,6 @@ const testSchema: KrakenSchema = {
       id: ID!
     }`
 };
-
-const dynamoDb = new DynamoDB.DocumentClient({
-  endpoint: process.env.MOCK_DYNAMODB_ENDPOINT,
-  sslEnabled: false,
-  region: 'local'
-});
-
-const setupKrakenRuntime = () => {
-  return krakenJs([
-    graphqlSchema({ dynamoDb }),
-    testSchema
-  ]);
-};
-
 
 describe('@get', () => {
   beforeEach(async () => {
@@ -85,7 +70,7 @@ describe('@get', () => {
       }
     }]
   ])('should get item from dynamodb for query %s', async (document, data) => {
-    const krakenRuntime = setupKrakenRuntime();
+    const krakenRuntime = setupKrakenRuntime(testSchema);
     const response = await krakenRuntime.gqlExecute({ operationId: '1', document });
     expect(response).toEqual({ data });
   });

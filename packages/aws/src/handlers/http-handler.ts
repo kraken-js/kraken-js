@@ -5,6 +5,8 @@ import lambdaPlayground from 'graphql-playground-middleware-lambda';
 
 export const httpHandler = <T = any>(kraken: Kraken.Runtime): APIGatewayProxyHandler => {
   return async (event: APIGatewayProxyEvent, context?, callback?) => {
+    if (!event.requestContext) return { statusCode: 200, body: '' }; // warm up or something else
+
     if (event.httpMethod === 'OPTIONS') {
       return { statusCode: 200, body: '', headers: { 'Cache-Control': 'max-age=31536000' } };
     }
