@@ -94,7 +94,7 @@ export const dynamoDbConnectionStore = (config: AwsSchemaConfig) => {
 export const dynamoDbSubscriptionStore = (config: AwsSchemaConfig) => {
   const tableName = config?.connections?.tableName || getTableName();
 
-  return ({ $dynamoDb, connectionInfo }: Kraken.ExecutionContext): SubscriptionStore => {
+  return ({ $dynamoDb, connectionInfo }: Kraken.Context): SubscriptionStore => {
 
     const batchDelete = async (connectionId: string, operationId?: string, lastEvaluatedKey?) => {
       const keyConditionExpression = operationId

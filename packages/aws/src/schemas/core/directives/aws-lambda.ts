@@ -26,7 +26,7 @@ export class AwsLambdaDirective extends SchemaDirectiveVisitor {
     const isChained = isChainedDirective(field, this);
 
     field.resolve = async (source, args, $context, info) => {
-      const context = $context.serialize();
+      const context = $context.toJSON();
 
       const { Payload, FunctionError } = await $context.$lambda
         .invoke({
