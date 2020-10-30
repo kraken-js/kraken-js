@@ -11,12 +11,13 @@ const mockSchema = {
 };
 
 describe('DynamoDB Streams Handler', () => {
-  it('should ', async () => {
+  it('should publish messages for each trigger name and call forEach', async () => {
     const kraken = krakenJs([mockSchema]);
+    const forEach = jest.fn();
     await dynamodbStreamsHandler(kraken, {
       triggerNames: ['onMessages#{channel}', 'onMessages#{sentBy}'],
       typeName: 'Message'
-    })({
+    }, forEach)({
       Records: [
         {
           eventName: 'INSERT',
@@ -86,5 +87,7 @@ describe('DynamoDB Streams Handler', () => {
       __typename: 'Message',
       channel: 'random'
     });
+
+    expect(forEach).toHaveBeenCalledTimes(3);
   });
 });

@@ -12,7 +12,11 @@ interface DynamodbStreamsOptions {
   typeName?: string;
 }
 
-export const dynamodbStreamsHandler = (kraken: Kraken.Runtime, options: DynamodbStreamsOptions) => {
+export const dynamodbStreamsHandler = (
+  kraken: Kraken.Runtime,
+  options: DynamodbStreamsOptions,
+  forEach?: (item) => Promise<void>
+) => {
   return async (event: DynamoDBStreamEvent) => {
     for (const record of event.Records) {
       const item = getItem(record);
@@ -30,6 +34,8 @@ export const dynamodbStreamsHandler = (kraken: Kraken.Runtime, options: Dynamodb
           console.error(error);
         });
       }
+
+      if (forEach) await forEach(item);
     }
   };
 };
