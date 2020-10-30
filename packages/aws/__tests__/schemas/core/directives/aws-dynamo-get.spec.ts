@@ -9,11 +9,18 @@ const testSchema: KrakenSchema = {
       modelInput(input: GetModel!): Model @get
       existingTable(id: ID!): ExistingTable @get
     }
-    type Model @model {
+    type Model @model(partitionKey: "id") {
       id: ID!
       name: String
       relatedId: ID!
+      channel: ID
+      timestamp: ID
       related: Model @get(sourceMapping: ["relatedId:id"])
+      message: Message @get(sourceMapping: ["channel", "timestamp"])
+    }
+    type Message @model(partitionKey: "channel", sortKey: "timestamp") {
+      channel: ID!
+      timestamp: String!
     }
     type ExistingTable @model(table: "ExistingTable") {
       id: ID!
@@ -67,6 +74,13 @@ describe('@get', () => {
         id: 'first',
         name: 'First',
         related: { id: 'second' }
+      }
+    }],
+    ['{ model(id: "first") { id name message { channel timestamp } } }', {
+      model: {
+        id: 'first',
+        name: 'First',
+        message: null
       }
     }]
   ])('should get item from dynamodb for query %s', async (document, data) => {
