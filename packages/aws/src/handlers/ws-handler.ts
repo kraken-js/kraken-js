@@ -76,14 +76,14 @@ export const wsHandler = <T = any>(kraken: Kraken.Runtime): APIGatewayProxyHandl
           return okResponse;
       }
     } catch (error) {
+      error.request = event.body;
+      console.error(error);
+
       await kraken.$connections.send({ connectionId, apiGatewayUrl }, {
         type: GQL_CONNECTION_ERROR,
         reason: error.message,
         request: event.body
-      }).catch(e => void e);
-
-      error.request = event.body;
-      console.error(error);
+      });
     }
 
     return okResponse;
