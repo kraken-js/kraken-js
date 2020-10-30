@@ -80,7 +80,10 @@ export const wsHandler = <T = any>(kraken: Kraken.Runtime): APIGatewayProxyHandl
         type: GQL_CONNECTION_ERROR,
         reason: error.message,
         request: event.body
-      });
+      }).catch(e => void e);
+
+      error.request = event.body;
+      console.error(error);
     }
 
     return okResponse;
