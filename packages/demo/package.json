@@ -17,7 +17,7 @@
   "dependencies": {
     "@kraken.js/aws": "0.0.6",
     "@kraken.js/core": "0.0.6",
-    "graphql": "^15.3.0"
+    "graphql": "^15.4.0"
   },
   "devDependencies": {
     "@kraken.js/essentials": "0.0.6",
