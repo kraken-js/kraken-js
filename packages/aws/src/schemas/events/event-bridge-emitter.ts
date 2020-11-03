@@ -1,47 +1,46 @@
-import { PutEventsRequestEntryList, PutEventsResponse } from 'aws-sdk/clients/eventbridge';
+import { PutEventsRequestEntryList } from 'aws-sdk/clients/eventbridge';
+
+export interface PutEvent {
+  eventBus?: string;
+  source: string;
+  type?: string;
+  payload: any;
+}
 
 export type EventBridgeEmitter = {
-  eventBus(eventBus): EventBridgeEmitter
-  source(source: string): EventBridgeEmitter
-  type(type: string): EventBridgeEmitter
-  event(payload: any): EventBridgeEmitter
-  send(): Promise<PutEventsResponse>
+  put(event: PutEvent): EventBridgeEmitter
+  send(): Promise<void>
 }
 
 export const eventBridgeEmitter = ({ $eventBridge }: Kraken.Context): EventBridgeEmitter => {
+  const defaultEvenBus = process.env.EVENT_BUS_NAME as string;
   const entries: PutEventsRequestEntryList = [];
-  const metadata = {
-    eventBus: process.env.EVENT_BUS_NAME as string,
-    source: undefined,
-    type: undefined
-  };
 
   return {
-    eventBus(eventBus) {
-      metadata.eventBus = eventBus;
-      return this;
-    },
-    source(source: string) {
-      metadata.source = source;
-      return this;
-    },
-    type(type: string) {
-      metadata.type = type;
-      return this;
-    },
-    event(payload: any) {
+    put({ eventBus = defaultEvenBus, source, type, payload }: PutEvent) {
       entries.push({
-        EventBusName: metadata.eventBus,
-        Source: metadata.source,
-        DetailType: metadata.type,
+        EventBusName: eventBus,
+        Source: source,
+        DetailType: type || source,
         Detail: JSON.stringify(payload)
       });
       return this;
     },
     async send() {
-      return await $eventBridge.putEvents({
-        Entries: entries
-      }).promise();
+      let batch = [];
+
+      while (entries.length > 0) {
+        batch.push(entries.shift());
+
+        if (batch.length === 10) { // each 10 (max for event bridge)
+          await $eventBridge.putEvents({ Entries: batch }).promise();
+          batch = [];
+        }
+      }
+
+      if (batch.length > 0) {
+        await $eventBridge.putEvents({ Entries: batch }).promise();
+      }
     }
   };
 };
