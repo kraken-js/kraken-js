@@ -16,9 +16,9 @@ export const graphqlSchema = {
   resolvers: {
     Mutation: {
       ping: async (_, { channel }, { $events }: Kraken.Context) => {
-        const response = { channel, timestamp: Date.now() };
-        await $events.source('Ping:Invoked').type('Ping').event(response).send();
-        return response;
+        const payload = { channel, timestamp: Date.now() };
+        await $events.put({ source: 'Ping:Invoked', type: 'Ping', payload }).send();
+        return payload;
       }
     }
   }
