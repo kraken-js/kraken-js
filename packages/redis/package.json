@@ -1,0 +1,49 @@
+{
+  "name": "@kraken.js/redis",
+  "version": "0.0.6",
+  "license": "MIT",
+  "author": "@kraken.js",
+  "repository": "github:kraken-js/kraken.js",
+  "main": "dist/main.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "pretest": "npx rimraf dist",
+    "test": "jest --passWithNoTests --runInBand",
+    "posttest": "yarn emit-declarations-only",
+    "prepackage": "npx rimraf dist",
+    "package": "webpack-cli",
+    "emit-declarations-only": "tsc --emitDeclarationOnly",
+    "copy-schemas": "npx copyfiles -f src/**/*.graphql dist",
+    "copy-serverless": "npx copyfiles resources/**/*.yml dist",
+    "prepublishOnly": "yarn package && yarn emit-declarations-only && yarn copy-schemas && yarn copy-serverless"
+  },
+  "files": [
+    "dist",
+    "package.json",
+    "README.md",
+    "LICENSE",
+    "*.graphql",
+    "*.yml"
+  ],
+  "dependencies": {
+    "@kraken.js/core": "0.0.6",
+    "aws-lambda": "^1.0.6",
+    "ioredis": "^4.19.2"
+  },
+  "devDependencies": {
+    "@kraken.js/jest": "0.0.6",
+    "@kraken.js/webpack": "0.0.6",
+    "@types/ioredis": "^4.17.7",
+    "jest": "^26.6.1"
+  },
+  "size-limit": [
+    {
+      "gzip": false,
+      "limit": "350 KB",
+      "ignore": [
+        "@kraken.js/core",
+        "aws-sdk"
+      ]
+    }
+  ]
+}

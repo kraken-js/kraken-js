@@ -71,6 +71,9 @@ const setupTest = () => {
         connectionId: connectionId,
         domainName: 'domain.fake',
         stage: process.env.STAGE,
+        identity: {
+          sourceIp: '0.0.0.0'
+        },
         routeKey
       },
       headers,
