@@ -41,4 +41,24 @@ describe('AWS Http Handler', () => {
       statusCode: 200
     });
   });
+
+  it('should fail with 400 on execution failure', async () => {
+    const handler = httpHandler(krakenJs(testSchema));
+    const response = await handler({
+      requestContext: {
+        connectionId: '1241234'
+      },
+      body: JSON.stringify({
+        query: 'XXXXX',
+        variables: {
+          name: 'world'
+        }
+      })
+    } as any, null, null);
+
+    expect(response).toEqual({
+      body: expect.any(String),
+      statusCode: 400
+    });
+  });
 });
