@@ -17,12 +17,12 @@ export const httpHandler = <T = any>(kraken: Kraken.Runtime): APIGatewayProxyHan
       })(event, context, callback) as any;
     }
 
-    const request = JSON.parse(event.body);
-    const document = parse(request.query);
-    const operationName = request.operationName;
-    const variableValues = request.variables;
-
     try {
+      const request = JSON.parse(event.body);
+      const document = parse(request.query);
+      const operationName = request.operationName;
+      const variableValues = request.variables;
+
       const { contextValue } = await kraken.onConnectionInit({
         type: GQL_CONNECTION_INIT,
         payload: event.headers
@@ -42,7 +42,7 @@ export const httpHandler = <T = any>(kraken: Kraken.Runtime): APIGatewayProxyHan
       };
     } catch (error) {
       return {
-        statusCode: 500,
+        statusCode: 400,
         body: JSON.stringify({
           request: event.body,
           reason: error.message
