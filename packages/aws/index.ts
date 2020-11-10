@@ -22,6 +22,7 @@ declare global {
   namespace Kraken {
     interface Context {
       $lambda: AWS.Lambda
+      $dax: AWS.DynamoDB.DocumentClient
       $dynamoDb: AWS.DynamoDB.DocumentClient
       $dynongo: DynamoDB
       $apiGateway: { get: (endpoint: string) => AWS.ApiGatewayManagementApi }

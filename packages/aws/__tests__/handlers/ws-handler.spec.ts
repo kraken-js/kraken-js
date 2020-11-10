@@ -47,7 +47,7 @@ const testSchema: KrakenSchema = {
   }
 };
 
-const setupTest = () => {
+const setupTest = (ddb = 'dynamoDb') => {
   const dynamoDb = new DynamoDB.DocumentClient({
     endpoint: process.env.MOCK_DYNAMODB_ENDPOINT,
     sslEnabled: false,
@@ -56,7 +56,7 @@ const setupTest = () => {
 
   const kraken = krakenJs([
     graphqlSchema({
-      dynamoDb,
+      [ddb]: dynamoDb,
       apiGateway: apiGatewayMock,
       connections: { waitForConnectionTimeout: 5 }
     }),
@@ -165,9 +165,9 @@ describe('AWS Websocket Handler', () => {
     });
   });
 
-  describe('should successfully execute pub/sub', () => {
+  describe.each(['dynamoDb', 'dax'])('should successfully execute pub/sub using %s', (ddb) => {
     const numOfSubscriptions = 111;
-    const { execute, connectionId, dynamoDb } = setupTest();
+    const { execute, connectionId, dynamoDb } = setupTest(ddb);
 
     beforeEach(async () => {
       await execute({ type: GQL_CONNECTION_INIT });
