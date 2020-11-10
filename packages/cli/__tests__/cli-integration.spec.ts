@@ -47,7 +47,12 @@ describe('kraken.js', () => {
     }, timeout);
 
     test('serverless print --stage offline', async () => {
-      const output = await system.exec('serverless print --stage offline', { env: { CI: 'true' } }).catch(console.error);
+      const output = await system.exec('serverless print --stage offline', {
+        env: {
+          CI: 'true',
+          SLS_WARNING_DISABLE: '*'
+        }
+      }).catch(console.error);
       expect(output).toMatchSnapshot();
     });
 
