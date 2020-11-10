@@ -25,12 +25,13 @@ export const dynamoDbConnectionStore = (config: AwsSchemaConfig) => {
   const tableName = config?.connections?.tableName || getTableName();
   const waitForConnectionTimeout = config?.connections?.waitForConnectionTimeout || defaultWaitForConnectionTimeout;
 
-  return ({ $dynamoDb, $dynamoDbDataLoader, $apiGateway, $subscriptions }: Kraken.Context): ConnectionStore => {
+  return ({ $dax, $dynamoDb, $apiGateway, $subscriptions }: Kraken.Context): ConnectionStore => {
+    const ddb = $dax || $dynamoDb;
 
     const save = async connection => {
       const item = { ...connection, operationId: rootOperationId, ttl: ttl() };
 
-      await $dynamoDb.put({
+      await ddb.put({
         TableName: tableName,
         Item: item
       }).promise();
@@ -39,15 +40,13 @@ export const dynamoDbConnectionStore = (config: AwsSchemaConfig) => {
     };
 
     const get = async (connectionId: string, retries = 10) => {
-      const request = {
+      const { Item: connection } = await ddb.get({
         TableName: tableName,
         Key: { connectionId, operationId: rootOperationId }
-      };
+      }).promise();
 
-      const connection = await $dynamoDbDataLoader.load(request);
       if (!connection) {
         if (retries > 0) {
-          $dynamoDbDataLoader.clear(request);
           await waitFor(waitForConnectionTimeout);
           return await get(connectionId, --retries);
         }
@@ -57,19 +56,16 @@ export const dynamoDbConnectionStore = (config: AwsSchemaConfig) => {
     };
 
     const _delete = async ({ connectionId, apiGatewayUrl = null }) => {
-      const request = {
+      await ddb.delete({
         TableName: tableName,
         Key: { connectionId, operationId: rootOperationId }
-      };
+      }).promise();
 
-      await $dynamoDb.delete(request).promise();
       if (apiGatewayUrl) {
         await $apiGateway.get(apiGatewayUrl).deleteConnection({
           ConnectionId: connectionId
         }).promise().catch(e => void e);// it's ok to fail with 410 here
       }
-
-      $dynamoDbDataLoader.clear(request); // cleanup loader
     };
 
     const send = async ({ connectionId, apiGatewayUrl }, payload: any) => {
@@ -94,7 +90,8 @@ export const dynamoDbConnectionStore = (config: AwsSchemaConfig) => {
 export const dynamoDbSubscriptionStore = (config: AwsSchemaConfig) => {
   const tableName = config?.connections?.tableName || getTableName();
 
-  return ({ $dynamoDb, connectionInfo }: Kraken.Context): SubscriptionStore => {
+  return ({ $dax, $dynamoDb, connectionInfo }: Kraken.Context): SubscriptionStore => {
+    const ddb = $dax || $dynamoDb;
 
     const batchDelete = async (connectionId: string, operationId?: string, lastEvaluatedKey?) => {
       const keyConditionExpression = operationId
@@ -104,7 +101,7 @@ export const dynamoDbSubscriptionStore = (config: AwsSchemaConfig) => {
         ? { ':connectionId': connectionId, ':operationId': operationId }
         : { ':connectionId': connectionId };
 
-      const { Items = [], LastEvaluatedKey } = await $dynamoDb.query({
+      const { Items = [], LastEvaluatedKey } = await ddb.query({
         TableName: tableName,
         KeyConditionExpression: keyConditionExpression,
         FilterExpression: 'attribute_exists(triggerName)', // only subscriptions have triggerName, root connection does not
@@ -115,7 +112,7 @@ export const dynamoDbSubscriptionStore = (config: AwsSchemaConfig) => {
       }).promise();
 
       if (Items.length > 0) {
-        await $dynamoDb.batchWrite({
+        await ddb.batchWrite({
           RequestItems: {
             [tableName]: Items.map(({ connectionId, operationId }) => ({
               DeleteRequest: { Key: { connectionId, operationId } }
@@ -138,7 +135,7 @@ export const dynamoDbSubscriptionStore = (config: AwsSchemaConfig) => {
         ttl: ttl()
       };
 
-      await $dynamoDb.put({
+      await ddb.put({
         TableName: tableName,
         Item: item
       }).promise();
@@ -172,7 +169,7 @@ export const dynamoDbSubscriptionStore = (config: AwsSchemaConfig) => {
         ? { ':triggerName': triggerName, ':connectionId': connectionInfo?.connectionId }
         : { ':triggerName': triggerName };
 
-      const { Items = [], LastEvaluatedKey } = await $dynamoDb.query({
+      const { Items = [], LastEvaluatedKey } = await ddb.query({
         TableName: tableName,
         IndexName: 'byTriggerName',
         KeyConditionExpression: 'triggerName = :triggerName',
