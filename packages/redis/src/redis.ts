@@ -15,9 +15,8 @@ export const graphqlSchema = (config?: RedisSchemaConfig): KrakenSchema => ({
     inject('subscriptions', redisSubscriptionStore());
   },
   async onAfterExecute(context: Kraken.Context): Promise<void> {
-    // console.log('redis connected', context.$redisConnected);
-    // if (context.$redisConnected) {
-    //   await context.$redis.quit();
-    // }
+    if (context.$redisConnected) {
+      await context.$redis.quit();
+    }
   }
 });
