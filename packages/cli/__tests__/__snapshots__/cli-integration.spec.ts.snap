@@ -52,9 +52,9 @@ functions:
   httpGraphqlHandler:
     handler: src/http-handler.handler
     events:
-      - http: null
-        path: graphql
-        method: any
+      - http:
+          path: graphql
+          method: any
     name: electric-wolf-kraken-offline-httpGraphqlHandler
 "
 `;
