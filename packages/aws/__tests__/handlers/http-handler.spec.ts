@@ -7,10 +7,10 @@ const testSchema: KrakenSchema = {
     type Mutation { sendMessage(channel: String, message: String): Message }
     type Message { channel: String message: String }`,
   resolvers: {
-    Query: { hello: (_, { name }, context) => `hello ${name} (${context.authorization})` },
+    Query: { hello: (_, { name }, context: any) => `hello ${name} (${context.authorization})` },
     Mutation: { sendMessage: (_, args) => args }
   },
-  onConnect(context) {
+  onConnect(context: any) {
     return {
       ...context.connectionParams
     };
@@ -18,6 +18,31 @@ const testSchema: KrakenSchema = {
 };
 
 describe('AWS Http Handler', () => {
+  it('should reply to OPTIONS request', async () => {
+    const handler = httpHandler(krakenJs(testSchema));
+    const response = await handler({ httpMethod: 'OPTIONS', requestContext: {} } as any, null, null);
+    expect(response).toEqual({ statusCode: 200, body: '', headers: { 'Cache-Control': 'max-age=31536000' } });
+  });
+
+  it('should reply to GET request', async () => {
+    const callback = jest.fn();
+    const handler = httpHandler(krakenJs(testSchema));
+    await handler({ httpMethod: 'GET', requestContext: {} } as any, null, callback);
+    expect(callback).toHaveBeenCalledWith(null, {
+      statusCode: 200,
+      body: expect.stringContaining('<html>'),
+      headers: {
+        'Content-Type': 'text/html'
+      }
+    });
+  });
+
+  it('should reply to warmup request', async () => {
+    const handler = httpHandler(krakenJs(testSchema));
+    const response = await handler({} as any, null, null);
+    expect(response).toEqual({ statusCode: 200, body: '' });
+  });
+
   it('should execute graphql', async () => {
     const handler = httpHandler(krakenJs(testSchema));
     const response = await handler({
