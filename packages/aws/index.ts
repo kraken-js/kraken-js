@@ -38,6 +38,7 @@ declare global {
     interface ConnectionInfo {
       apiGatewayUrl: string
       connectedAt?: number
+      sourceIp?: string
       ttl?: number
     }
   }
