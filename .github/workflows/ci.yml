@@ -13,7 +13,7 @@ jobs:
         package:
           - packages/aws
           - packages/auth
-          - packages/cli
+#          - packages/cli
           - packages/core
 
     steps:
