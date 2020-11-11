@@ -126,7 +126,10 @@ export const krakenJs = <T>(config: Config): Kraken.Runtime => {
           connectionInfo: args.connectionInfo
         };
       }
-      return executionContextValue;
+      return {
+        ...executionContextValue,
+        connectionInfo: args.connectionInfo
+      };
     };
 
     const executionContext = await buildContext();
