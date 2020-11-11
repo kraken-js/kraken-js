@@ -118,7 +118,7 @@ export const krakenJs = <T>(config: Config): Kraken.Runtime => {
     const buildContext = async () => {
       const executionContextValue = args.contextValue;
       if (args.connectionInfo?.connectionId) {
-        const connection = await $root.$connections.get(args.connectionInfo.connectionId);
+        const connection = await $root.$connections?.get(args.connectionInfo.connectionId);
         const connectionContextValue = connection?.context;
         return {
           ...connectionContextValue,

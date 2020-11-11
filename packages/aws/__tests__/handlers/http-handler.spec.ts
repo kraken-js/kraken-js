@@ -22,7 +22,10 @@ describe('AWS Http Handler', () => {
     const handler = httpHandler(krakenJs(testSchema));
     const response = await handler({
       requestContext: {
-        connectionId: '1308123'
+        connectionId: '1308123',
+        identity: {
+          sourceIp: '0.0.0.0'
+        }
       },
       headers: {
         authorization: 'Bearer 102938092843'

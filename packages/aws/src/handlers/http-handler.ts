@@ -52,6 +52,7 @@ export const httpHandler = <T = any>(kraken: Kraken.Runtime): APIGatewayProxyHan
         body: JSON.stringify(response)
       };
     } catch (error) {
+      console.error(error);
       return {
         statusCode: 400,
         body: JSON.stringify({
