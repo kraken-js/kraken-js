@@ -22,6 +22,7 @@ export const httpHandler = <T = any>(kraken: Kraken.Runtime): APIGatewayProxyHan
       const connectionId = event.requestContext.connectionId as string;
       const connectedAt = event.requestContext.connectedAt as number;
       const sourceIp = event.requestContext.identity.sourceIp as string;
+      const connectionInfo = { connectionId, connectedAt, sourceIp, apiGatewayUrl: null };
 
       const request = JSON.parse(event.body);
       const document = parse(request.query);
@@ -35,12 +36,7 @@ export const httpHandler = <T = any>(kraken: Kraken.Runtime): APIGatewayProxyHan
 
       const response = await kraken.gqlExecute({
         operationId: event.requestContext.connectionId,
-        connectionInfo: {
-          apiGatewayUrl: null,
-          connectionId,
-          connectedAt,
-          sourceIp
-        },
+        connectionInfo,
         document,
         operationName,
         variableValues,
