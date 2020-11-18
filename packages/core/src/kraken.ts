@@ -117,8 +117,8 @@ export const krakenJs = <T>(config: Config): Kraken.Runtime => {
   const gqlExecute = async (args: ExecutionArgs) => {
     const buildContext = async () => {
       const executionContextValue = args.contextValue;
-      if (args.connectionInfo) {
-        const connection = await $root.$connections.get(args.connectionInfo.connectionId);
+      if (args.connectionInfo?.connectionId) {
+        const connection = await $root.$connections?.get(args.connectionInfo.connectionId);
         const connectionContextValue = connection?.context;
         return {
           ...connectionContextValue,
@@ -126,7 +126,10 @@ export const krakenJs = <T>(config: Config): Kraken.Runtime => {
           connectionInfo: args.connectionInfo
         };
       }
-      return executionContextValue;
+      return {
+        ...executionContextValue,
+        connectionInfo: args.connectionInfo
+      };
     };
 
     const executionContext = await buildContext();

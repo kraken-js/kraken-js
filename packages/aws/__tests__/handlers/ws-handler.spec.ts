@@ -74,7 +74,10 @@ const setupTest = (ddb = 'dynamoDb') => {
         identity: {
           sourceIp: '0.0.0.0'
         },
-        routeKey
+        routeKey,
+        identity: {
+          sourceIp: '0.0.0.0'
+        }
       },
       headers,
       body: JSON.stringify(body)

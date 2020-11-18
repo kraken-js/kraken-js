@@ -5,12 +5,19 @@ import { AwsSchemaConfig } from './config';
 const subscriptionsBatchLoadLimit = 75;
 const defaultWaitForConnectionTimeout = 50;
 const rootOperationId = '$connection';
+const connectionsCache = {};
 
 const getTableName = () => {
   return `WsSubscriptions-${process.env.STAGE}`;
 };
 
-export const waitFor = async (millis: number) => new Promise(resolve => setTimeout(resolve, millis));
+const waitFor = async (millis: number) => {
+  return new Promise(resolve => setTimeout(resolve, millis));
+};
+
+const getTtl = (seconds = 7200) => { // 2 hours
+  return Math.floor(Date.now() / 1000) + seconds;
+};
 
 const postToConnection = async (apiGateway: ApiGatewayManagementApi, connectionId: string, payload: any) => {
   await apiGateway.postToConnection({
@@ -18,8 +25,6 @@ const postToConnection = async (apiGateway: ApiGatewayManagementApi, connectionI
     Data: JSON.stringify(payload)
   }).promise();
 };
-
-export const ttl = (seconds = 7200) => Math.floor(Date.now() / 1000) + seconds; // 2 hours
 
 export const dynamoDbConnectionStore = (config: AwsSchemaConfig) => {
   const tableName = config?.connections?.tableName || getTableName();
@@ -29,17 +34,20 @@ export const dynamoDbConnectionStore = (config: AwsSchemaConfig) => {
     const ddb = $dax || $dynamoDb;
 
     const save = async connection => {
-      const item = { ...connection, operationId: rootOperationId, ttl: ttl() };
+      const item = { ...connection, operationId: rootOperationId, ttl: getTtl() };
 
       await ddb.put({
         TableName: tableName,
         Item: item
       }).promise();
+      connectionsCache[item.connectionId] = item;
 
       return item as Kraken.Connection;
     };
 
     const get = async (connectionId: string, retries = 10) => {
+      if (connectionsCache[connectionId]) return connectionsCache[connectionId];
+
       const { Item: connection } = await ddb.get({
         TableName: tableName,
         Key: { connectionId, operationId: rootOperationId }
@@ -52,6 +60,8 @@ export const dynamoDbConnectionStore = (config: AwsSchemaConfig) => {
         }
         throw new Error(`Connection ${connectionId} not found`);
       }
+
+      connectionsCache[connectionId] = connection;
       return connection;
     };
 
@@ -60,6 +70,7 @@ export const dynamoDbConnectionStore = (config: AwsSchemaConfig) => {
         TableName: tableName,
         Key: { connectionId, operationId: rootOperationId }
       }).promise();
+      delete connectionsCache[connectionId];
 
       if (apiGatewayUrl) {
         await $apiGateway.get(apiGatewayUrl).deleteConnection({
@@ -132,7 +143,7 @@ export const dynamoDbSubscriptionStore = (config: AwsSchemaConfig) => {
       const item = {
         ...subscription,
         operationId: operationId + '#' + triggerName,
-        ttl: ttl()
+        ttl: getTtl()
       };
 
       await ddb.put({

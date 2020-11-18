@@ -10,6 +10,7 @@ export const httpHandler = <T = any>(kraken: Kraken.Runtime): APIGatewayProxyHan
     if (event.httpMethod === 'OPTIONS') {
       return { statusCode: 200, body: '', headers: { 'Cache-Control': 'max-age=31536000' } };
     }
+
     if (event.httpMethod === 'GET') {
       return await lambdaPlayground({
         endpoint: process.env.GRAPHQL_ENDPOINT,
@@ -18,6 +19,11 @@ export const httpHandler = <T = any>(kraken: Kraken.Runtime): APIGatewayProxyHan
     }
 
     try {
+      const connectionId = event.requestContext.connectionId as string;
+      const connectedAt = event.requestContext.connectedAt as number;
+      const sourceIp = event.requestContext.identity.sourceIp as string;
+      const connectionInfo = { connectionId, connectedAt, sourceIp, apiGatewayUrl: null };
+
       const request = JSON.parse(event.body);
       const document = parse(request.query);
       const operationName = request.operationName;
@@ -30,6 +36,7 @@ export const httpHandler = <T = any>(kraken: Kraken.Runtime): APIGatewayProxyHan
 
       const response = await kraken.gqlExecute({
         operationId: event.requestContext.connectionId,
+        connectionInfo,
         document,
         operationName,
         variableValues,
@@ -41,6 +48,7 @@ export const httpHandler = <T = any>(kraken: Kraken.Runtime): APIGatewayProxyHan
         body: JSON.stringify(response)
       };
     } catch (error) {
+      console.error(error);
       return {
         statusCode: 400,
         body: JSON.stringify({
