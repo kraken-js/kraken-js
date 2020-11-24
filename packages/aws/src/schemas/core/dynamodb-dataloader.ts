@@ -8,7 +8,7 @@ interface GetRequest {
   Key: DocumentClient.Key;
 }
 
-const maxBatchSize = 100;
+const maxBatchSize = 25;
 
 const unique = <T>(array: ReadonlyArray<T>): ReadonlyArray<T> => {
   return array.filter((e1, i, self) => {
@@ -25,7 +25,7 @@ const groupBy = <T>(array: ReadonlyArray<T>, property: keyof T): Record<keyof T,
   }, {} as Record<keyof T, T[]>);
 };
 
-const batchLoadFn = (plugins: Kraken.Context): DataLoader.BatchLoadFn<GetRequest, DocumentClient.AttributeMap> =>
+const batchLoadFn = ({ $dynamoDb }: Kraken.Context): DataLoader.BatchLoadFn<GetRequest, DocumentClient.AttributeMap> =>
   async (getRequests) => {
     const byTableName = groupBy(getRequests, 'TableName');
     const requestItems = Object.keys(byTableName).reduce((req, tableName) => {
@@ -35,7 +35,7 @@ const batchLoadFn = (plugins: Kraken.Context): DataLoader.BatchLoadFn<GetRequest
       return req;
     }, {});
 
-    const results = await plugins.$dynamoDb
+    const results = await $dynamoDb
       .batchGet({ RequestItems: requestItems })
       .promise();
 
@@ -63,6 +63,6 @@ const batchLoadFn = (plugins: Kraken.Context): DataLoader.BatchLoadFn<GetRequest
     });
   };
 
-export const dynamoDbDataLoader = (plugins: Kraken.Context): DynamodbDataloader => {
-  return new DataLoader<GetRequest, any>(batchLoadFn(plugins), { maxBatchSize });
+export const dynamoDbDataLoader = (context: Kraken.Context): DynamodbDataloader => {
+  return new DataLoader<GetRequest, any>(batchLoadFn(context), { maxBatchSize });
 };
