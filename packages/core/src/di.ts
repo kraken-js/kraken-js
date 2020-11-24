@@ -6,12 +6,12 @@ type EachReturnType<T> = {
   [K in keyof T]: T[K] extends (...args: any[]) => infer U ? U : T[K];
 }
 
-type Injector<T, R> = T & EachReturnType<R> & Serializable;
-type Container<R> = <T>(ctx?: T) => Injector<T, R>;
+type Container<T, R> = T & EachReturnType<R> & Serializable;
+type ContainerFactory<R> = <T>(ctx?: T) => Container<T, R>;
 
-export const containerFactory = <P>($plugins: P): Container<P> => {
+export const containerFactory = <P>($plugins: P): ContainerFactory<P> => {
 
-  return <T>(seed: T = {} as T): Injector<T, P> => {
+  return <T>(seed: T = {} as T): Container<T, P> => {
     const instances = {};
     const stack = [];
 
@@ -52,6 +52,6 @@ export const containerFactory = <P>($plugins: P): Container<P> => {
       }, {});
     };
 
-    return seed as Injector<T, P>;
+    return seed as Container<T, P>;
   };
 };

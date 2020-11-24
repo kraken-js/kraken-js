@@ -28,6 +28,8 @@ const resolvers = {
   DynamoDbSet: DynamoDbSet
 };
 
+export { dynamoDbDataLoader };
+
 export const graphqlSchema = (config?: AwsSchemaConfig): KrakenSchema => ({
   typeDefs,
   resolvers,

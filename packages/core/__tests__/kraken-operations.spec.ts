@@ -373,7 +373,7 @@ describe('Kraken Operations', () => {
     const extraSchema = {
       typeDefs: `
       extend type Mutation {
-        publish(id: ID!): Item @pub(triggerNames: ["onItem#{id}"])
+        publishWithMeta(id: ID!): Item @pub(triggerNames: ["onItem#{id}"])
       }
       extend type Subscription {
         onItem(id: ID!): Item @sub(triggerName: "onItem#{id}")
@@ -383,7 +383,7 @@ describe('Kraken Operations', () => {
       }`,
       resolvers: {
         Mutation: {
-          publish: (_, args) => {
+          publishWithMeta: (_, args) => {
             return { ...args, ...metadata };
           }
         }
@@ -405,7 +405,7 @@ describe('Kraken Operations', () => {
     await kraken.onGqlStart(connection, {
       id: '3',
       type: 'start',
-      payload: { query: 'mutation { publish(id: "666") { id } }' }
+      payload: { query: 'mutation { publishWithMeta(id: "666") { id } }' }
     });
 
     expect(kraken.$connections.send).toHaveBeenCalledWith(expect.objectContaining(connection), {
