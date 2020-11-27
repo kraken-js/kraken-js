@@ -21,7 +21,40 @@ describe('AWS Http Handler', () => {
   it('should reply to OPTIONS request', async () => {
     const handler = httpHandler(krakenJs(testSchema));
     const response = await handler({ httpMethod: 'OPTIONS', requestContext: {} } as any, null, null);
-    expect(response).toEqual({ statusCode: 200, body: '', headers: { 'Cache-Control': 'max-age=31536000' } });
+    expect(response).toEqual({
+      statusCode: 200,
+      body: '',
+      headers: {
+        'Cache-Control': 'max-age=31536000',
+        'Access-Control-Allow-Credentials': true,
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+        'Access-Control-Allow-Origin': '*'
+      }
+    });
+  });
+
+  it('should reply with custom headers to OPTIONS request', async () => {
+    const handler = httpHandler(krakenJs(testSchema), {
+      cors: {
+        cacheControl: 'cc',
+        headers: 'hs',
+        methods: 'ms',
+        origin: 'or'
+      }
+    });
+    const response = await handler({ httpMethod: 'OPTIONS', requestContext: {} } as any, null, null);
+    expect(response).toEqual({
+      statusCode: 200,
+      body: '',
+      headers: {
+        'Cache-Control': 'cc',
+        'Access-Control-Allow-Headers': 'hs',
+        'Access-Control-Allow-Methods': 'ms',
+        'Access-Control-Allow-Origin': 'or',
+        'Access-Control-Allow-Credentials': true
+      }
+    });
   });
 
   it('should reply to GET request', async () => {

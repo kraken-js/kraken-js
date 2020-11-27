@@ -3,12 +3,31 @@ import { APIGatewayProxyEvent, APIGatewayProxyHandler } from 'aws-lambda';
 import { parse } from 'graphql';
 import lambdaPlayground from 'graphql-playground-middleware-lambda';
 
-export const httpHandler = <T = any>(kraken: Kraken.Runtime): APIGatewayProxyHandler => {
+interface HttpHandlerConfig {
+  cors?: {
+    origin?: string;
+    methods?: string;
+    cacheControl?: string;
+    headers?: string;
+  }
+}
+
+export const httpHandler = <T = any>(kraken: Kraken.Runtime, config?: HttpHandlerConfig): APIGatewayProxyHandler => {
   return async (event: APIGatewayProxyEvent, context?, callback?) => {
     if (!event.requestContext) return { statusCode: 200, body: '' }; // warm up or something else
 
     if (event.httpMethod === 'OPTIONS') {
-      return { statusCode: 200, body: '', headers: { 'Cache-Control': 'max-age=31536000' } };
+      return {
+        statusCode: 200,
+        body: '',
+        headers: {
+          'Cache-Control': config?.cors?.cacheControl || 'max-age=31536000',
+          'Access-Control-Allow-Origin': config?.cors?.origin || '*',
+          'Access-Control-Allow-Headers': config?.cors?.headers || 'Content-Type, Authorization',
+          'Access-Control-Allow-Methods': config?.cors?.methods || 'POST, GET, OPTIONS',
+          'Access-Control-Allow-Credentials': true
+        }
+      };
     }
 
     if (event.httpMethod === 'GET') {
