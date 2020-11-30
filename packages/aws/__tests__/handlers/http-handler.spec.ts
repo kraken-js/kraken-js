@@ -25,7 +25,6 @@ describe('AWS Http Handler', () => {
       statusCode: 200,
       body: '',
       headers: {
-        'Cache-Control': 'max-age=31536000',
         'Access-Control-Allow-Credentials': true,
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
@@ -37,7 +36,6 @@ describe('AWS Http Handler', () => {
   it('should reply with custom headers to OPTIONS request', async () => {
     const handler = httpHandler(krakenJs(testSchema), {
       cors: {
-        cacheControl: 'cc',
         headers: 'hs',
         methods: 'ms',
         origin: 'or'
@@ -48,7 +46,6 @@ describe('AWS Http Handler', () => {
       statusCode: 200,
       body: '',
       headers: {
-        'Cache-Control': 'cc',
         'Access-Control-Allow-Headers': 'hs',
         'Access-Control-Allow-Methods': 'ms',
         'Access-Control-Allow-Origin': 'or',
