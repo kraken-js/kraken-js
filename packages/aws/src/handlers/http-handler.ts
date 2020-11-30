@@ -7,25 +7,42 @@ interface HttpHandlerConfig {
   cors?: {
     origin?: string;
     methods?: string;
-    cacheControl?: string;
     headers?: string;
-  }
+  } | boolean
 }
+
+const getCors = (config?: HttpHandlerConfig) => {
+  if (config?.cors === true) {
+    return {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+      'Access-Control-Allow-Credentials': true
+    };
+  }
+  return config?.cors ? {
+    'Access-Control-Allow-Origin': config.cors.origin || '*',
+    'Access-Control-Allow-Headers': config.cors.headers || 'Content-Type, Authorization',
+    'Access-Control-Allow-Methods': config.cors.methods || 'POST, GET, OPTIONS',
+    'Access-Control-Allow-Credentials': true
+  } : undefined;
+};
 
 export const httpHandler = <T = any>(kraken: Kraken.Runtime, config?: HttpHandlerConfig): APIGatewayProxyHandler => {
   return async (event: APIGatewayProxyEvent, context?, callback?) => {
-    if (!event.requestContext) return { statusCode: 200, body: '' }; // warm up or something else
+    // warm up or something else
+    if (!event.requestContext) {
+      return { statusCode: 200, body: '' };
+    }
+
+    const cors = getCors(config);
 
     if (event.httpMethod === 'OPTIONS') {
       return {
         statusCode: 200,
         body: '',
         headers: {
-          'Cache-Control': config?.cors?.cacheControl || 'max-age=31536000',
-          'Access-Control-Allow-Origin': config?.cors?.origin || '*',
-          'Access-Control-Allow-Headers': config?.cors?.headers || 'Content-Type, Authorization',
-          'Access-Control-Allow-Methods': config?.cors?.methods || 'POST, GET, OPTIONS',
-          'Access-Control-Allow-Credentials': true
+          ...cors
         }
       };
     }
@@ -64,7 +81,10 @@ export const httpHandler = <T = any>(kraken: Kraken.Runtime, config?: HttpHandle
 
       return {
         statusCode: 200,
-        body: JSON.stringify(response)
+        body: JSON.stringify(response),
+        headers: {
+          ...cors
+        }
       };
     } catch (error) {
       console.error(error);
@@ -73,7 +93,10 @@ export const httpHandler = <T = any>(kraken: Kraken.Runtime, config?: HttpHandle
         body: JSON.stringify({
           request: event.body,
           reason: error.message
-        })
+        }),
+        headers: {
+          ...cors
+        }
       };
     }
   };
