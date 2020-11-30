@@ -19,7 +19,7 @@ const testSchema: KrakenSchema = {
 
 describe('AWS Http Handler', () => {
   it('should reply to OPTIONS request', async () => {
-    const handler = httpHandler(krakenJs(testSchema), { cors: {} });
+    const handler = httpHandler(krakenJs(testSchema), { cors: true });
     const response = await handler({ httpMethod: 'OPTIONS', requestContext: {} } as any, null, null);
     expect(response).toEqual({
       statusCode: 200,

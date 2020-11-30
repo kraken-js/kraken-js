@@ -12,7 +12,7 @@ interface HttpHandlerConfig {
 }
 
 const getCors = (config?: HttpHandlerConfig) => {
-  if (typeof config?.cors === 'boolean') {
+  if (config?.cors === true) {
     return {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
