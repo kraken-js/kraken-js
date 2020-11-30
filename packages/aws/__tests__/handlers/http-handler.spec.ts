@@ -19,7 +19,7 @@ const testSchema: KrakenSchema = {
 
 describe('AWS Http Handler', () => {
   it('should reply to OPTIONS request', async () => {
-    const handler = httpHandler(krakenJs(testSchema));
+    const handler = httpHandler(krakenJs(testSchema), { cors: {} });
     const response = await handler({ httpMethod: 'OPTIONS', requestContext: {} } as any, null, null);
     expect(response).toEqual({
       statusCode: 200,
@@ -77,7 +77,7 @@ describe('AWS Http Handler', () => {
   });
 
   it('should execute graphql', async () => {
-    const handler = httpHandler(krakenJs(testSchema));
+    const handler = httpHandler(krakenJs(testSchema), { cors: {} });
     const response = await handler({
       requestContext: {
         connectionId: '1308123',
@@ -99,12 +99,18 @@ describe('AWS Http Handler', () => {
 
     expect(response).toEqual({
       body: JSON.stringify({ data: { hello: 'hello world (Bearer 102938092843)' } }),
-      statusCode: 200
+      statusCode: 200,
+      headers: {
+        'Access-Control-Allow-Credentials': true,
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+        'Access-Control-Allow-Origin': '*'
+      }
     });
   });
 
   it('should fail with 400 on execution failure', async () => {
-    const handler = httpHandler(krakenJs(testSchema));
+    const handler = httpHandler(krakenJs(testSchema), { cors: {} });
     const response = await handler({
       requestContext: {
         connectionId: '1241234'
@@ -119,7 +125,13 @@ describe('AWS Http Handler', () => {
 
     expect(response).toEqual({
       body: expect.any(String),
-      statusCode: 400
+      statusCode: 400,
+      headers: {
+        'Access-Control-Allow-Credentials': true,
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+        'Access-Control-Allow-Origin': '*'
+      }
     });
   });
 });
