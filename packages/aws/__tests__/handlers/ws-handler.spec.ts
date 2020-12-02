@@ -71,6 +71,9 @@ const setupTest = (ddb = 'dynamoDb') => {
         connectionId: connectionId,
         domainName: 'domain.fake',
         stage: process.env.STAGE,
+        identity: {
+          sourceIp: '0.0.0.0'
+        },
         routeKey,
         identity: {
           sourceIp: '0.0.0.0'

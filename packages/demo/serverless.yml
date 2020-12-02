@@ -8,6 +8,7 @@ provider:
 plugins:
   - '@kraken.js/serverless'
   - serverless-dynamodb-local
+  - serverless-offline-aws-eventbridge
   - serverless-offline
 
 custom:
@@ -24,6 +25,10 @@ custom:
     websocketPort: 4001
     lambdaPort: 4002
     useChildProcesses: true
+
+  serverless-offline-aws-eventbridge:
+    port: 4010
+    debug: true
 
   dynamodb:
     stages:

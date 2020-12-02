@@ -2,6 +2,9 @@ module.exports = {
   graphql: [
     ['@kraken.js/aws', {
       offline: {
+        connections: {
+          waitForConnectionTimeout: 500
+        },
         lambdaConfig: {
           apiVersion: '2015-03-31',
           endpoint: 'http://127.0.0.1:4002'
@@ -14,7 +17,13 @@ module.exports = {
         }
       }
     }],
-    '@kraken.js/aws:events-schema',
+    ['@kraken.js/aws:events-schema', {
+      offline: {
+        eventBridgeConfig: {
+          endpoint: 'http://127.0.0.1:4010'
+        }
+      }
+    }],
     '@kraken.js/demo'
   ]
 };

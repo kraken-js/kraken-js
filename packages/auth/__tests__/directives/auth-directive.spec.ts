@@ -1,13 +1,10 @@
-import { IExecutableSchemaDefinition, makeExecutableSchema } from '@graphql-tools/schema';
 import { graphqlSchema } from '@kraken.js/auth';
-import { execute, GraphQLError, parse } from 'graphql';
+import { krakenJs, KrakenSchema } from '@kraken.js/core';
+import { GraphQLError, parse } from 'graphql';
 
-const makeSchema = (schema: IExecutableSchemaDefinition) =>
-  makeExecutableSchema({
-    typeDefs: [graphqlSchema.typeDefs, schema.typeDefs],
-    resolvers: schema.resolvers,
-    schemaDirectives: graphqlSchema.schemaDirectives
-  });
+const makeSchema = (schema: KrakenSchema) => {
+  return krakenJs([graphqlSchema, schema]);
+};
 
 describe('@auth', () => {
   const queryResolvers = {
@@ -133,12 +130,12 @@ describe('@auth', () => {
       {},
       { getSecureObject: null }
     ]
-  ])('%s', async (_, typeDefs, source, contextValue, expectedResponse) => {
+  ])('%s', async (_, typeDefs, source, contextValue: any, expectedResponse) => {
     const resolvers = source.startsWith('query') ? queryResolvers : mutationResolvers;
 
-    const schema = makeSchema({ typeDefs, resolvers });
-    const { data } = await execute({
-      schema,
+    const kraken = makeSchema({ typeDefs, resolvers });
+    const { data } = await kraken.gqlExecute({
+      operationId: '1',
       document: parse(source),
       contextValue
     });
@@ -247,12 +244,12 @@ describe('@auth', () => {
       { authorizer: { sub: 'owner' } },
       { createSecureObject: { secureField: '🔑' } }
     ]
-  ])('%s', async (_, typeDefs, source, contextValue, expectedResponse) => {
+  ])('%s', async (_, typeDefs, source, contextValue: any, expectedResponse) => {
     const resolvers = source.startsWith('query') ? queryResolvers : mutationResolvers;
 
-    const schema = makeSchema({ typeDefs, resolvers });
-    const { data } = await execute({
-      schema,
+    const kraken = makeSchema({ typeDefs, resolvers });
+    const { data } = await kraken.gqlExecute({
+      operationId: '1',
       document: parse(source),
       contextValue
     });
@@ -268,12 +265,12 @@ describe('@auth', () => {
       type Query { getSecureObject: SecureObject }
       `;
     const source = `query { getSecureObject { secureField } }`;
-    const contextValue = { authorizer: { roles: ['not-the-one-required'] } };
+    const contextValue = { authorizer: { roles: ['not-the-one-required'] } } as any;
 
-    const schema = makeSchema({ typeDefs });
+    const kraken = makeSchema({ typeDefs });
     try {
-      execute({
-        schema,
+      await kraken.gqlExecute({
+        operationId: '1',
         document: parse(source),
         contextValue
       });

@@ -15,6 +15,7 @@ jobs:
           - packages/auth
 #          - packages/cli
           - packages/core
+          - packages/redis
 
     steps:
       - uses: actions/checkout@v2
