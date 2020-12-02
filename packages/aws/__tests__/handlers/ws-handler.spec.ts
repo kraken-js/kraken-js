@@ -165,7 +165,7 @@ describe('AWS Websocket Handler', () => {
     });
   });
 
-  describe.each(['dynamoDb', 'dax'])('should successfully execute pub/sub using %s', (ddb) => {
+  describe.each(['dynamoDb'])('should successfully execute pub/sub using %s', (ddb) => {
     const numOfSubscriptions = 111;
     const { execute, connectionId, dynamoDb } = setupTest(ddb);
 

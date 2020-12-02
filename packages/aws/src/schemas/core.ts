@@ -12,7 +12,7 @@ import { AwsLambdaDirective } from './core/directives/aws-lambda';
 import { dynamoDbDataLoader } from './core/dynamodb-dataloader';
 import { dynamoDbConnectionStore, dynamoDbSubscriptionStore } from './core/dynamodb-stores';
 import { DynamoDbSet } from './core/resolvers/aws-dynamo-set-scalar';
-import { getApiGateway, getCognito, getDax, getDynamoDb, getLambda, getS3, getSNS, getSQS } from './instances';
+import { getApiGateway, getCognito, getDynamoDb, getLambda, getS3, getSNS, getSQS } from './instances';
 
 const schemaDirectives = {
   lambda: AwsLambdaDirective,
@@ -41,7 +41,6 @@ export const graphqlSchema = (config?: AwsSchemaConfig): KrakenSchema => ({
     inject('sqs', () => config?.sqs || getSQS(config?.sqsConfig));
     inject('lambda', () => config?.lambda || getLambda(config?.lambdaConfig));
     inject('dynamoDb', () => config?.dynamoDb || getDynamoDb(config?.dynamoDbConfig));
-    inject('dax', () => config?.dax || getDax(config?.daxConfig));
     inject('s3', () => config?.s3 || getS3(config?.s3Config));
     inject('cognito', () => config?.cognito || getCognito(config?.cognitoConfig));
     inject('dynamoDbDataLoader', dynamoDbDataLoader);

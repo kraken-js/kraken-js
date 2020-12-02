@@ -1,8 +1,6 @@
 /* istanbul ignore file */
-import AmazonDaxClient from 'amazon-dax-client';
 import AWS, { config as awsConfig, EventBridge } from 'aws-sdk';
 import yn from 'yn';
-import { AmazonDaxClientOptions } from './core/config';
 
 const isOffline = yn(process.env.IS_OFFLINE);
 
@@ -23,16 +21,6 @@ export const getLambda = (config?: AWS.Lambda.Types.ClientConfiguration): AWS.La
     instances.lambda = new AWS.Lambda(config);
   }
   return instances.lambda;
-};
-
-export const getDax = (config?: AmazonDaxClientOptions): AWS.DynamoDB.DocumentClient => {
-  if (config) {
-    if (!instances.dax) {
-      const dax = new AmazonDaxClient(config);
-      instances.dax = new AWS.DynamoDB.DocumentClient({ service: dax });
-    }
-    return instances.dax;
-  }
 };
 
 export const getDynamoDb = (config?: AWS.DynamoDB.Types.ClientConfiguration): AWS.DynamoDB.DocumentClient => {

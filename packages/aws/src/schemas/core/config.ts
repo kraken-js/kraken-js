@@ -1,11 +1,4 @@
-import AmazonDaxClient from 'amazon-dax-client';
 import AWS from 'aws-sdk';
-
-export interface AmazonDaxClientOptions {
-  endpoint?: string;
-  endpoints?: ReadonlyArray<string>;
-  region?: string;
-}
 
 export type AwsSchemaConfig = {
   connections?: {
@@ -15,9 +8,6 @@ export type AwsSchemaConfig = {
   subscriptions?: {
     tableName?: string
   },
-
-  dax?: AmazonDaxClient
-  daxConfig?: AmazonDaxClientOptions
 
   dynamoDb?: AWS.DynamoDB.DocumentClient
   dynamoDbConfig?: AWS.DynamoDB.Types.ClientConfiguration
