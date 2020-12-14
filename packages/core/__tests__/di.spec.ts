@@ -66,7 +66,7 @@ describe('Dependency Injection', () => {
       const name = factory().$rollingStones.name;
       fail(name);
     } catch (e) {
-      expect(e.message).toEqual('Circular dependency detected: $rollingStones <~ $likeARollingStone <~ $rollingStones');
+      expect(e.message).toEqual('Circular dependency detected');
     }
   });
 

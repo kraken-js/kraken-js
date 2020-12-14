@@ -13,18 +13,19 @@ export const containerFactory = <P>($plugins: P): ContainerFactory<P> => {
 
   return <T>(seed: T = {} as T): Container<T, P> => {
     const instances = {};
-    const stack = [];
 
     Object.getOwnPropertyNames($plugins).forEach(plugin => {
       if (seed[plugin] === undefined) {
-        Object.defineProperty(seed, plugin, {
-          get() {
+        Object.defineProperty(seed, plugin, (() => {
+          const stack = [];
+
+          const getter = () => {
             if (instances[plugin]) {
               return instances[plugin];
             }
 
             if (stack.includes(plugin)) {
-              throw new Error('Circular dependency detected: ' + stack.concat(plugin).reverse().join(' <~ '));
+              throw new Error('Circular dependency detected');
             }
 
             if (typeof $plugins[plugin] === 'function') {
@@ -36,8 +37,12 @@ export const containerFactory = <P>($plugins: P): ContainerFactory<P> => {
             }
 
             return instances[plugin];
-          }
-        });
+          };
+
+          return {
+            get: getter
+          };
+        })());
       }
     });
 

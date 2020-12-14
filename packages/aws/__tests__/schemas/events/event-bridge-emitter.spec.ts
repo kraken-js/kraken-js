@@ -6,7 +6,7 @@ const $context = {
       promise() {
         return Promise.resolve();
       }
-    }))
+    })) as any
   }
 };
 

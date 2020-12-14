@@ -64,5 +64,9 @@ const batchLoadFn = ({ $dynamoDb }: Kraken.Context): DataLoader.BatchLoadFn<GetR
   };
 
 export const dynamoDbDataLoader = (context: Kraken.Context): DynamodbDataloader => {
-  return new DataLoader<GetRequest, any>(batchLoadFn(context), { maxBatchSize });
+  const cacheKeyFn = function({ TableName, Key }) {
+    return TableName + '|' + Object.keys(Key).sort().map(k => k + ':' + Key[k]).join('|');
+  };
+
+  return new DataLoader<GetRequest, any, string>(batchLoadFn(context), { maxBatchSize, cacheKeyFn });
 };
