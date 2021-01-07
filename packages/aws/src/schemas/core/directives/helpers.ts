@@ -155,13 +155,13 @@ export const prefixOperatorsWith$ = (object = {}): any => {
 
 export const toBase64 = object => {
   if (!object) return undefined;
-  const b = new Buffer(JSON.stringify(object));
+  const b = Buffer.from(JSON.stringify(object));
   return b.toString('base64');
 };
 
 export const fromBase64 = (string, parse = true) => {
   if (!string) return undefined;
-  const s = new Buffer(string, 'base64').toString();
+  const s = Buffer.from(string, 'base64').toString();
   return parse ? JSON.parse(s) : s;
 };
 
