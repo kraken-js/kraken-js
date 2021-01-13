@@ -67,6 +67,6 @@ import { graphqlSchema as electricWolfKraken } from '@electric-wolf/kraken';
 export const krakenSchema = krakenJs([
 	krakenJsAws(),
 	electricWolfKraken
-], { batchMessages: false });
+], { batchResponses: false });
 "
 `;
