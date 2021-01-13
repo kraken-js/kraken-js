@@ -28,7 +28,7 @@
   "dependencies": {
     "@kraken.js/core": "0.0.6",
     "aws-lambda": "^1.0.6",
-    "aws-sdk": "2.822.0",
+    "aws-sdk": "^2.826.0",
     "dataloader": "^2.0.0",
     "dynongo": "^0.17.0",
     "graphql-playground-middleware-lambda": "^1.7.22",
