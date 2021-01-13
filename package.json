@@ -19,5 +19,12 @@
   },
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "//": [
+    "aws-sdk version should be the same as on lambda environment, currently 2.771.0",
+    "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html#w596aac31c23"
+  ],
+  "resolutions": {
+    "aws-sdk": "2.771.0"
+  }
 }
