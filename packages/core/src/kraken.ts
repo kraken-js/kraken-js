@@ -9,9 +9,14 @@ import { containerFactory } from './di';
 import { PublishDirective } from './directives/publish-directive';
 import { SubscribeDirective } from './directives/subscribe-directive';
 import { krakenPubSub } from './pubsub';
-import { ExecutionArgs, GqlOperation, Injector, KrakenSchema } from './types';
+import { ExecutionArgs, GqlOperation, Injector, KrakenConfig, KrakenSchema } from './types';
 
-type Config = KrakenSchema | KrakenSchema[]
+type KrakenSchemas = KrakenSchema | KrakenSchema[]
+
+const defaultConfig: KrakenConfig = {
+  batchResponses: false,
+  logger: console
+};
 
 const rootSchema: KrakenSchema = {
   typeDefs: [
@@ -27,9 +32,6 @@ const rootSchema: KrakenSchema = {
     inject('subMode', 'IN');
     inject('pubStrategy', 'GRAPHQL');
     inject('pubsub', krakenPubSub());
-  },
-  logger: {
-    log: error => console.error(error)
   }
 };
 
@@ -40,14 +42,14 @@ const getResolvers = (schemaDefinition: KrakenSchema) => {
     : [schemaDefinition.resolvers];
 };
 
-const buildSchemaAndHooks = (configs: KrakenSchema[], pluginInjector: Injector) => {
+const buildSchemaAndHooks = (schemas: KrakenSchema[], pluginInjector: Injector, { logger }: KrakenConfig) => {
   const onConnect: ((context) => PromiseOrValue<Partial<Kraken.Context>>)[] = [];
   const onDisconnect: ((context, connection: Kraken.ConnectionInfo) => PromiseOrValue<any>)[] = [];
   const onBeforeExecute: ((context, document) => void)[] = [];
   const onAfterExecute: ((context, response) => void)[] = [];
 
   rootSchema.plugins(pluginInjector);
-  const schemaDefinition = configs.reduce((result, each) => {
+  const schemaDefinition = schemas.reduce((result, each) => {
     if ('plugins' in each) each.plugins(pluginInjector);
     if ('onConnect' in each) onConnect.push(each.onConnect);
     if ('onDisconnect' in each) onDisconnect.push(each.onDisconnect);
@@ -79,17 +81,20 @@ const buildSchemaAndHooks = (configs: KrakenSchema[], pluginInjector: Injector) 
       ];
     }
     return result;
-  }, { ...rootSchema });
+  }, { ...rootSchema, logger });
 
   const executableSchema = makeExecutableSchema(schemaDefinition as any);
   return { onConnect, onDisconnect, onBeforeExecute, onAfterExecute, executableSchema };
 };
 
-export const krakenJs = <T>(config: Config): Kraken.Runtime => {
-  const configs = Array.isArray(config) ? config : [config];
+export const krakenJs = <T>(schemaConfig: KrakenSchemas, config?: KrakenConfig): Kraken.Runtime => {
+  const schemaConfigs = Array.isArray(schemaConfig) ? schemaConfig : [schemaConfig];
+  const { logger, batchResponses } = { ...defaultConfig, ...config };
 
   const $plugins = {} as Kraken.Context;
   const pluginInjector = (name, value) => $plugins['$' + name] = value;
+  pluginInjector('logger', logger);
+  pluginInjector('batchResponses', batchResponses);
 
   const {
     onConnect,
@@ -97,7 +102,7 @@ export const krakenJs = <T>(config: Config): Kraken.Runtime => {
     onBeforeExecute,
     onAfterExecute,
     executableSchema
-  } = buildSchemaAndHooks(configs, pluginInjector);
+  } = buildSchemaAndHooks(schemaConfigs, pluginInjector, { logger });
   const contextFactory = containerFactory($plugins);
 
   const $root = contextFactory({});
@@ -159,6 +164,14 @@ export const krakenJs = <T>(config: Config): Kraken.Runtime => {
       schema: executableSchema
     });
 
+    if (response.errors) {
+      response.errors.forEach(error => {
+        if (error.originalError?.stack) {
+          logger.error(error.originalError.stack);
+        }
+      });
+    }
+
     for (const fn of onAfterExecute) {
       if (fn) {
         await fn($context, response);
@@ -190,15 +203,21 @@ export const krakenJs = <T>(config: Config): Kraken.Runtime => {
     // only send response if not subscription request, to avoid sending null response on subscribe initial message
     const operationDefinition = document.definitions[0] as OperationDefinitionNode;
     if (operationDefinition.operation !== 'subscription') {
-      await $root.$connections.send(connection, {
+      const data = {
         id: operationId,
         type: GQL_DATA,
         payload: response
-      });
-      await $root.$connections.send(connection, {
+      };
+      const complete = {
         id: operationId,
         type: GQL_COMPLETE
-      });
+      };
+      if (batchResponses) {
+        await $root.$connections.send(connection, [data, complete]);
+      } else {
+        await $root.$connections.send(connection, data);
+        await $root.$connections.send(connection, complete);
+      }
     }
   };
 

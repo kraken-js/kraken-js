@@ -43,6 +43,11 @@ export interface Broadcaster {
 
 export type Injector = (name: string, value: ((ctx: Kraken.Context) => any) | any) => void;
 
+export interface KrakenConfig {
+  batchResponses?: boolean;
+  logger?: Logger
+}
+
 export interface KrakenSchema extends Partial<IExecutableSchemaDefinition<Kraken.Context>> {
 
   plugins?(inject: Injector): void;
@@ -79,6 +84,11 @@ export interface GqlOperation<P = GqlOperationPayload> {
   payload: P
 }
 
+export type Logger = {
+  log: (...args) => void
+  error: (...args) => void
+}
+
 declare global {
   namespace Kraken {
     interface InitParams {
@@ -102,6 +112,7 @@ declare global {
       $subMode?: 'IN' | 'OUT'
       $pubStrategy?: PublishingStrategy | Record<string, PublishingStrategy>
       $broadcaster?: Broadcaster
+      $logger?: Logger
 
       toJSON(): Context
     }
