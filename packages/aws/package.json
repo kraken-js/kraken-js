@@ -40,7 +40,7 @@
     "@kraken.js/webpack": "0.0.6",
     "@types/aws-lambda": "^8.10.70",
     "jest": "^26.6.1",
-    "jest-dynalite": "^3.3.1"
+    "jest-dynalite": "3.2.5"
   },
   "peerDependencies": {
     "graphql": "^15.0.0"

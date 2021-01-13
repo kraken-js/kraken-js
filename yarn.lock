@@ -9,13 +9,6 @@
   dependencies:
     tslib "~2.0.1"
 
-"@aws/dynamodb-auto-marshaller@^0.7.1":
-  version "0.7.1"
-  resolved "https://registry.yarnpkg.com/@aws/dynamodb-auto-marshaller/-/dynamodb-auto-marshaller-0.7.1.tgz#70676c056e4ecb798c08ec2e398a3d93e703858d"
-  integrity sha512-LeURlf6/avrfFo9+4Yht9J3CUTJ72yoBpm1FOUmlexuHNW4Ka61tG30w3ZDCXXXmCO2rG0k3ywAgNJEo3WPbyw==
-  dependencies:
-    tslib "^1.8.1"
-
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.10.4", "@babel/code-frame@^7.12.11", "@babel/code-frame@^7.8.3":
   version "7.12.11"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.12.11.tgz#f4ad435aa263db935b8f10f2c552d23fb716a63f"
@@ -3834,12 +3827,11 @@ jest-docblock@^26.0.0:
   dependencies:
     detect-newline "^3.0.0"
 
-jest-dynalite@^3.3.1:
-  version "3.3.1"
-  resolved "https://registry.yarnpkg.com/jest-dynalite/-/jest-dynalite-3.3.1.tgz#4f7e550a424abd5aced477636219b75d71ab525a"
-  integrity sha512-Wg+mfBYxRGoPAB3MLSHJvEL7G2dSJAq6hEQZ1gIqc3lm/4mqlSoiUW5ZtO/HQld32nAFEUF1dgSjRXr1OJ44BQ==
+jest-dynalite@3.2.5:
+  version "3.2.5"
+  resolved "https://registry.yarnpkg.com/jest-dynalite/-/jest-dynalite-3.2.5.tgz#51fbdf347ff7f23590f89751b7c274c9f9b84199"
+  integrity sha512-C9otPr5KtPBlRULDaJVTDFZwGUxVTMeCLE9pgNV8i+XrcmNWCeFf4oeGBkdK7MDrP+47P55HnFcGZzQIjUGmXg==
   dependencies:
-    "@aws/dynamodb-auto-marshaller" "^0.7.1"
     dynalite "^3.0.0"
 
 jest-each@^26.6.2:
