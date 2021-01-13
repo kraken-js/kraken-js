@@ -48,7 +48,7 @@ export const wsHandler = <T = any>(kraken: Kraken.Runtime): APIGatewayProxyHandl
     const routeKey = event.requestContext.routeKey as string;
     const connectionId = event.requestContext.connectionId as string;
     const connectedAt = event.requestContext.connectedAt as number;
-    const sourceIp = event.requestContext.identity?.sourceIp as string;
+    const sourceIp = event.requestContext.identity.sourceIp as string;
     const apiGatewayUrl = getApiGatewayUrl(event);
     const connectionInfo = { connectionId, connectedAt, apiGatewayUrl, sourceIp };
 
