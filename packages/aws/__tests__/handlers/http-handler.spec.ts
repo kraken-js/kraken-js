@@ -110,7 +110,10 @@ describe('AWS Http Handler', () => {
     const handler = httpHandler(krakenJs(testSchema), { cors: {} });
     const response = await handler({
       requestContext: {
-        connectionId: '1241234'
+        connectionId: '1241234',
+        identity: {
+          sourceIp: '0.0.0.0'
+        }
       },
       body: JSON.stringify({
         query: 'XXXXX',

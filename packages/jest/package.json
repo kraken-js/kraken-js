@@ -10,7 +10,7 @@
     "publish": "echo 'not yeat implemented'"
   },
   "dependencies": {
-    "@types/jest": "^26.0.0",
+    "@types/jest": "^26.0.20",
     "@types/node": "14.14.20",
     "dotenv": "^8.2.0",
     "graphql-tag": "^2.10.3",

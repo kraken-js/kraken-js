@@ -1,4 +1,4 @@
-import { GQL_COMPLETE, GQL_CONNECTION_ACK, GQL_DATA, krakenJs, KrakenSchema } from '@kraken.js/core';
+import { GQL_COMPLETE, GQL_CONNECTION_ACK, GQL_DATA, KrakenConfig, krakenJs, KrakenSchema } from '@kraken.js/core';
 import { mockRootPlugins } from './utils';
 
 describe('Kraken Operations', () => {
@@ -26,7 +26,7 @@ describe('Kraken Operations', () => {
     })
   };
 
-  const setup = (...extraSchemas: KrakenSchema[]) => {
+  const setup = (extraSchemas: KrakenSchema[], config?: KrakenConfig) => {
     return krakenJs([
       { plugins: mockRootPlugins },
       {
@@ -55,7 +55,7 @@ describe('Kraken Operations', () => {
         }
       },
       ...extraSchemas
-    ]);
+    ], config);
   };
 
   it.each([
@@ -73,7 +73,7 @@ describe('Kraken Operations', () => {
       }
     };
 
-    const kraken = setup(pubStrategy, extraSchema);
+    const kraken = setup([pubStrategy, extraSchema], { batchResponses: true });
     const connection = connectionInfo();
 
     await kraken.onGqlInit(connection, {
@@ -99,7 +99,7 @@ describe('Kraken Operations', () => {
   });
 
   it('should not add __typename to raw fields', async () => {
-    const kraken = setup(asIsPubStrategy);
+    const kraken = setup([asIsPubStrategy], { batchResponses: true });
     const connection = connectionInfo();
 
     await kraken.onGqlInit(connection, {
@@ -124,8 +124,39 @@ describe('Kraken Operations', () => {
     });
   });
 
+  it('should not batch responses by default', async () => {
+    const kraken = setup([]);
+    const connection = connectionInfo();
+
+    await kraken.onGqlInit(connection, {
+      type: 'connection_init',
+      payload: {}
+    });
+    await kraken.onGqlStart(connection, {
+      id: '2',
+      type: 'start',
+      payload: { query: 'mutation { sendMessage(channel: "general", message: "hi") { channel message } }' }
+    });
+
+    expect(kraken.$connections.send).toHaveBeenCalledTimes(3);
+    // connection accepted
+    expect(kraken.$connections.send).toHaveBeenCalledWith(connection, {
+      type: GQL_CONNECTION_ACK
+    });
+    // mutation response (not batched)
+    expect(kraken.$connections.send).toHaveBeenCalledWith(expect.objectContaining(connection), {
+      id: '2',
+      type: GQL_DATA,
+      payload: { data: { sendMessage: { channel: 'general', message: 'hi' } } }
+    });
+    expect(kraken.$connections.send).toHaveBeenCalledWith(expect.objectContaining(connection), {
+      id: '2',
+      type: GQL_COMPLETE
+    });
+  });
+
   it('should execute successfully full cycle operations using BROADCASTER strategy', async () => {
-    const kraken = setup(broadcasterPubStrategy);
+    const kraken = setup([broadcasterPubStrategy], { batchResponses: true });
     const connection = connectionInfo();
 
     await kraken.onGqlInit(connection, {
@@ -143,21 +174,20 @@ describe('Kraken Operations', () => {
       payload: { query: 'mutation { sendMessage(channel: "general", message: "hi") { channel message } }' }
     });
 
-    expect(kraken.$connections.send).toHaveBeenCalledTimes(3);
+    expect(kraken.$connections.send).toHaveBeenCalledTimes(2);
     // connection accepted
     expect(kraken.$connections.send).toHaveBeenCalledWith(connection, {
       type: GQL_CONNECTION_ACK
     });
     // mutation response
-    expect(kraken.$connections.send).toHaveBeenCalledWith(expect.objectContaining(connection), {
+    expect(kraken.$connections.send).toHaveBeenCalledWith(expect.objectContaining(connection), [{
       id: '2',
       type: GQL_DATA,
       payload: { data: { sendMessage: { channel: 'general', message: 'hi' } } }
-    });
-    expect(kraken.$connections.send).toHaveBeenCalledWith(expect.objectContaining(connection), {
+    }, {
       id: '2',
       type: GQL_COMPLETE
-    });
+    }]);
 
     expect(kraken.$broadcaster.broadcast).toHaveBeenCalledWith('onMessage#{channel}', {
       channel: 'general',
@@ -170,7 +200,7 @@ describe('Kraken Operations', () => {
     ['GRAPHQL', graphqlPubStrategy]
   ])('should execute successfully full cycle operations using %s strategy',
     async (_: Kraken.PublishingStrategy, pubStrategy: KrakenSchema) => {
-      const kraken = setup(pubStrategy);
+      const kraken = setup([pubStrategy], { batchResponses: true });
       const connection = connectionInfo();
       const numOfSubscriptions = 111;
 
@@ -220,15 +250,14 @@ describe('Kraken Operations', () => {
         payload: { data: { onMessage: { channel: expect.any(String), message: 'hi' } } }
       });
       // mutation response
-      expect(kraken.$connections.send).toHaveBeenCalledWith(expect.objectContaining(connection), {
+      expect(kraken.$connections.send).toHaveBeenCalledWith(expect.objectContaining(connection), [{
         id: '3',
         type: GQL_DATA,
         payload: { data: { sendMessage: { channel: 'general', message: 'hi' } } }
-      });
-      expect(kraken.$connections.send).toHaveBeenCalledWith(expect.objectContaining(connection), {
+      }, {
         id: '3',
         type: GQL_COMPLETE
-      });
+      }]);
       // stop subscription
       expect(kraken.$connections.send).toHaveBeenCalledWith(expect.objectContaining(connection), {
         id: '2',
@@ -266,7 +295,7 @@ describe('Kraken Operations', () => {
       }
     };
 
-    const kraken = setup(extraSchema);
+    const kraken = setup([extraSchema], { batchResponses: true });
     const connection = connectionInfo();
 
     await kraken.onGqlInit(connection, {
@@ -324,7 +353,7 @@ describe('Kraken Operations', () => {
       }
     };
 
-    const kraken = setup(extraSchema);
+    const kraken = setup([extraSchema], { batchResponses: true });
     const connection = connectionInfo();
 
     await kraken.onGqlInit(connection, {
@@ -353,7 +382,7 @@ describe('Kraken Operations', () => {
     });
 
     // connection init, mutation 1 + completed, mutation 2 + completed, subscription 1.1 response (not subscription 2.1)
-    expect(kraken.$connections.send).toHaveBeenCalledTimes(6);
+    expect(kraken.$connections.send).toHaveBeenCalledTimes(4);
     expect(kraken.$connections.send).toHaveBeenCalledWith(expect.objectContaining(connection), {
       id: '1.1',
       type: GQL_DATA,
@@ -390,7 +419,7 @@ describe('Kraken Operations', () => {
       }
     };
 
-    const kraken = setup(extraSchema);
+    const kraken = setup([extraSchema], { batchResponses: true });
     const connection = connectionInfo();
 
     await kraken.onGqlInit(connection, {

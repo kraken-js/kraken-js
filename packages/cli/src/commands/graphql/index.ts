@@ -4,7 +4,7 @@ export const graphql = async ({ kraken }, { spinner, toolbox }) => {
   const { filesystem, patching } = toolbox;
   spinner && (spinner.text = 'generating graphql modules...');
 
-  const { graphqlSchemaFile = 'src/schema.ts' } = kraken;
+  const { graphqlSchemaFile = 'src/schema.ts', batchMessages = false } = kraken;
   filesystem.remove(graphqlSchemaFile);
   filesystem.write(graphqlSchemaFile, ''); // touch
 
@@ -19,7 +19,10 @@ export const graphql = async ({ kraken }, { spinner, toolbox }) => {
   await patching.append(graphqlSchemaFile, `export const krakenSchema = krakenJs([\n\t`);
   await patching.append(graphqlSchemaFile, modulesStrings.join(',\n\t'));
   await patching.append(graphqlSchemaFile, `\n`);
-  await patching.append(graphqlSchemaFile, `]);`);
+
+  const options = `{ batchMessages: ${batchMessages} }`;
+  await patching.append(graphqlSchemaFile, `], ${options});`);
   await patching.append(graphqlSchemaFile, `\n`);
+
   spinner.stopAndPersist({ symbol: '✅', text: 'schema file is ready' });
 };

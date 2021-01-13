@@ -36,7 +36,7 @@
     "import-cwd": "^3.0.0"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.10",
+    "@types/jest": "^26.0.20",
     "@types/node": "^14.14.20",
     "jest": "^26.6.1",
     "prettier": "^2.1.1",

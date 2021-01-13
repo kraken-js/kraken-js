@@ -125,7 +125,7 @@ describe('@put && @update', () => {
         path: ['sendMessage']
       }]
     ]
-  ])('should fail to item on dynamodb for mutation %s', async (document, errors) => {
+  ])('should fail to update item on dynamodb for mutation %s', async (document, errors) => {
     const krakenRuntime = setupKrakenRuntime(testSchema);
     const response = await krakenRuntime.gqlExecute({ operationId: '1', document });
     expect(response).toEqual({ data: null, errors });
