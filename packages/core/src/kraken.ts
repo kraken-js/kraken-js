@@ -167,7 +167,7 @@ export const krakenJs = <T>(schemaConfig: KrakenSchemas, config?: KrakenConfig):
     if (response.errors) {
       response.errors.forEach(error => {
         if (error.originalError?.stack) {
-          logger.error(error.originalError.stack);
+          logger && logger.error(error.originalError.stack);
         }
       });
     }
