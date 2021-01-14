@@ -165,6 +165,7 @@ export const krakenJs = <T>(schemaConfig: KrakenSchemas, config?: KrakenConfig):
     });
 
     if (response.errors) {
+      logger && logger.error('Error executing document: ' + document);
       response.errors.forEach(error => {
         if (error.originalError?.stack) {
           logger && logger.error(error.originalError.stack);

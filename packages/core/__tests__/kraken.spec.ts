@@ -1,5 +1,5 @@
 import { krakenJs } from '@kraken.js/core';
-import { parse } from 'graphql';
+import { GraphQLError, parse } from 'graphql';
 import gql from 'graphql-tag';
 import { mockRootPlugins } from './utils';
 
@@ -19,6 +19,27 @@ describe('Kraken', () => {
     await onGqlInit({ connectionId }, gqlInitOperation);
     const response = await gqlExecute({ connectionInfo, operationId, document: parse('query { hello }') });
     expect(response).toEqual({ data: { hello: 'hello world' } });
+  });
+
+  it('should execute simple graphql operation (with error)', async () => {
+    const { gqlExecute, onGqlInit } = krakenJs({
+      plugins: mockRootPlugins,
+      typeDefs: gql('type Query { error: String }'),
+      resolvers: {
+        Query: {
+          error: () => {
+            throw new GraphQLError('error');
+          }
+        }
+      }
+    });
+
+    await onGqlInit({ connectionId }, gqlInitOperation);
+    const response = await gqlExecute({ connectionInfo, operationId, document: parse('query { error }') });
+    expect(response).toEqual({
+      data: { error: null },
+      errors: [new GraphQLError('error')]
+    });
   });
 
   it('should execute merged graphql operation', async () => {
