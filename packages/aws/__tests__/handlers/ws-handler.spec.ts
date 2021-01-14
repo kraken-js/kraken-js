@@ -139,8 +139,10 @@ describe('AWS Websocket Handler', () => {
       ConnectionId: connectionId,
       Data: JSON.stringify({
         type: GQL_CONNECTION_ERROR,
-        reason: 'Connection ' + connectionId + ' not found',
-        request: JSON.stringify(request)
+        payload: {
+          reason: 'Connection ' + connectionId + ' not found',
+          request: JSON.stringify(request)
+        }
       })
     });
   });
