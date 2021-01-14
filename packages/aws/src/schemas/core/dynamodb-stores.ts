@@ -135,7 +135,7 @@ export const dynamoDbSubscriptionStore = (config: AwsSchemaConfig) => {
     const save = async subscription => {
       const { operationId, triggerName } = subscription;
 
-      // make operation unique tp allow many subscriptions one same operation
+      // make operation unique to allow many subscriptions one same operation
       const item = {
         ...subscription,
         operationId: operationId + '#' + triggerName,
