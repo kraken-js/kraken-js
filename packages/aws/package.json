@@ -30,7 +30,7 @@
     "aws-lambda": "^1.0.6",
     "aws-sdk": "2.771.0",
     "dataloader": "^2.0.0",
-    "dynongo": "^0.17.0",
+    "dynongo": "^0.18.0",
     "graphql-playground-middleware-lambda": "^1.7.22",
     "nanoid": "^3.1.16",
     "yn": "^4.0.0"
@@ -40,7 +40,7 @@
     "@kraken.js/webpack": "0.0.6",
     "@types/aws-lambda": "^8.10.70",
     "jest": "^26.6.1",
-    "jest-dynalite": "3.2.5"
+    "jest-dynalite": "3.3.1"
   },
   "peerDependencies": {
     "graphql": "^15.0.0"
