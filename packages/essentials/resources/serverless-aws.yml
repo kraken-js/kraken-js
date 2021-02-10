@@ -3,7 +3,7 @@ plugins:
 
 provider:
   name: aws
-  runtime: nodejs12.x
+  runtime: nodejs14.x
   timeout: 7 # seconds
   memorySize: 1792 # Mb - 1 vCpu
   stage: ${opt:stage, 'dev'}
