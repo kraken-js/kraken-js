@@ -1,4 +1,5 @@
 import { DynamoDbSet } from '@kraken.js/aws/src/schemas/core/resolvers/aws-dynamo-set-scalar';
+import 'aws-sdk';
 import DynamoDBSet from 'aws-sdk/lib/dynamodb/set';
 
 describe('AWS DynamoDB Set Scalar', () => {
