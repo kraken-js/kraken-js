@@ -26,13 +26,13 @@
     "*.yml"
   ],
   "dependencies": {
-    "@graphql-tools/merge": "^6.2.10",
+    "@graphql-tools/merge": "^6.2.13",
     "@graphql-tools/schema": "^7.0.0"
   },
   "devDependencies": {
     "@kraken.js/jest": "0.0.6",
     "@kraken.js/webpack": "0.0.6",
-    "@types/aws-lambda": "^8.10.72",
+    "@types/aws-lambda": "^8.10.75",
     "jest": "^26.6.1"
   },
   "peerDependencies": {
