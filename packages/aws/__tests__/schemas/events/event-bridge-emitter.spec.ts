@@ -27,6 +27,33 @@ describe('Event Bridge Emitter', () => {
     });
   });
 
+  it('should emit event and clean queue', async () => {
+    await eventBridgeEmitter($context)
+      .put({ source: '@kraken.js', type: 'test.unit', payload: { a: 1 } })
+      .send();
+    await eventBridgeEmitter($context)
+      .put({ source: '@kraken.js', type: 'test.unit', payload: { a: 2 } })
+      .send();
+
+    expect($context.$eventBridge.putEvents).toHaveBeenCalledTimes(2);
+    expect($context.$eventBridge.putEvents).toHaveBeenNthCalledWith(1, {
+      Entries: [{
+        EventBusName: process.env.EVENT_BUS_NAME,
+        Source: '@kraken.js',
+        DetailType: 'test.unit',
+        Detail: JSON.stringify({ a: 1 })
+      }]
+    });
+    expect($context.$eventBridge.putEvents).toHaveBeenNthCalledWith(2, {
+      Entries: [{
+        EventBusName: process.env.EVENT_BUS_NAME,
+        Source: '@kraken.js',
+        DetailType: 'test.unit',
+        Detail: JSON.stringify({ a: 2 })
+      }]
+    });
+  });
+
   it('should emit single event to different event bus', async () => {
     const payload = { customEventBus: true };
     await eventBridgeEmitter($context)
