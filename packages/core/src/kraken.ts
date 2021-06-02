@@ -1,6 +1,6 @@
 import { mergeResolvers, mergeTypeDefs } from '@graphql-tools/merge';
 import { buildDocumentFromTypeDefinitions, makeExecutableSchema } from '@graphql-tools/schema';
-import { execute, OperationDefinitionNode, parse } from 'graphql';
+import { execute, OperationDefinitionNode, parse, print } from 'graphql';
 import { PromiseOrValue } from 'graphql/jsutils/PromiseOrValue';
 import { GQL_COMPLETE, GQL_CONNECTION_ACK, GQL_DATA } from './constants';
 // @ts-ignore
@@ -165,7 +165,7 @@ export const krakenJs = <T>(schemaConfig: KrakenSchemas, config?: KrakenConfig):
     });
 
     if (response.errors) {
-      logger && logger.error('Error executing document: ' + JSON.stringify(document));
+      logger && logger.error('Error executing document: ' + print(document));
       response.errors.forEach(error => {
         if (error.originalError?.stack) {
           logger && logger.error(error.originalError.stack);
