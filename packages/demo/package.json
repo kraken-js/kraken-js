@@ -24,6 +24,6 @@
     "@kraken.js/serverless": "0.0.6",
     "@kraken.js/webpack": "0.0.6",
     "serverless-dynamodb-local": "^0.2.39",
-    "serverless-offline": "^6.9.0"
+    "serverless-offline": "^7.0.0"
   }
 }
