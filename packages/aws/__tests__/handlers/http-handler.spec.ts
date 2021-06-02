@@ -28,7 +28,8 @@ describe('AWS Http Handler', () => {
         'Access-Control-Allow-Credentials': true,
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
-        'Access-Control-Allow-Origin': '*'
+        'Access-Control-Allow-Origin': '*',
+        'Cache-Control': 'private, max-age=600'
       }
     });
   });
@@ -49,7 +50,8 @@ describe('AWS Http Handler', () => {
         'Access-Control-Allow-Headers': 'hs',
         'Access-Control-Allow-Methods': 'ms',
         'Access-Control-Allow-Origin': 'or',
-        'Access-Control-Allow-Credentials': true
+        'Access-Control-Allow-Credentials': true,
+        'Cache-Control': 'private, max-age=600'
       }
     });
   });

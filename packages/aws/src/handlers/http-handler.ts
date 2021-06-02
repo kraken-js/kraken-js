@@ -42,6 +42,7 @@ export const httpHandler = <T = any>(kraken: Kraken.Runtime, config?: HttpHandle
         statusCode: 200,
         body: '',
         headers: {
+          'Cache-Control': 'private, max-age=600', // 10 min cache
           ...cors
         }
       };
