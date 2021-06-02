@@ -57,7 +57,17 @@ describe('kraken.js', () => {
           SLS_WARNING_DISABLE: '*'
         }
       });
-      const output = stdout.split('\n').filter(l => !l.includes('')).join('\n'); // remove sls warnings
+
+      // remove sls warnings
+      const output = stdout
+        .split('\n')
+        .filter(line => {
+          return !line.includes('Deprecation warning')
+            && !line.includes('More Info:')
+            && !line.includes('"provider.iamRoleStatements"')
+            && !line.includes('"provider.apiGateway.shouldStartNameWithService"');
+        })
+        .join('\n');
       expect(output).toMatchSnapshot();
     });
 
