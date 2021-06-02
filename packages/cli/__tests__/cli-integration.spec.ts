@@ -1,4 +1,5 @@
 const { system, filesystem } = require('gluegun');
+const execa = require('execa');
 
 const projectName = 'electric-wolf';
 const src = filesystem.path(__dirname, '..');
@@ -47,12 +48,16 @@ describe('kraken.js', () => {
     }, timeout);
 
     test('serverless print --stage offline', async () => {
-      const output = await system.exec('serverless print --stage offline', {
+      const { stdout } = execa.commandSync('serverless print --stage offline', {
+        shell: true,
+        stdio: 'pipe',
+        preferLocal: true,
         env: {
           CI: 'true',
           SLS_WARNING_DISABLE: '*'
         }
-      }).catch(console.error);
+      });
+      const output = stdout.split('\n').filter(l => !l.includes('')).join('\n'); // remove sls warnings
       expect(output).toMatchSnapshot();
     });
 

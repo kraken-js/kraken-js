@@ -31,7 +31,7 @@ const setupKrakenRuntime = (extraSchema: KrakenSchema) => {
 describe('@lambda', () => {
   it.each([
     [
-      `type Query { _: String @lambda(name: "$thisIsMyFullName") }`,
+      `type Query { _: String @lambda(name: "$thisIsMyFullName" shouldParse: false) }`,
       `query { _ }`,
       'thisIsMyFullName'
     ],

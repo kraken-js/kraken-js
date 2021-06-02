@@ -1,10 +1,39 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`kraken.js After Generate Project serverless print --stage offline 1`] = `
-"service: electric-wolf-kraken
+"service:
+  name: electric-wolf-kraken
 configValidationMode: 'off'
 provider:
+  stage: offline
+  region: us-east-1
   name: aws
+  versionFunctions: false
+  runtime: nodejs14.x
+  timeout: 7
+  memorySize: 1792
+  logRetentionInDays: 7
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - lambda:InvokeAsync
+        - lambda:InvokeFunction
+      Resource: '*'
+  stackTags:
+    service: electric-wolf-kraken
+    stage: offline
+    region: us-east-1
+    version: 1.0.0
+  environment:
+    STAGE: offline
+    REGION: us-east-1
+    SERVICE: electric-wolf-kraken
+    VERSION: 1.0.0
+    AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
+    ROOT_DOT_ENV: '1'
+    IS_OFFLINE: 'true'
+    OFFLINE_DOT_ENV: '1'
+  variableSyntax: \\\\\${([^{}:]+?(?:\\\\(|:)(?:[^:{}][^{}]*?)?)}
 plugins:
   - serverless-pseudo-parameters
   - serverless-webpack
