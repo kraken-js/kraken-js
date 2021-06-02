@@ -64,7 +64,6 @@ describe('kraken.js', () => {
         .filter(line => {
           return !line.includes('Deprecation warning')
             && !line.includes('More Info:')
-            && !line.includes('"provider.iamRoleStatements"')
             && !line.includes('"provider.apiGateway.shouldStartNameWithService"');
         })
         .join('\n');
