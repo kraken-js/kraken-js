@@ -20,14 +20,14 @@
     "LICENSE"
   ],
   "dependencies": {
-    "serverless": "2.28.0",
     "cosmiconfig": "^7.0.0",
-    "ncjsm": "^4.2.0"
+    "ncjsm": "^4.2.0",
+    "serverless": "2.49.0"
   },
   "devDependencies": {
     "@kraken.js/jest": "0.0.6",
-    "@types/serverless": "^1.78.28",
+    "@types/serverless": "^1.78.29",
     "dotenv": "^10.0.0",
-    "jest": "^27.0.3"
+    "jest": "^27.0.6"
   }
 }

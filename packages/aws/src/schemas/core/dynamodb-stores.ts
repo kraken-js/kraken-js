@@ -15,7 +15,7 @@ const waitFor = async (millis: number) => {
   return new Promise(resolve => setTimeout(resolve, millis));
 };
 
-const getTtl = (seconds = 7200) => { // 2 hours
+const getTtl = (seconds = 14400) => { // 4 hours
   return Math.floor(Date.now() / 1000) + seconds;
 };
 
