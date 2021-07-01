@@ -64,8 +64,7 @@ describe('kraken.js', () => {
         .filter(line => {
           return !line.includes('Deprecation warning')
             && !line.includes('More Info:')
-            && !line.includes('"provider.apiGateway.shouldStartNameWithService"')
-            && !line.includes('variableSyntax');
+            && !line.includes('"provider.apiGateway.shouldStartNameWithService"');
         })
         .join('\n');
       expect(output).toMatchSnapshot();
