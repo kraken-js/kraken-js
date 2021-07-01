@@ -35,7 +35,6 @@ provider:
     ROOT_DOT_ENV: '1'
     IS_OFFLINE: 'true'
     OFFLINE_DOT_ENV: '1'
-  variableSyntax: \\\\\${([^{}:]+?(?:\\\\(|:)(?:[^:{}][^{}]*?)?)}
 plugins:
   - serverless-pseudo-parameters
   - serverless-webpack

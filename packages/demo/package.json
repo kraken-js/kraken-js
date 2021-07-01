@@ -17,13 +17,13 @@
   "dependencies": {
     "@kraken.js/aws": "0.0.6",
     "@kraken.js/core": "0.0.6",
-    "graphql": "^15.4.0"
+    "graphql": "^15.5.1"
   },
   "devDependencies": {
     "@kraken.js/essentials": "0.0.6",
     "@kraken.js/serverless": "0.0.6",
     "@kraken.js/webpack": "0.0.6",
-    "serverless-dynamodb-local": "^0.2.39",
+    "serverless-dynamodb-local": "^0.2.40",
     "serverless-offline": "^7.0.0"
   }
 }

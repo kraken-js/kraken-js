@@ -32,8 +32,8 @@
   "devDependencies": {
     "@kraken.js/jest": "0.0.6",
     "@kraken.js/webpack": "0.0.6",
-    "@types/aws-lambda": "^8.10.76",
-    "jest": "^27.0.3"
+    "@types/aws-lambda": "^8.10.77",
+    "jest": "^27.0.6"
   },
   "peerDependencies": {
     "graphql": "^15.0.0"
